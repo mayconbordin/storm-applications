@@ -1,0 +1,50 @@
+package org.storm.applications.bolt;
+
+import org.storm.applications.model.LogEntry;
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
+import org.apache.log4j.Logger;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+import org.storm.applications.LogProcessingConstants.Field;
+
+/**
+ * This bolt will count number of log events per minute
+ */
+public class VolumeCountBolt extends BaseRichBolt {
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOG = Logger.getLogger(VolumeCountBolt.class);
+
+    private OutputCollector collector;
+
+    public static Long getMinuteForTime(Date time) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(time);
+        c.set(Calendar.SECOND,0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTimeInMillis();
+    }
+
+    @Override
+    public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
+        this.collector = outputCollector;
+    }
+
+    @Override
+    public void execute(Tuple tuple) {
+        LogEntry entry = (LogEntry) tuple.getValueByField(Field.LOG_ENTRY);
+        collector.emit(new Values(getMinuteForTime(entry.getTimestamp()), entry.getSource(), 1L));
+    }
+
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+        outputFieldsDeclarer.declare(new Fields(Field.LOG_TIMESTAMP, Field.LOG_COLUMN, Field.LOG_INCREMENT));
+    }
+}
