@@ -73,7 +73,4 @@ may be replaced by other ads as a response to a decreasing CTR.
 | TT, SA | [Twitter Streaming](https://dev.twitter.com/docs/api/streaming) | — |
 | MO | [Google Cluster Traces](http://code.google.com/p/googleclusterdata/) | 36GB (compressed)
 | CA, LP | [1998 World Cup Web Site Http Logs](http://ita.ee.lbl.gov/html/contrib/WorldCup.html) | 104GB |
-| SF | [TREC 2007 Public Spam Corpus](http://plg.uwaterloo.ca/~gvcormac/spam/) | 547MB (labeled) |
-|    | [SPAM Archive by Bruce Guenter](http://untroubled.org/spam/) | ~1.2GB (spam only) |
-|    | [Enron Email Dataset](http://www.cs.cmu.edu/~./enron/) | 2.6GB (raw) |
-|    | [Enron Spam Dataset](http://nlp.cs.aueb.gr/software_and_datasets/Enron-Spam/index.html) | 50MB (labeled) |
+| SF | <p>[TREC 2007 Public Spam Corpus](http://plg.uwaterloo.ca/~gvcormac/spam/)</P><p>[SPAM Archive by Bruce Guenter](http://untroubled.org/spam/)</p><p>[Enron Email Dataset](http://www.cs.cmu.edu/~./enron/)</p><p>[Enron Spam Dataset](http://nlp.cs.aueb.gr/software_and_datasets/Enron-Spam/index.html)</p> | <p>547MB (labeled)</p><p>~1.2GB (spam only)</p><p>2.6GB (raw)</p><p>50MB (labeled)</p> |
