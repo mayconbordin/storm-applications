@@ -89,12 +89,7 @@
             <artifactId>storm-cassandra</artifactId>
             <version>0.4.0-rc4</version>
         </dependency>
-            
-            
     </dependencies>
-    
-    
-    
     
     <build>
         <plugins>
@@ -136,15 +131,11 @@
         </plugins>
     </build>
     
-    
-    
-    
     <profiles>
         <profile>
             <id>local</id>
             <build>
-                <!--<directory>/home/maycon/tmp/stream-applications/${project.name}</directory>-->
-                <directory>/home/mayconbordin/tmp/stream-applications/${project.name}</directory>
+                <directory>~/tmp/stream-applications/${project.name}</directory>
             </build>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -154,7 +145,6 @@
                     <groupId>storm</groupId>
                     <artifactId>storm</artifactId>
                     <version>0.9.0.1</version>
-                    
                     <exclusions>
                         <exclusion>
                             <groupId>org.slf4j</groupId>
