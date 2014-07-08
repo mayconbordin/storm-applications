@@ -134,9 +134,6 @@
     <profiles>
         <profile>
             <id>local</id>
-            <build>
-                <directory>~/tmp/stream-applications/${project.name}</directory>
-            </build>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
