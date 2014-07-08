@@ -23,3 +23,4 @@ eclipse-build
 ## netbeans ignores
 nb-configuration.xml
 nbactions.xml
+/word-count/~/tmp/stream-applications/word-count/
