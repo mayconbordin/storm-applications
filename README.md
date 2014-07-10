@@ -3,6 +3,25 @@ storm-applications
 
 A collection of real-time applications built with Apache Storm.
 
+## Usage
+
+### Build
+
+```bash
+git clone git@github.com:mayconbordin/storm-applications.git
+cd storm-applications
+mvn -Plocal package
+```
+
+Use the `local` profile to run the applications local mode or `cluster` to run in a remote cluster.
+
+### Run an Example
+
+```bash
+java -jar target/storm-applications-*-with-dependencies.jar --app machine-outlier
+```
+
+
 ## Applications
 
 ### Wordcount (WC)
