@@ -9,13 +9,13 @@ A collection of real-time applications built with Apache Storm.
 
 ```bash
 git clone git@github.com:mayconbordin/storm-applications.git
-cd storm-applications
+cd storm-applications/
 mvn -Plocal package
 ```
 
-Use the `local` profile to run the applications local mode or `cluster` to run in a remote cluster.
+Use the `local` profile to run the applications in local mode or `cluster` to run in a remote cluster.
 
-### Run an Example
+### Run
 
 ```bash
 java -jar target/storm-applications-*-with-dependencies.jar --app machine-outlier
