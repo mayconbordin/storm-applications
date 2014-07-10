@@ -6,14 +6,37 @@ import backtype.storm.StormSubmitter;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
+import com.google.common.collect.Lists;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.Properties;
+import java.util.Random;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.topology.AbstractTopology;
+import storm.applications.topology.AdsAnalyticsTopology;
+import storm.applications.topology.BargainIndexTopology;
+import storm.applications.topology.ClickAnalyticsTopology;
+import storm.applications.topology.FraudDetectionTopology;
+import storm.applications.topology.LinearRoadTopology;
+import storm.applications.topology.LogProcessingTopology;
+import storm.applications.topology.MachineOutlierTopology;
+import storm.applications.topology.ReinforcementLearnerTopology;
+import storm.applications.topology.SentimentAnalysisTopology;
+import storm.applications.topology.SpamFilterTopology;
+import storm.applications.topology.SpikeDetectionTopology;
+import storm.applications.topology.TrendingTopicsTopology;
+import storm.applications.topology.VoIPSTREAMTopology;
+import storm.applications.topology.WordCountTopology;
+import storm.applications.util.DataTypeUtils;
 
 /**
  * Utility class to run a Storm topology
@@ -23,59 +46,101 @@ public class StormRunner {
     private static final Logger LOG = LoggerFactory.getLogger(StormRunner.class);
     private static final String RUN_LOCAL  = "local";
     private static final String RUN_REMOTE = "remote";
+    private static final String CFG_PATH = "/config/%s.properties";
     
-    /**
-     * 
-     * @param args <run-mode>           The mode in which the topology will run: local or remote
-     *             <topology-class>     The full name of the topology class to be executed
-     *             <config-file>        The full path to the configuration file (.properties)
-     *            [<runtimeInSeconds>   For how much time the topology will run (local only)]
-     * @throws Exception 
-     */
+    @Parameter
+    public List<String> parameters = Lists.newArrayList();
+    
+    @Parameter(names = {"-m", "--mode"}, description = "Mode for running the topology")
+    public String mode = "local";
+    
+    @Parameter(names = {"-a", "--app"}, description = "The application to be executed")
+    public String application;
+    
+    @Parameter(names = {"-t", "--topology-name"}, required = false, description = "The name of the topology")
+    public String topologyName;
+    
+    @Parameter(names = {"-c", "--config"}, required = false, description = "Path to the configuration file for the application")
+    public String configFile;
+    
+    @Parameter(names = {"-r", "--runtime"}, description = "Runtime in seconds for the topology (local mode only)")
+    public int runtimeInSeconds = 300;
+    
+    private final AppDriver driver;
+    private Config config;
+
+    public StormRunner() {
+        driver = new AppDriver();
+        
+        driver.addApp("ads-analytics"        , AdsAnalyticsTopology.class);
+        driver.addApp("bargain-index"        , BargainIndexTopology.class);
+        driver.addApp("click-analytics"      , ClickAnalyticsTopology.class);
+        driver.addApp("fraud-detection"      , FraudDetectionTopology.class);
+        driver.addApp("linear-road"          , LinearRoadTopology.class);
+        driver.addApp("log-processing"       , LogProcessingTopology.class);
+        driver.addApp("machine-outlier"      , MachineOutlierTopology.class);
+        driver.addApp("reinforcement-learner", ReinforcementLearnerTopology.class);
+        driver.addApp("sentiment-analysis"   , SentimentAnalysisTopology.class);
+        driver.addApp("spam-filter"          , SpamFilterTopology.class);
+        driver.addApp("spike-detection"      , SpikeDetectionTopology.class);
+        driver.addApp("trending-topics"      , TrendingTopicsTopology.class);
+        driver.addApp("voipstream"           , VoIPSTREAMTopology.class);
+        driver.addApp("word-count"           , WordCountTopology.class);
+    }
+    
+    public void run() throws InterruptedException, AlreadyAliveException, InvalidTopologyException {
+        // Loads the configuration file set by the user or the default configuration
+        try {
+            String cfg = (configFile == null) ? String.format(CFG_PATH, application) : configFile;
+            Properties p = loadProperties(cfg, (configFile == null));
+            
+            config = toConfig(p);
+            LOG.info("Loaded configuration file {}", cfg);
+        } catch (IOException ex) {
+            throw new RuntimeException("Unable to load configuration file", ex);
+        }
+        
+        // Get the descriptor for the given application
+        AppDriver.AppDescriptor app = driver.getApp(application);
+        if (app == null) {
+            throw new RuntimeException("The given application name "+application+" is invalid");
+        }
+        
+        // In case no topology names is given, create one
+        if (topologyName == null) {
+            topologyName = String.format("%s-%d", application, new Random().nextInt());
+        }
+        
+        // Get the topology and execute on Storm
+        StormTopology stormTopology = app.getTopology(topologyName, config);
+        
+        switch (mode) {
+            case RUN_LOCAL:
+                runTopologyLocally(stormTopology, topologyName, config, runtimeInSeconds);
+                break;
+            case RUN_REMOTE:
+                runTopologyRemotely(stormTopology, topologyName, config);
+                break;
+            default:
+                throw new RuntimeException("Valid running modes are 'local' and 'remote'");
+        }
+    }
+    
     public static void main(String[] args) throws Exception {
-        if (args.length < 4) {
-            LOG.error("Usage: ... <run-mode> <topology-class> <topology-name> <config-file> [<runtimeInSeconds>]");
+        StormRunner runner = new StormRunner();
+        JCommander cmd = new JCommander(runner);
+        
+        try {
+            cmd.parse(args);
+        } catch (ParameterException ex) {
+            cmd.usage();
             System.exit(1);
         }
         
-        String runMode       = args[0];
-        String topologyClass = args[1];
-        String topologyName  = args[2];
-        String configFile    = args[3];
-        
-        Config config               = null;
-        StormTopology stormTopology = null;
-        int runtimeInSeconds       = 300;
-        
-        if (args.length > 4) {
-            runtimeInSeconds = Integer.parseInt(args[4]);
-        }
-        
         try {
-            config = loadConfig(configFile);
-        } catch (IOException ex) {
-            LOG.error("Unable to load configuration file", ex);
-            System.exit(2);
-        }
-        
-        try {
-            Constructor c = Class.forName(topologyClass).getConstructor(String.class, Config.class);
-            LOG.info("Loaded topology {}", topologyClass);
-            
-            AbstractTopology topology = (AbstractTopology) c.newInstance(topologyName, config);
-            topology.prepare();
-            stormTopology = topology.buildTopology();
-        } catch (ReflectiveOperationException ex) {
-            LOG.error("Unable to load topology class", ex);
-            System.exit(2);
-        }
-        
-        if (runMode.equals(RUN_LOCAL)) {
-            runTopologyLocally(stormTopology, topologyName, config, runtimeInSeconds);
-        } else if (runMode.equals(RUN_REMOTE)) {
-            runTopologyRemotely(stormTopology, topologyName, config);
-        } else {
-            LOG.error("Valid running modes are 'local' and 'remote'");
+            runner.run();
+        } catch (Exception ex) {
+            LOG.error(ex.getMessage(), ex.getCause());
         }
     }
     
@@ -89,11 +154,18 @@ public class StormRunner {
      */
     public static void runTopologyLocally(StormTopology topology, String topologyName,
             Config conf, int runtimeInSeconds) throws InterruptedException {
+        LOG.info("Starting Storm on local mode to run for {} seconds", runtimeInSeconds);
         LocalCluster cluster = new LocalCluster();
+        
+        LOG.info("Topology {} submitted", topologyName);
         cluster.submitTopology(topologyName, conf, topology);
         Thread.sleep((long) runtimeInSeconds * 1000);
+        
         cluster.killTopology(topologyName);
+        LOG.info("Topology {} finished", topologyName);
+        
         cluster.shutdown();
+        LOG.info("Local Storm cluster was shutdown", topologyName);
     }
 
     /**
@@ -109,26 +181,39 @@ public class StormRunner {
         StormSubmitter.submitTopology(topologyName, conf, topology);
     }
     
-    /**
-     * Creates a {@link Config} object by reading the properties file located at
-     * the fileName path.
-     * @param fileName The full path to the properties file
-     * @return the configuration file with the key/value pairs loaded
-     * @throws IOException 
-     */
-    public static Config loadConfig(String fileName) throws IOException {
-        Config config = new Config();
+    public static Properties loadProperties(String filename, boolean classpath) throws IOException {
         Properties properties = new Properties();
+        InputStream is;
         
-        InputStream is = new FileInputStream(fileName);
+        if (classpath) {
+            is = StormRunner.class.getResourceAsStream(filename);
+        } else {
+            is = new FileInputStream(filename);
+        }
+        
         properties.load(is);
         is.close();
         
+        return properties;
+    }
+    
+    public static Config toConfig(Properties properties) {
+        Config config = new Config();
+        
         for (String key : properties.stringPropertyNames()) {
             String value = properties.getProperty(key);
-            config.put(key, value);
+            
+            if (DataTypeUtils.isInteger(value)) {
+                config.put(key, Integer.parseInt(value));
+            } else if (NumberUtils.isNumber(value)) {
+                config.put(key, Double.parseDouble(value));
+            } else if (value.equals("true") || value.equals("false")) {
+                config.put(key, Boolean.parseBoolean(value));
+            } else {
+                config.put(key, value);
+            }
         }
         
-        return null;
+        return config;
     }
 }
