@@ -22,7 +22,7 @@ public class StockPriceSpout extends AbstractSpout {
     private static Logger LOG = LoggerFactory.getLogger(StockPriceSpout.class);
 
     private QuoteFetcher fetcher;
-    private LinkedBlockingQueue<Quote> queue;
+    protected LinkedBlockingQueue<Quote> queue;
     
     private String[] symbols;
     private int days;
