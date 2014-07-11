@@ -1,5 +1,6 @@
 package storm.applications.parser;
 
+import java.util.List;
 import storm.applications.model.metadata.MachineMetadata;
 import storm.applications.util.StreamValues;
 
@@ -14,7 +15,7 @@ public class GoogleTracesParser extends Parser {
     private static final int MEMORY     = 6;
     
     @Override
-    public StreamValues parse(String str) {
+    public List<StreamValues> parse(String str) {
         String[] items = str.split(",");
         
         if (items.length != 19)
@@ -29,6 +30,7 @@ public class GoogleTracesParser extends Parser {
         values.add(id);
         values.add(timestamp);
         values.add(new MachineMetadata(timestamp, id, cpu, memory));
-        return values;
+        
+        return list(values);
     }
 }

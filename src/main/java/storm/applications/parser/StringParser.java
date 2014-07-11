@@ -1,5 +1,6 @@
 package storm.applications.parser;
 
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +14,10 @@ public class StringParser extends Parser {
     private static final Logger LOG = LoggerFactory.getLogger(StringParser.class);
 
     @Override
-    public StreamValues parse(String str) {
+    public List<StreamValues> parse(String str) {
         if (StringUtils.isEmpty(str))
             return null;
         
-        return new StreamValues(str);
+        return list(new StreamValues(str));
     }
 }

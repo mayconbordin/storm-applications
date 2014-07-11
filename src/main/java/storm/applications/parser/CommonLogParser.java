@@ -1,6 +1,7 @@
 package storm.applications.parser;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +27,7 @@ public class CommonLogParser extends Parser {
     private static final int NUM_FIELDS = 8;
     
     @Override
-    public StreamValues parse(String str) {
+    public List<StreamValues> parse(String str) {
         Map<String, Object> entry = parseLine(str);
         
         if (entry == null) {
@@ -34,8 +35,10 @@ public class CommonLogParser extends Parser {
             return null;
         }
         
-        return new StreamValues(entry.get(IP), entry.get(TIMESTAMP), entry.get(REQUEST),
+        StreamValues values = new StreamValues(entry.get(IP), entry.get(TIMESTAMP), entry.get(REQUEST),
                 entry.get(RESPONSE), entry.get(BYTE_SIZE));
+        
+        return list(values);
     }
     
     public static Map<String, Object> parseLine(String logLine) {

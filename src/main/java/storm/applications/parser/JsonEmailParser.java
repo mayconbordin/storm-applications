@@ -2,6 +2,7 @@ package storm.applications.parser;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.util.StreamValues;
@@ -15,7 +16,7 @@ public class JsonEmailParser extends Parser {
     
     private final Gson gson = new Gson();
 
-    public StreamValues parse(String str) {
+    public List<StreamValues> parse(String str) {
         StreamValues values = null;
         
         try {
@@ -32,7 +33,7 @@ public class JsonEmailParser extends Parser {
             LOG.error("Error parsing JSON encoded email", ex);
         }
         
-        return values;
+        return list(values);
     }
     
     private static class Email {

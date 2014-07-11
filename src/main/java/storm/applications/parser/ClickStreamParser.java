@@ -2,6 +2,8 @@ package storm.applications.parser;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.util.StreamValues;
@@ -16,7 +18,7 @@ public class ClickStreamParser extends Parser {
     private final Gson gson = new Gson();
 
     @Override
-    public StreamValues parse(String input) {
+    public List<StreamValues> parse(String input) {
         StreamValues values = null;
         
         try {
@@ -26,7 +28,7 @@ public class ClickStreamParser extends Parser {
             LOG.error("Error parsing JSON encoded clickstream: " + input, ex);
         }
         
-        return values;
+        return list(values);
     }
     
     private static class ClickStream {

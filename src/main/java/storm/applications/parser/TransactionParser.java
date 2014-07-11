@@ -1,5 +1,6 @@
 package storm.applications.parser;
 
+import java.util.List;
 import storm.applications.util.StreamValues;
 
 /**
@@ -9,9 +10,9 @@ import storm.applications.util.StreamValues;
 public class TransactionParser extends Parser {
 
     @Override
-    public StreamValues parse(String input) {
+    public List<StreamValues> parse(String input) {
         String[] items = input.split(",", 2);
-        return new StreamValues(items[0], items[1]);
+        return list(new StreamValues(items[0], items[1]));
     }
     
 }

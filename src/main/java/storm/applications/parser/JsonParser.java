@@ -1,5 +1,6 @@
 package storm.applications.parser;
 
+import java.util.List;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -16,7 +17,7 @@ public class JsonParser extends Parser {
     private static final JSONParser jsonParser = new JSONParser();
     
     @Override
-    public StreamValues parse(String input) {
+    public List<StreamValues> parse(String input) {
         input = input.trim();
         
         if (input.isEmpty() || (!input.startsWith("{") && !input.startsWith("[")))
@@ -24,7 +25,7 @@ public class JsonParser extends Parser {
         
         try {
             JSONObject json = (JSONObject) jsonParser.parse(input);
-            return new StreamValues(json);
+            return list(new StreamValues(json));
         } catch (ParseException e) {
             LOG.error(String.format("Error parsing JSON object: %s", input), e);
         }
