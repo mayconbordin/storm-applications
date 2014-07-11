@@ -1,20 +1,16 @@
-package storm.applications.sink;
+package storm.applications.sink.formatter;
 
 import backtype.storm.tuple.Tuple;
 import storm.applications.model.metadata.MachineMetadata;
 
 /**
  *
- * @author mayconbordin
+ * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public class MachineMetadataSink extends FileSink {
-
-    public MachineMetadataSink(String file) {
-        super(file);
-    }
+public class MachineMetadataFormatter extends Formatter {
 
     @Override
-    protected String formatTuple(Tuple tuple) {
+    public String format(Tuple tuple) {
         MachineMetadata metadata = (MachineMetadata) tuple.getValue(4);
         
         String line = "\"" + tuple.getValue(0) + "\"," + tuple.getValue(1) + ","
@@ -23,6 +19,5 @@ public class MachineMetadataSink extends FileSink {
         
         return line;
     }
-    
     
 }

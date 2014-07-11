@@ -1,11 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package storm.applications.sink;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -14,48 +8,37 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import storm.applications.constants.BaseConstants.BaseConf;
+import storm.applications.util.ConfigUtility;
 
 /**
  * 
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public class SocketSink extends BaseSink {
-    private int port = 6000;
+    private static final Logger LOG = LoggerFactory.getLogger(SocketSink.class);
+    
+    private int port;
+    private String charset;
+    
+    private String portKey    = BaseConf.SINK_SOCKET_PORT;
+    private String charsetKey = BaseConf.SINK_SOCKET_CHARSET;
+    
     private List<Socket> connections;
     private List<OutputStreamWriter> outputStreams;
     private Thread connectionListener;
     
-    public SocketSink(){}
-    public SocketSink(int port) {
-        this.port = port;
-    }
-    
-    private class ConnectionListener implements Runnable {
-        @Override
-        public void run() {
-            try {
-                ServerSocket socket = new ServerSocket(port);
-                
-                while (true) {
-                    Socket connection = socket.accept();
-                    connections.add(connection);
-                    
-                    BufferedOutputStream os = new BufferedOutputStream(connection.getOutputStream());
-                    OutputStreamWriter osw = new OutputStreamWriter(os, "US-ASCII");
-                    
-                    outputStreams.add(osw);
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
-    
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        connections = new ArrayList<Socket>();
-        outputStreams = new ArrayList<OutputStreamWriter>();
+    public void initialize() {
+        super.initialize();
+        
+        port = ConfigUtility.getInt(config, portKey, 6000);
+        charset = ConfigUtility.getString(config, charsetKey, "US-ASCII");
+        
+        connections   = new ArrayList<>();
+        outputStreams = new ArrayList<>();
         
         Runnable runnable = new ConnectionListener();
         connectionListener = new Thread(runnable);
@@ -73,22 +56,55 @@ public class SocketSink extends BaseSink {
                 s.close();
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOG.error("Unable to close socket connections", ex);
         }
     }
 
     @Override
     public void execute(Tuple tuple) {
         try {
-            String message = tuple.getString(0) + "\t" + tuple.getInteger(1).toString() + "\n";
+            String message = formatter.format(tuple);
             
             for (OutputStreamWriter osw : outputStreams) {
                 osw.write(message);
                 osw.flush();
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            LOG.error("Unable to send message", ex);
         }
     }
     
+    @Override
+    protected Logger getLogger() {
+        return LOG;
+    }
+    
+    private class ConnectionListener implements Runnable {
+        @Override
+        public void run() {
+            try {
+                ServerSocket socket = new ServerSocket(port);
+                
+                while (true) {
+                    Socket connection = socket.accept();
+                    connections.add(connection);
+                    
+                    BufferedOutputStream os = new BufferedOutputStream(connection.getOutputStream());
+                    OutputStreamWriter osw  = new OutputStreamWriter(os, charset);
+                    
+                    outputStreams.add(osw);
+                }
+            } catch (IOException ex) {
+                LOG.error("Connection error", ex);
+            }
+        }
+    }
+
+    public void setPortKey(String portKey) {
+        this.portKey = portKey;
+    }
+
+    public void setCharsetKey(String charsetKey) {
+        this.charsetKey = charsetKey;
+    }
 }
