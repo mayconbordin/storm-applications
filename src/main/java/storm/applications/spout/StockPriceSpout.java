@@ -73,6 +73,10 @@ public class StockPriceSpout extends AbstractSpout {
 
     @Override
     public void nextTuple() {
+        if (queue.isEmpty()) {
+            fetchPrices();
+        }
+        
         Quote quote = queue.poll();
         
         if (quote != null) {
