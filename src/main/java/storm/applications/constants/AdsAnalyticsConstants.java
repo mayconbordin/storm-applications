@@ -4,21 +4,30 @@ package storm.applications.constants;
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public interface AdsAnalyticsConstants {
-    interface Conf {
-        String SINK_FILE = "aa.sink.file";
-        String SPOUT_FILE = "aa.spout.file";
+public interface AdsAnalyticsConstants extends BaseConstants {
+    interface Conf extends BaseConf {
+        String CTR_THREADS = "aa.ctr.threads";
+        String CTR_EMIT_FREQUENCY = "aa.ctr.emit_frequency";
+        String CTR_WINDOW_LENGTH = "aa.ctr.window_length";
     }
     
-    interface Component {
-        String SPOUT = "spout";
-        String CTR_BOLT = "ctrBolt";
-        String CTR_AGGREGATOR_BOLT = "aggregatorCtrBolt";
-        String SINK = "sink";
+    interface Component extends BaseComponent {
+        String CTR = "ctrBolt";
+        String CTR_AGGREGATOR = "aggregatorCtrBolt";
     }
     
     interface Stream {
         String CLICKS = "clickStream";
         String IMPRESSIONS = "impressionStream";
+    }
+    
+    interface Field {
+        String QUERY_ID      = "queryId";
+        String AD_ID         = "adId";
+        String EVENT         = "event";
+        String CTR           = "ctr";
+        String IMPRESSIONS   = "impressions";
+        String CLICKS        = "clicks";
+        String WINDOW_LENGTH = "actualWindowLengthInSeconds";
     }
 }

@@ -1,14 +1,12 @@
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import java.util.HashMap;
 import java.util.Map;
+import storm.applications.constants.AdsAnalyticsConstants.Field;
 import storm.applications.constants.AdsAnalyticsConstants.Stream;
 import storm.applications.model.ads.AdEvent;
 
@@ -16,24 +14,22 @@ import storm.applications.model.ads.AdEvent;
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public class CtrBolt extends BaseRichBolt {
-    private OutputCollector outputCollector;
+public class CtrBolt extends AbstractBolt {
     private Map<String, Summary> summaries;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("queryId", "adId", "ctr"));
+        declarer.declare(new Fields(Field.QUERY_ID, Field.AD_ID, Field.CTR));
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        outputCollector = collector;
-        summaries = new HashMap<String, Summary>();
+    public void initialize() {
+        summaries = new HashMap<>();
     }
 
     @Override
     public void execute(Tuple input) {
-        AdEvent event = (AdEvent) input.getValueByField("adEvent");
+        AdEvent event = (AdEvent) input.getValueByField(Field.EVENT);
         
         String key = String.format("%d:%d", event.getQueryId(), event.getAdID());
         Summary summary = summaries.get(key);
@@ -52,7 +48,7 @@ public class CtrBolt extends BaseRichBolt {
         
         // calculate ctr
         double ctr = (double)summary.clicks / (double)summary.impressions;
-        outputCollector.emit(new Values(event.getQueryId(), event.getAdID(), ctr));
+        collector.emit(new Values(event.getQueryId(), event.getAdID(), ctr));
     }
     
     private static class Summary {
