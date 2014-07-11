@@ -20,10 +20,10 @@ public class GoogleQuoteFetcher extends QuoteFetcher {
     }
 
     @Override
-    public List<Quote> parseQuotes(String quoteList, int interval) {
+    public List<Quote> parseQuotes(String symbol, String quoteList, int interval) {
         String[] lines = dropLines(quoteList, 6);
 
-        List<Quote> quotes = new ArrayList<Quote>();
+        List<Quote> quotes = new ArrayList<>();
 
         for (String line : lines) {
             if (line.startsWith("TIMEZONE_OFFSET")) {
@@ -45,8 +45,7 @@ public class GoogleQuoteFetcher extends QuoteFetcher {
                 date = previousDate.plusSeconds(interval);
             }
 
-            Quote quote = new Quote(date,
-                    interval,
+            Quote quote = new Quote(symbol, date, interval,
                     new BigDecimal(parts[4]),
                     new BigDecimal(parts[2]),
                     new BigDecimal(parts[3]),

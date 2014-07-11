@@ -15,11 +15,11 @@ public abstract class QuoteFetcher implements Serializable {
 
     abstract public String fetchQuotes(String symbol, int days, int interval) throws Exception;
 
-    abstract public List<Quote> parseQuotes(String quoteList, int interval);
+    abstract public List<Quote> parseQuotes(String symbol, String quoteList, int interval);
 
     public TimeSeries fetchAndParse(String symbol, int days, int interval) throws Exception {
         String requestResult = fetchQuotes(symbol, days, interval);
-        List<Quote> parsed = parseQuotes(requestResult, interval);
+        List<Quote> parsed = parseQuotes(symbol, requestResult, interval);
 
         QuoteCollection qc = new QuoteCollection();
 

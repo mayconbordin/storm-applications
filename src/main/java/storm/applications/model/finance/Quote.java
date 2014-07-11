@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import org.joda.time.DateTime;
 
 public class Quote implements Serializable {
-
+    private String symbol;
     private DateTime openDate;
     private int interval;
     private BigDecimal open;
@@ -14,7 +14,8 @@ public class Quote implements Serializable {
     private BigDecimal close;
     private int volume;
 
-    public Quote(DateTime openDate, int interval, BigDecimal open, BigDecimal high, BigDecimal low, BigDecimal close, int volume) {
+    public Quote(String symbol, DateTime openDate, int interval, BigDecimal open, BigDecimal high, BigDecimal low, BigDecimal close, int volume) {
+        this.symbol = symbol;
         this.openDate = openDate;
         this.interval = interval;
         this.open = open;
@@ -60,5 +61,9 @@ public class Quote implements Serializable {
     
     public double getAverage() {
         return (open.doubleValue()+high.doubleValue()+low.doubleValue()+close.doubleValue())/4;
+    }
+
+    public String getSymbol() {
+        return symbol;
     }
 }

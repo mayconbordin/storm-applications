@@ -57,7 +57,7 @@ public class YahooQuoteFetcher extends QuoteFetcher {
     }
 
     @Override
-    public List<Quote> parseQuotes(String quoteList, int interval) {
+    public List<Quote> parseQuotes(String symbol, String quoteList, int interval) {
         List<Quote> quotes = new ArrayList<Quote>();
 
         String[] lines = dropLines(quoteList, 1);
@@ -69,7 +69,7 @@ public class YahooQuoteFetcher extends QuoteFetcher {
 
             DateTime date = DateTime.parse(parts[0]);
 
-            Quote quote = new Quote(date,
+            Quote quote = new Quote(symbol, date,
                     interval,
                     new BigDecimal(parts[1]),
                     new BigDecimal(parts[2]),

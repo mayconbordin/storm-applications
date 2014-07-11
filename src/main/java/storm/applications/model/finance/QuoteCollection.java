@@ -54,7 +54,7 @@ public class QuoteCollection {
             symbol = symbol.replaceAll("\\s", "");
 
             logger.info("Fetching quotes for " + symbol);
-            List<Quote> quoteList = fetcher.parseQuotes(fetcher.fetchQuotes(symbol, days, interval), interval);
+            List<Quote> quoteList = fetcher.parseQuotes(symbol, fetcher.fetchQuotes(symbol, days, interval), interval);
             quotes.put(symbol, convertQuoteToTimeSeries(quoteList));
         }
 
