@@ -16,6 +16,7 @@ import java.util.Map;
 public abstract class AbstractSpout extends BaseRichSpout {
     protected Map config;
     protected SpoutOutputCollector collector;
+    protected TopologyContext context;
     protected Map<String, Fields> fields;
 
     public AbstractSpout() {
@@ -41,6 +42,7 @@ public abstract class AbstractSpout extends BaseRichSpout {
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
         this.config = conf;
         this.collector = collector;
+        this.context = context;
         
         initialize();
     }
