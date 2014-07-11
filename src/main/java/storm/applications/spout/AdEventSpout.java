@@ -1,13 +1,10 @@
 package storm.applications.spout;
 
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import java.util.LinkedList;
 import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import storm.applications.constants.AdsAnalyticsConstants;
 import storm.applications.constants.AdsAnalyticsConstants.Stream;
 import storm.applications.model.ads.AdEvent;
 
@@ -15,15 +12,19 @@ import storm.applications.model.ads.AdEvent;
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public class AdEventSpout extends AbstractFileSpout {
+public class AdEventSpout extends FileSpout {
     private static Logger LOG = LoggerFactory.getLogger(AdEventSpout.class);
     
-    private Queue<AdEvent> queue = new LinkedList<AdEvent>();
-
-    public AdEventSpout(String path) {
-        super(path);
-    }
+    private Queue<AdEvent> queue;
     
+    @Override
+    public void initialize() {
+        queue = new LinkedList<>();
+        
+        buildIndex();
+        openNextFile();
+    }
+
     @Override
     public void nextTuple() {
         AdEvent event = null;
@@ -82,16 +83,4 @@ public class AdEventSpout extends AbstractFileSpout {
         
         return firstEvent;
     }
-
-    @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream(Stream.CLICKS, new Fields("queryId", "adId", "adEvent"));
-        declarer.declareStream(Stream.IMPRESSIONS, new Fields("queryId", "adId", "adEvent"));
-    }
-
-    @Override
-    protected Values nextRecord(String strRecord) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
 }
