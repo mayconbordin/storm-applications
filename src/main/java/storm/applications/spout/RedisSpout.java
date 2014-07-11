@@ -1,6 +1,7 @@
 package storm.applications.spout;
 
 import backtype.storm.utils.Utils;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +56,11 @@ public class RedisSpout extends AbstractSpout {
         if (message == null) {
             Utils.sleep(50);
         } else {
-            StreamValues values = parser.parse(message);
+            List<StreamValues> tuples = parser.parse(message);
         
-            if (values != null) {
-                collector.emit(values.getStreamId(), values);
+            if (tuples != null) {
+                for (StreamValues values : tuples)
+                    collector.emit(values.getStreamId(), values);
             }
         }
     }

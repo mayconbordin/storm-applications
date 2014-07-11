@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
@@ -61,10 +61,11 @@ public abstract class FileSpout extends AbstractSpout {
         if (value == null)
             return;
         
-        StreamValues values = parser.parse(value);
+        List<StreamValues> tuples = parser.parse(value);
         
-        if (values != null) {
-            collector.emit(values.getStreamId(), values);
+        if (tuples != null) {
+            for (StreamValues values : tuples)
+                collector.emit(values.getStreamId(), values);
         }
     }
 
