@@ -22,7 +22,7 @@ public abstract class FileSpout extends AbstractSpout {
     protected Scanner scanner;
     protected int curFileIndex = 0;
     
-    private String pathKey        = BaseConf.SPOUT_PATH;
+    private String pathKey   = BaseConf.SPOUT_PATH;
     private String parserKey = BaseConf.SPOUT_PARSER;
     
     @Override
@@ -31,6 +31,11 @@ public abstract class FileSpout extends AbstractSpout {
         parser = (Parser) ClassLoaderUtils.newInstance(parserClass, "parser", LOG);
         parser.initialize(config);
         
+        buildIndex();
+        openNextFile();
+    }
+    
+    protected void buildIndex() {
         File dir = new File(ConfigUtility.getString(config, pathKey));
         
         if (dir.isDirectory()) {
@@ -47,8 +52,6 @@ public abstract class FileSpout extends AbstractSpout {
                 return res;
             }
         });
-
-        openNextFile();
     }
     
     @Override
