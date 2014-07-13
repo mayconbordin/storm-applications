@@ -4,6 +4,7 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import java.util.HashMap;
@@ -14,21 +15,19 @@ import static storm.applications.constants.ClickAnalyticsConstants.*;
 /**
  * User: domenicosolazzo
  */
-public class RepeatVisitBolt extends BaseRichBolt {
-    private OutputCollector collector;
+public class RepeatVisitBolt extends AbstractBolt {
     private Map<String, Void> map;
 
     @Override
-    public void prepare(Map conf, TopologyContext topologyContext, OutputCollector outputCollector) {
-        this.collector = outputCollector;
-        map = new HashMap<String, Void>();
+    public void initialize() {
+        map = new HashMap<>();
     }
 
     @Override
     public void execute(Tuple tuple) {
-        String ip = tuple.getStringByField(IP_FIELD);
-        String clientKey = tuple.getStringByField(CLIENT_KEY_FIELD);
-        String url = tuple.getStringByField(URL_FIELD);
+        String ip = tuple.getStringByField(Field.IP);
+        String clientKey = tuple.getStringByField(Field.CLIENT_KEY);
+        String url = tuple.getStringByField(Field.URL);
         String key = url + ":" + clientKey;
         
         if (map.containsKey(key)) {
@@ -40,7 +39,7 @@ public class RepeatVisitBolt extends BaseRichBolt {
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new backtype.storm.tuple.Fields(CLIENT_KEY_FIELD, URL_FIELD, UNIQUE_FIELD));
+    public Fields getDefaultFields() {
+        return new Fields(Field.CLIENT_KEY, Field.URL, Field.UNIQUE);
     }
 }

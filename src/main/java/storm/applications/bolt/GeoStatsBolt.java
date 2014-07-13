@@ -4,6 +4,7 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
@@ -16,19 +17,18 @@ import static storm.applications.constants.ClickAnalyticsConstants.*;
 /**
  * User: domenicosolazzo
  */
-public class GeoStatsBolt extends BaseRichBolt {
-    private OutputCollector collector;
-    private Map<String, CountryStats> stats = new HashMap<String, CountryStats>();
+public class GeoStatsBolt extends AbstractBolt {
+    private Map<String, CountryStats> stats;
 
     @Override
-    public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-        this.collector = outputCollector;
+    public void initialize() {
+        stats = new HashMap<>();
     }
 
     @Override
     public void execute(Tuple tuple) {
-        String country = tuple.getStringByField(COUNTRY_FIELD);
-        String city = tuple.getStringByField(CITY_FIELD);
+        String country = tuple.getStringByField(Field.COUNTRY);
+        String city = tuple.getStringByField(Field.CITY);
         
         if (!stats.containsKey(country)) {
             stats.put(country, new CountryStats(country));
@@ -39,8 +39,8 @@ public class GeoStatsBolt extends BaseRichBolt {
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new backtype.storm.tuple.Fields(COUNTRY_FIELD, COUNTRY_TOTAL_FIELD, CITY_FIELD, CITY_TOTAL_FIELD));
+    public Fields getDefaultFields() {
+        return new Fields(Field.COUNTRY, Field.COUNTRY_TOTAL, Field.CITY, Field.CITY_TOTAL);
     }
     
     private class CountryStats {
