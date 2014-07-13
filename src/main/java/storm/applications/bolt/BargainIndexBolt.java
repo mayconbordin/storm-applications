@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.joda.time.DateTime;
 import static storm.applications.constants.BargainIndexConstants.*;
+import storm.applications.util.ConfigUtility;
 
 /**
  * Calculates the VWAP (Volume Weighted Average Price) throughout the day for each
@@ -19,31 +20,30 @@ import static storm.applications.constants.BargainIndexConstants.*;
  * 
  * @author mayconbordin
  */
-public class BargainIndexBolt extends BaseRichBolt {
-    private OutputCollector outputCollector;
+public class BargainIndexBolt extends AbstractBolt {
     private Map<String, TradeSummary> trades;
-
-    public BargainIndexBolt() {
-    }
+    private double threshold;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(STOCK_FIELD, PRICE_FIELD, VOLUME_FIELD, BARGAIN_INDEX_FIELD));
+        declarer.declare(new Fields(Field.STOCK, Field.PRICE, Field.VOLUME, Field.BARGAIN_INDEX));
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        outputCollector = collector;
-        trades = new HashMap<String, TradeSummary>();
+    public void initialize() {
+        threshold = ConfigUtility.getDouble(config, Conf.BARGAIN_INDEX_THRESHOLD, 0.001);
+        trades = new HashMap<>();
     }
 
     @Override
     public void execute(Tuple input) {
-        if (input.getSourceStreamId().equals(QUOTE_STREAM)) {
-            String stock    = input.getStringByField(STOCK_FIELD);
-            double askPrice = input.getDoubleByField(PRICE_FIELD);
-            int askSize     = input.getIntegerByField(VOLUME_FIELD);
-            DateTime date   = (DateTime) input.getValueByField(DATE_FIELD);
+        String stream = input.getSourceStreamId();
+        
+        if (stream.equals(Stream.QUOTES)) {
+            String stock    = input.getStringByField(Field.STOCK);
+            double askPrice = input.getDoubleByField(Field.PRICE);
+            int askSize     = input.getIntegerByField(Field.VOLUME);
+            DateTime date   = (DateTime) input.getValueByField(Field.DATE);
             
             TradeSummary summary = trades.get(stock);
             double bargainIndex = 0;
@@ -52,23 +52,15 @@ public class BargainIndexBolt extends BaseRichBolt {
             if (summary != null) {
                 if (summary.vwap > askPrice) {
                     bargainIndex = Math.exp(summary.vwap - askPrice) * askSize;
-                    outputCollector.emit(new Values(stock, askPrice, askSize, bargainIndex));
+                    
+                    if (bargainIndex > threshold)
+                        collector.emit(new Values(stock, askPrice, askSize, bargainIndex));
                 }
             }
-            
-            // if vwap > askPrice
-                // calculate the bargain index
-                // double bargainIndex = Math.exp(vwap - askPrice) * askSize;
-            // else
-                // double bargainIndex = 0;
-            
-                // if bargainIndex > 1.0
-                    // by how much (set threshold for placing orders)
-                    // send order with askPrice and askSize
-        } else {
-            String stock = input.getStringByField(STOCK_FIELD);
-            double vwap  = (Double) input.getValueByField(VWAP_FIELD);
-            DateTime endDate = (DateTime) input.getValueByField(END_DATE_FIELD);
+        } else if (stream.equals(Stream.TRADES)) {
+            String stock = input.getStringByField(Field.STOCK);
+            double vwap  = (Double) input.getValueByField(Field.VWAP);
+            DateTime endDate = (DateTime) input.getValueByField(Field.END_DATE);
 
             if (trades.containsKey(stock)) {
                 TradeSummary summary = trades.get(stock);

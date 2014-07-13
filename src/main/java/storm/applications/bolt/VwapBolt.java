@@ -1,9 +1,6 @@
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -12,6 +9,7 @@ import java.util.Map;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import static storm.applications.constants.BargainIndexConstants.*;
+import storm.applications.util.ConfigUtility;
 
 /**
  * Calculates the VWAP (Volume Weighted Average Price) throughout the day for each
@@ -20,54 +18,47 @@ import static storm.applications.constants.BargainIndexConstants.*;
  * 
  * @author mayconbordin
  */
-public class VwapBolt extends BaseRichBolt {
+public class VwapBolt extends AbstractBolt {
     private static final DateTimeComparator dateOnlyComparator = DateTimeComparator.getDateOnlyInstance();
     
-    public static enum Periodicity {
-        MINUTELY, HOURLY, DAILY, WEEKLY, MONTHLY
-    }
-    
-    private OutputCollector outputCollector;
     private Map<String, Vwap> stocks;
-    private Periodicity period;
-
-    public VwapBolt(Periodicity period) {
-        this.period = period;
-    }
+    private String period;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(STOCK_FIELD, VWAP_FIELD, START_DATE_FIELD, END_DATE_FIELD));
+        declarer.declare(new Fields(Field.STOCK, Field.VWAP, Field.START_DATE, Field.END_DATE));
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        outputCollector = collector;
-        stocks = new HashMap<String, Vwap>();
+    public void initialize() {
+        period = ConfigUtility.getString(config, Conf.VWAP_PERIOD, Periodicity.DAILY);
+        
+        stocks = new HashMap<>();
         
     }
 
     @Override
     public void execute(Tuple input) {
-        String stock  = input.getStringByField(STOCK_FIELD);
-        double price  = (double) input.getDoubleByField(PRICE_FIELD);
-        int volume    = (int) input.getIntegerByField(VOLUME_FIELD);
-        DateTime date = (DateTime) input.getValueByField(DATE_FIELD);
-        int inteval   = input.getIntegerByField(INTERVAL_FIELD);
+        String stock  = input.getStringByField(Field.STOCK);
+        double price  = (double) input.getDoubleByField(Field.PRICE);
+        int volume    = (int) input.getIntegerByField(Field.VOLUME);
+        DateTime date = (DateTime) input.getValueByField(Field.DATE);
+        int inteval   = input.getIntegerByField(Field.INTERVAL);
 
         Vwap vwap = stocks.get(stock);
 
         if (withinPeriod(vwap, date)) {
             vwap.update(volume, price, date.plusSeconds(inteval));
-            outputCollector.emit(new Values(stock, vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
+            collector.emit(new Values(stock, vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
         } else {
-            if (vwap != null)
-                outputCollector.emit(new Values(stock, vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
-
+            if (vwap != null) {
+                collector.emit(new Values(stock, vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
+            }
+            
             vwap = new Vwap(volume, price, date, date.plusSeconds(inteval));
             stocks.put(stock, vwap);
 
-            outputCollector.emit(new Values(stock, vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
+            collector.emit(new Values(stock, vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
         }
     }
     
@@ -77,22 +68,22 @@ public class VwapBolt extends BaseRichBolt {
         DateTime vwapDate  = vwap.getStartDate();
         
         switch (period) {
-            case MINUTELY:
+            case Periodicity.MINUTELY:
                 return ((dateOnlyComparator.compare(vwapDate, quoteDate) == 0)
                         && vwapDate.getMinuteOfDay() == quoteDate.getMinuteOfDay());
             
-            case HOURLY:
+            case Periodicity.HOURLY:
                 return ((dateOnlyComparator.compare(vwapDate, quoteDate) == 0)
                         && vwapDate.getHourOfDay() == quoteDate.getHourOfDay());
                 
-            case DAILY:
+            case Periodicity.DAILY:
                 return (dateOnlyComparator.compare(vwapDate, quoteDate) == 0);
                 
-            case WEEKLY:
+            case Periodicity.WEEKLY:
                 return (vwapDate.getYear() == quoteDate.getYear() &&
                         vwapDate.getWeekOfWeekyear() == quoteDate.getWeekOfWeekyear());
                 
-            case MONTHLY:
+            case Periodicity.MONTHLY:
                 return (vwapDate.getYear() == quoteDate.getYear() &&
                         vwapDate.getMonthOfYear() == quoteDate.getMonthOfYear());
         }

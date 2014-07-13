@@ -4,22 +4,48 @@ package storm.applications.constants;
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public class BargainIndexConstants {
-    public static final String TRADE_QUOTE_SPOUT = "tradeQuoteSpout";
-    public static final String VWAP_BOLT = "vwapBolt";
-    public static final String BARGAIN_INDEX_BOLT = "bargainIndexBolt";
-    public static final String FILE_SINK = "fileSink";
+public interface BargainIndexConstants extends BaseConstants {
+    interface Conf extends BaseConf {
+        String VWAP_THREADS = "bi.vwap.threads";
+        String VWAP_PERIOD  = "bi.vwap.period";
+        String BARGAIN_INDEX_THREADS = "bi.bargainindex.threads";
+        String BARGAIN_INDEX_THRESHOLD = "bi.bargainindex.threshold";
+        
+        String SPOUT_FETCHER  = "bi.spout.fetcher";
+        String SPOUT_SYMBOLS  = "bi.spout.symbols";
+        String SPOUT_DAYS     = "bi.spout.days";
+        String SPOUT_INTERVAL = "bi.spout.interval";
+    }
     
-    public static final String QUOTE_STREAM = "quoteStream";
-    public static final String TRADE_STREAM = "tradeStream";
+    interface Component {
+        String TRADES_QUOTES = "tradesQuotesSpout";
+        String VWAP = "vwapBolt";
+        String BARGAIN_INDEX = "bargainIndexBolt";
+        String SINK = "sink";
+    }
     
-    public static final String STOCK_FIELD = "stock";
-    public static final String PRICE_FIELD = "price";
-    public static final String VOLUME_FIELD = "volume";
-    public static final String DATE_FIELD = "date";
-    public static final String START_DATE_FIELD = "startDate";
-    public static final String END_DATE_FIELD = "endDate";
-    public static final String INTERVAL_FIELD = "interval";
-    public static final String VWAP_FIELD = "vwap";
-    public static final String BARGAIN_INDEX_FIELD = "bargainIndex";
+    interface Periodicity {
+        String MINUTELY = "minutely";
+        String HOURLY   = "hourly";
+        String DAILY    = "daily";
+        String WEEKLY   = "weekly";
+        String MONTHLY  = "monthly";
+    }
+    
+    interface Stream {
+        String QUOTES = "quoteStream";
+        String TRADES = "tradeStream";
+    }
+    
+    interface Field {
+        String STOCK = "stock";
+        String PRICE = "price";
+        String VOLUME = "volume";
+        String DATE   = "date";
+        String START_DATE = "startDate";
+        String END_DATE   = "endDate";
+        String INTERVAL = "interval";
+        String VWAP = "vwap";
+        String BARGAIN_INDEX = "bargainIndex";
+    }
 }
