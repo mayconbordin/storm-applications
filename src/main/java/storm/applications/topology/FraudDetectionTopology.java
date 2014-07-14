@@ -20,40 +20,46 @@ package storm.applications.topology;
 
 import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
-import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static storm.applications.constants.FraudDetectionConstants.*;
 import storm.applications.bolt.FraudPredictorBolt;
-import storm.applications.spout.TransactionFileSpout;
 import storm.applications.util.ConfigUtility;
 
 /**
  * Storm topolgy driver for outlier detection
  * @author pranab
  */
-public class FraudDetectionTopology extends AbstractTopology {
-    private int spoutThreads;
-    private int boltThreads;
-    private String spoutPath;
+public class FraudDetectionTopology extends BasicTopology {
+    private static final Logger LOG = LoggerFactory.getLogger(FraudDetectionTopology.class);
+    
+    private int predictorThreads;
     
     public FraudDetectionTopology(String topologyName, Config config) {
         super(topologyName, config);
     }
     
-    public void prepare() {
-        spoutThreads = ConfigUtility.getInt(config, "predictor.spout.threads");
-        boltThreads  = ConfigUtility.getInt(config, "predictor.bolt.threads");
-        spoutPath = ConfigUtility.getString(config, "predictor.spout.path");
+    @Override
+    public void initialize() {
+        predictorThreads  = ConfigUtility.getInt(config, Conf.PREDICTOR_THREADS, 1);
     }
     
+    @Override
     public StormTopology buildTopology() {
-        builder = new TopologyBuilder();
-
-        builder.setSpout(TRANSACTION_SPOUT, new TransactionFileSpout(spoutPath), spoutThreads);
+        builder.setSpout(Component.SPOUT, spout, spoutThreads);
         
-        builder.setBolt(PREDICTOR_BOLT, new FraudPredictorBolt(), boltThreads)
-               .fieldsGrouping(TRANSACTION_SPOUT, new Fields(ENTITY_ID_FIELD));
+        builder.setBolt(Component.PREDICTOR, new FraudPredictorBolt(), predictorThreads)
+               .fieldsGrouping(Component.SPOUT, new Fields(Field.ENTITY_ID));
+        
+        builder.setBolt(Component.SINK, sink, sinkThreads)
+               .fieldsGrouping(Component.PREDICTOR, new Fields(Field.ENTITY_ID));
         
         return builder.createTopology();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return LOG;
     }
 }

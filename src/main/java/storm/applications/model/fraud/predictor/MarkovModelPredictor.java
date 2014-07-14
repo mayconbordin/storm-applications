@@ -21,8 +21,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import storm.applications.constants.FraudDetectionConstants;
+import storm.applications.constants.FraudDetectionConstants.Conf;
+import storm.applications.util.ConfigUtility;
 
-import org.apache.log4j.Logger;
 import storm.applications.util.Pair;
 
 /**
@@ -31,7 +35,7 @@ import storm.applications.util.Pair;
  *
  */
 public class MarkovModelPredictor extends ModelBasedPredictor {
-    private static final Logger LOG = Logger.getLogger(MarkovModelPredictor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MarkovModelPredictor.class);
     
     private enum DetectionAlgorithm {
         MissProbability, 
@@ -40,7 +44,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
     };
     
     private MarkovModel markovModel;
-    private Map<String, List<String>> records = new HashMap<String, List<String>>(); 
+    private Map<String, List<String>> records = new HashMap<>(); 
     private boolean localPredictor;
     private int stateSeqWindowSize;
     private int stateOrdinal;
@@ -49,30 +53,26 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
     private double metricThreshold;
     private int[] maxStateProbIndex;
     private double[] entropy;
-    //private String outputQueue;
-    //private Jedis jedis;
-    	
-    /**
-     * @param conf
-     */
+
     public MarkovModelPredictor(Map conf) {
-        String model = new MarkovModelFileSource().getModel(conf.get("markov.model.key").toString());
+        String mmKey = ConfigUtility.getString(conf, Conf.MARKOV_MODEL_KEY);
+        String model = new MarkovModelFileSource().getModel(mmKey);
         markovModel = new MarkovModel(model);
-        localPredictor = Boolean.parseBoolean(conf.get("local.predictor").toString());
+        localPredictor = ConfigUtility.getBoolean(conf, Conf.LOCAL_PREDICTOR);
         
         if (localPredictor) {
-            stateSeqWindowSize =  Integer.parseInt(conf.get("state.seq.window.size").toString());
+            stateSeqWindowSize = ConfigUtility.getInt(conf, Conf.STATE_SEQ_WIN_SIZE);
             LOG.info("local predictor window size:" + stateSeqWindowSize );
         }  else {
             stateSeqWindowSize = 5;
-            globalParams = new HashMap<String, Pair<Double, Double>>();
+            globalParams = new HashMap<>();
         }
         
         //state value ordinal within record
-        stateOrdinal =  Integer.parseInt(conf.get("state.ordinal").toString());
+        stateOrdinal = ConfigUtility.getInt(conf, Conf.STATE_ORDINAL);
 
         //detection algoritm
-        String algorithm = conf.get("detection.algorithm").toString();
+        String algorithm = ConfigUtility.getString(conf, Conf.DETECTION_ALGO);
         LOG.info("detection algorithm:" + algorithm);
         
         if (algorithm.equals("missProbability")) {
@@ -113,10 +113,8 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
         }
 
         //metric threshold
-        metricThreshold =  Double.parseDouble(conf.get("metric.threshold").toString());
+        metricThreshold = ConfigUtility.getDouble(conf, Conf.METRIC_THRESHOLD);
     }
-
-    
 
     @Override
     public Prediction execute(String entityID, String record) {
@@ -124,7 +122,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
 
         List<String> recordSeq = records.get(entityID);
         if (null == recordSeq) {
-            recordSeq = new ArrayList<String>();
+            recordSeq = new ArrayList<>();
             records.put(entityID, recordSeq);
         }
 
@@ -137,7 +135,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
         String[] stateSeq = null;
         if (localPredictor) {
             //local metric
-            LOG.info("local metric,  seq size " + recordSeq.size());
+            LOG.debug("local metric,  seq size " + recordSeq.size());
             
             if (recordSeq.size() == stateSeqWindowSize) {
                 stateSeq = new String[stateSeqWindowSize]; 
@@ -148,7 +146,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
             }
         } else {
             //global metric
-            LOG.info("global metric");
+            LOG.debug("global metric");
             
             if (recordSeq.size() >= 2) {
                 stateSeq = new String[2];
@@ -160,7 +158,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
                 Pair<Double,Double> params = globalParams.get(entityID);
                 
                 if (null == params) {
-                    params = new Pair<Double,Double>(0.0, 0.0);
+                    params = new Pair<>(0.0, 0.0);
                     globalParams.put(entityID, params);
                 }
                 
@@ -169,7 +167,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
         }		
 
         //outlier
-        LOG.info("metric  " + entityID + ":" + score);
+        LOG.debug("metric  " + entityID + ":" + score);
         
         Prediction prediction = new Prediction(entityID, score, stateSeq, (score > metricThreshold));
         
@@ -247,7 +245,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
             int prState = markovModel.getStates().indexOf(stateSeq[i -1]);
             int cuState = markovModel.getStates().indexOf(stateSeq[i ]);
             
-            LOG.info("state prob index:" + prState + " " + cuState);
+            LOG.debug("state prob index:" + prState + " " + cuState);
 
             //add all probability except target state
             for (int j = 0; j < markovModel.getStates().size(); ++ j) {
@@ -257,7 +255,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
             params[1] += 1;
         }
         
-        LOG.info("params:" + params[0] + ":" + params[1]);
+        LOG.debug("params:" + params[0] + ":" + params[1]);
     }
 
 

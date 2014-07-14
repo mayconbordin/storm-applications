@@ -1,34 +1,28 @@
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import static storm.applications.constants.FraudDetectionConstants.*;
 import storm.applications.model.fraud.predictor.MarkovModelPredictor;
 import storm.applications.model.fraud.predictor.ModelBasedPredictor;
 import storm.applications.model.fraud.predictor.Prediction;
+import storm.applications.util.ConfigUtility;
 
 /**
  *
  * @author maycon
  */
-public class FraudPredictorBolt extends BaseRichBolt {
-    private OutputCollector collector;
+public class FraudPredictorBolt extends AbstractBolt {
     private ModelBasedPredictor predictor;
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
-        String strategy = stormConf.get("predictor.model").toString();
-        
+    public void initialize() {
+        String strategy = ConfigUtility.getString(config, Conf.PREDICTOR_MODEL);
+
         if (strategy.equals("mm")) {
-            predictor = new MarkovModelPredictor(stormConf);
+            predictor = new MarkovModelPredictor(config);
         }
     }
 
@@ -39,15 +33,16 @@ public class FraudPredictorBolt extends BaseRichBolt {
         Prediction p = predictor.execute(entityID, record);
 
         // send outliers
-        if (p.isOutlier())
+        if (p.isOutlier()) {
             collector.emit(new Values(entityID, p.getScore(), StringUtils.join(p.getStates(), ",")));
-
+        }
+        
         //ack
         collector.ack(input);
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(ENTITY_ID_FIELD, SCORE_FIELD, STATES_FIELD));
+    public Fields getDefaultFields() {
+        return new Fields(Field.ENTITY_ID, Field.SCORE, Field.STATES);
     }
 }

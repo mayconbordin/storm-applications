@@ -1,11 +1,25 @@
 package storm.applications.constants;
 
-public class FraudDetectionConstants {
-    public static final String TRANSACTION_SPOUT = "transactionSpout";
-    public static final String PREDICTOR_BOLT = "predictorBolt";
+public interface FraudDetectionConstants extends BaseConstants {
+    interface Conf extends BaseConf {
+        String PREDICTOR_THREADS  = "fd.predictor.threads";
+        String PREDICTOR_MODEL    = "fd.predictor.model";
+        String MARKOV_MODEL_KEY   = "fd.markov.model.key";
+        String LOCAL_PREDICTOR    = "fd.local.predictor";
+        String STATE_SEQ_WIN_SIZE = "fd.state.seq.window.size";
+        String STATE_ORDINAL      = "fd.state.ordinal";
+        String DETECTION_ALGO     = "fd.detection.algorithm";
+        String METRIC_THRESHOLD   = "fd.metric.threshold";
+    }
     
-    public static final String ENTITY_ID_FIELD = "entityID";
-    public static final String RECORD_DATA_FIELD = "recordData";
-    public static final String SCORE_FIELD = "score";
-    public static final String STATES_FIELD = "states";
+    interface Component extends BaseComponent {
+        String PREDICTOR = "predictorBolt";
+    }
+    
+    interface Field {
+        String ENTITY_ID = "entityID";
+        String RECORD_DATA = "recordData";
+        String SCORE = "score";
+        String STATES = "states";
+    }
 }
