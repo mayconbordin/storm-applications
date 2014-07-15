@@ -19,14 +19,12 @@ public class FileSink extends BaseSink {
             
     private Writer writer = null;
     private String file;
-    
-    private String pathKey = BaseConf.SINK_PATH;
-    
+
     @Override
     public void initialize() {
         super.initialize();
         
-        file = ConfigUtility.getString(config, pathKey);
+        file = ConfigUtility.getString(config, getConfigKey(BaseConf.SINK_PATH));
         
         Map<String, Object> map = new HashMap<>(3);
         map.put("taskid", context.getThisTaskId());
@@ -68,8 +66,4 @@ public class FileSink extends BaseSink {
         return LOG;
     }
 
-    public void setPathKey(String pathKey) {
-        this.pathKey = pathKey;
-    }
-    
 }

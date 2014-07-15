@@ -13,16 +13,14 @@ public class RedisSink extends BaseSink {
     private Jedis jedis;
     private String queue;
     
-    private String queueKey = BaseConf.REDIS_SINK_QUEUE;
-
     @Override
     public void initialize() {
         super.initialize();
         
-        queue = ConfigUtility.getString(config, queueKey);
+        queue = ConfigUtility.getString(config, getConfigKey(BaseConf.REDIS_SINK_QUEUE));
         
-        String redisHost = ConfigUtility.getString(config, BaseConf.REDIS_HOST);
-        int redisPort    = ConfigUtility.getInt(config, BaseConf.REDIS_PORT);
+        String redisHost = ConfigUtility.getString(config, getConfigKey(BaseConf.REDIS_HOST));
+        int redisPort    = ConfigUtility.getInt(config, getConfigKey(BaseConf.REDIS_PORT));
         
         jedis = new Jedis(redisHost, redisPort);
     }
@@ -31,10 +29,6 @@ public class RedisSink extends BaseSink {
     public void execute(Tuple input) {
         String content = formatter.format(input);
         jedis.lpush(queue, content);
-    }
-
-    public void setQueueKey(String queueKey) {
-        this.queueKey = queueKey;
     }
 
     @Override

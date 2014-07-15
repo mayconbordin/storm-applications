@@ -22,10 +22,7 @@ public class SocketSink extends BaseSink {
     
     private int port;
     private String charset;
-    
-    private String portKey    = BaseConf.SINK_SOCKET_PORT;
-    private String charsetKey = BaseConf.SINK_SOCKET_CHARSET;
-    
+
     private List<Socket> connections;
     private List<OutputStreamWriter> outputStreams;
     private Thread connectionListener;
@@ -34,8 +31,8 @@ public class SocketSink extends BaseSink {
     public void initialize() {
         super.initialize();
         
-        port = ConfigUtility.getInt(config, portKey, 6000);
-        charset = ConfigUtility.getString(config, charsetKey, "US-ASCII");
+        port = ConfigUtility.getInt(config, getConfigKey(BaseConf.SINK_SOCKET_PORT), 6000);
+        charset = ConfigUtility.getString(config, getConfigKey(BaseConf.SINK_SOCKET_CHARSET), "US-ASCII");
         
         connections   = new ArrayList<>();
         outputStreams = new ArrayList<>();
@@ -87,6 +84,7 @@ public class SocketSink extends BaseSink {
                 
                 while (true) {
                     Socket connection = socket.accept();
+                    LOG.info("New connection established with " + connection.getInetAddress());
                     connections.add(connection);
                     
                     BufferedOutputStream os = new BufferedOutputStream(connection.getOutputStream());
@@ -98,13 +96,5 @@ public class SocketSink extends BaseSink {
                 LOG.error("Connection error", ex);
             }
         }
-    }
-
-    public void setPortKey(String portKey) {
-        this.portKey = portKey;
-    }
-
-    public void setCharsetKey(String charsetKey) {
-        this.charsetKey = charsetKey;
     }
 }

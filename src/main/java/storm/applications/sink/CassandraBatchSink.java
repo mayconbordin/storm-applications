@@ -4,10 +4,7 @@ import backtype.storm.tuple.Tuple;
 import com.hmsonline.storm.cassandra.bolt.AbstractBatchingBolt;
 import com.hmsonline.storm.cassandra.bolt.AckStrategy;
 import com.hmsonline.storm.cassandra.bolt.CassandraBatchingBolt;
-import com.hmsonline.storm.cassandra.bolt.CassandraCounterBatchingBolt;
-import com.hmsonline.storm.cassandra.bolt.mapper.DefaultTupleCounterMapper;
 import com.hmsonline.storm.cassandra.bolt.mapper.DefaultTupleMapper;
-import com.hmsonline.storm.cassandra.bolt.mapper.TupleCounterMapper;
 import com.hmsonline.storm.cassandra.bolt.mapper.TupleMapper;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.constants.BaseConstants.BaseConst;
-import storm.applications.constants.LogProcessingConstants;
 import storm.applications.util.ConfigUtility;
 
 /**
@@ -27,19 +23,15 @@ public class CassandraBatchSink extends BaseSink {
     private static final Logger LOG = LoggerFactory.getLogger(CassandraBatchSink.class);
     protected static final String configKey = BaseConst.CASSANDRA_CONFIG_KEY;
     
-    protected String columnFamilyKey = BaseConf.CASSANDRA_SINK_CF;
-    protected String rowKeyFieldKey  = BaseConf.CASSANDRA_SINK_ROW_KEY_FIELD;
-    protected String ackStrategyKey  = BaseConf.CASSANDRA_SINK_ACK_STRATEGY;
-    
     protected AbstractBatchingBolt bolt;
     
     @Override
     public void initialize() {
-        String host           = ConfigUtility.getString(config, BaseConf.CASSANDRA_HOST);
-        String keyspace       = ConfigUtility.getString(config, BaseConf.CASSANDRA_KEYSPACE);
-        String columnFamily   = ConfigUtility.getString(config, columnFamilyKey);
-        String rowKeyField    = ConfigUtility.getString(config, rowKeyFieldKey);
-        String ackStrategyStr = ConfigUtility.getString(config, ackStrategyKey);
+        String host           = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_SINK_CF));
+        String keyspace       = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_KEYSPACE));
+        String columnFamily   = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_SINK_CF));
+        String rowKeyField    = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_SINK_ROW_KEY_FIELD));
+        String ackStrategyStr = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_SINK_ACK_STRATEGY));
         
         Map<String, Object> clientConfig = new HashMap<>();
         clientConfig.put(BaseConf.CASSANDRA_HOST, host);
@@ -71,18 +63,6 @@ public class CassandraBatchSink extends BaseSink {
     public void cleanup() {
         super.cleanup();
         bolt.cleanup();
-    }
-
-    public void setColumnFamilyKey(String columnFamilyKey) {
-        this.columnFamilyKey = columnFamilyKey;
-    }
-
-    public void setRowKeyFieldKey(String rowKeyFieldKey) {
-        this.rowKeyFieldKey = rowKeyFieldKey;
-    }
-
-    public void setAckStrategyKey(String ackStrategyKey) {
-        this.ackStrategyKey = ackStrategyKey;
     }
 
     @Override
