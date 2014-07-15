@@ -8,12 +8,14 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.utils.Utils;
 import java.util.HashMap;
 import java.util.Map;
+import storm.applications.constants.BaseConstants.BaseConst;
 
 /**
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public abstract class AbstractSpout extends BaseRichSpout {
+    protected String configPrefix = BaseConst.DEFAULT_CONFIG_PREFIX;
     protected Map config;
     protected SpoutOutputCollector collector;
     protected TopologyContext context;
@@ -45,6 +47,14 @@ public abstract class AbstractSpout extends BaseRichSpout {
         this.context = context;
         
         initialize();
+    }
+    
+    protected String getConfigKey(String template) {
+        return String.format(template, configPrefix);
+    }
+
+    public void setConfigPrefix(String configPrefix) {
+        this.configPrefix = configPrefix;
     }
 
     protected abstract void initialize();

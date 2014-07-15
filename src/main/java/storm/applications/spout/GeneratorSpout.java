@@ -3,7 +3,8 @@ package storm.applications.spout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants;
-import storm.applications.generator.Generator;
+import storm.applications.constants.BaseConstants.BaseConf;
+import storm.applications.spout.generator.Generator;
 import storm.applications.util.ClassLoaderUtils;
 import storm.applications.util.ConfigUtility;
 import storm.applications.util.StreamValues;
@@ -18,7 +19,7 @@ public class GeneratorSpout extends AbstractSpout {
 
     @Override
     protected void initialize() {
-        String generatorClass = getGeneratorClass();
+        String generatorClass = ConfigUtility.getString(config, getConfigKey(BaseConf.SPOUT_GENERATOR));
         generator = (Generator) ClassLoaderUtils.newInstance(generatorClass, "parser", LOG);
         generator.initialize(config);
     }
@@ -27,9 +28,5 @@ public class GeneratorSpout extends AbstractSpout {
     public void nextTuple() {
         StreamValues values = generator.generate();
         collector.emit(values.getStreamId(), values);
-    }
-    
-    protected String getGeneratorClass() {
-        return ConfigUtility.getString(config, BaseConstants.BaseConf.SPOUT_GENERATOR);
     }
 }

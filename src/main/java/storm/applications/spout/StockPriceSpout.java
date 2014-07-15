@@ -19,7 +19,7 @@ import storm.applications.util.ConfigUtility;
  * @author mayconbordin <mayconbordin@gmail.com>
  */
 public class StockPriceSpout extends AbstractSpout {
-    private static Logger LOG = LoggerFactory.getLogger(StockPriceSpout.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StockPriceSpout.class);
 
     private QuoteFetcher fetcher;
     protected LinkedBlockingQueue<Quote> queue;
@@ -27,21 +27,16 @@ public class StockPriceSpout extends AbstractSpout {
     private String[] symbols;
     private int days;
     private int interval;
-    
-    private String fetcherKey  = Conf.SPOUT_FETCHER;
-    private String symbolsKey  = Conf.SPOUT_SYMBOLS;
-    private String daysKey     = Conf.SPOUT_DAYS;
-    private String intervalKey = Conf.SPOUT_INTERVAL;
 
     @Override
     public void initialize() {
-        days     = ConfigUtility.getInt(config, daysKey);
-        interval = ConfigUtility.getInt(config, intervalKey);
+        days     = ConfigUtility.getInt(config, Conf.SPOUT_DAYS);
+        interval = ConfigUtility.getInt(config, Conf.SPOUT_INTERVAL);
         
-        String symbolsStr   = ConfigUtility.getString(config, symbolsKey);
+        String symbolsStr   = ConfigUtility.getString(config, Conf.SPOUT_SYMBOLS);
         symbols = symbolsStr.split(",");
         
-        String fetcherClass = ConfigUtility.getString(config, fetcherKey);
+        String fetcherClass = ConfigUtility.getString(config, Conf.SPOUT_FETCHER);
         fetcher = (QuoteFetcher) ClassLoaderUtils.newInstance(fetcherClass, "fetcher", LOG);
         
         queue = new LinkedBlockingQueue<>();
@@ -83,21 +78,4 @@ public class StockPriceSpout extends AbstractSpout {
             collector.emit(new Values(quote.getSymbol(), quote));
         }
     }
-
-    public void setFetcherKey(String fetcherKey) {
-        this.fetcherKey = fetcherKey;
-    }
-
-    public void setSymbolsKey(String symbolsKey) {
-        this.symbolsKey = symbolsKey;
-    }
-
-    public void setDaysKey(String daysKey) {
-        this.daysKey = daysKey;
-    }
-
-    public void setIntervalKey(String intervalKey) {
-        this.intervalKey = intervalKey;
-    }
-    
 }

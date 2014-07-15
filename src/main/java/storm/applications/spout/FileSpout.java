@@ -9,7 +9,7 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.parser.Parser;
+import storm.applications.spout.parser.Parser;
 import storm.applications.util.ClassLoaderUtils;
 import storm.applications.util.ConfigUtility;
 import storm.applications.util.StreamValues;
@@ -21,13 +21,10 @@ public abstract class FileSpout extends AbstractSpout {
     protected File[] files;
     protected Scanner scanner;
     protected int curFileIndex = 0;
-    
-    private String pathKey   = BaseConf.SPOUT_PATH;
-    private String parserKey = BaseConf.SPOUT_PARSER;
-    
+
     @Override
     public void initialize() {
-        String parserClass = ConfigUtility.getString(config, parserKey);
+        String parserClass = ConfigUtility.getString(config, getConfigKey(BaseConf.SPOUT_PARSER));
         parser = (Parser) ClassLoaderUtils.newInstance(parserClass, "parser", LOG);
         parser.initialize(config);
         
@@ -36,7 +33,7 @@ public abstract class FileSpout extends AbstractSpout {
     }
     
     protected void buildIndex() {
-        File dir = new File(ConfigUtility.getString(config, pathKey));
+        File dir = new File(ConfigUtility.getString(config, getConfigKey(BaseConf.SPOUT_PATH)));
         
         if (dir.isDirectory()) {
             files = dir.listFiles();
@@ -93,13 +90,5 @@ public abstract class FileSpout extends AbstractSpout {
             LOG.error("File " + files[curFileIndex] + " was not found", e);
             throw new IllegalStateException("file not found");
         }
-    }
-
-    public void setPathKey(String pathKey) {
-        this.pathKey = pathKey;
-    }
-
-    public void setParserKey(String parserKey) {
-        this.parserKey = parserKey;
     }
 }	

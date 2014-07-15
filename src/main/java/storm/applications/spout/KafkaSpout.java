@@ -7,7 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.parser.Parser;
+import storm.applications.spout.parser.Parser;
 import storm.applications.util.ClassLoaderUtils;
 import storm.applications.util.ConfigUtility;
 import storm.applications.util.StreamValues;
@@ -28,21 +28,15 @@ public class KafkaSpout extends AbstractSpout {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaSpout.class);
     
     private BrokerHosts brokerHosts;
-    private storm.kafka.KafkaSpout spout;
-    
-    private String hostKey       = BaseConf.KAFKA_HOST;
-    private String pathKey       = BaseConf.KAFKA_ZOOKEEPER_PATH;
-    private String consumerIdKey = BaseConf.KAFKA_COMSUMER_ID;
-    private String topicKey      = BaseConf.KAFKA_SPOUT_TOPIC;
-    private String parserKey     = BaseConf.SPOUT_PARSER;
-    
+    private static storm.kafka.KafkaSpout spout;
+
     @Override
     protected void initialize() {
-        String parserClass = ConfigUtility.getString(config, parserKey);
-        String host        = ConfigUtility.getString(config, hostKey);
-        String topic       = ConfigUtility.getString(config, topicKey);
-        String consumerId  = ConfigUtility.getString(config, consumerIdKey);
-        String path        = ConfigUtility.getString(config, pathKey);
+        String parserClass = ConfigUtility.getString(config, getConfigKey(BaseConf.SPOUT_PARSER));
+        String host        = ConfigUtility.getString(config, getConfigKey(BaseConf.KAFKA_HOST));
+        String topic       = ConfigUtility.getString(config, getConfigKey(BaseConf.KAFKA_SPOUT_TOPIC));
+        String consumerId  = ConfigUtility.getString(config, getConfigKey(BaseConf.KAFKA_CONSUMER_ID));
+        String path        = ConfigUtility.getString(config, getConfigKey(BaseConf.KAFKA_ZOOKEEPER_PATH));
         
         Parser parser = (Parser) ClassLoaderUtils.newInstance(parserClass, "parser", LOG);
         parser.initialize(config);
@@ -112,25 +106,5 @@ public class KafkaSpout extends AbstractSpout {
         public Fields getOutputFields() {
             return fields;
         }
-    }
-
-    public void setHostKey(String hostKey) {
-        this.hostKey = hostKey;
-    }
-
-    public void setPathKey(String pathKey) {
-        this.pathKey = pathKey;
-    }
-
-    public void setConsumerIdKey(String consumerIdKey) {
-        this.consumerIdKey = consumerIdKey;
-    }
-
-    public void setTopicKey(String topicKey) {
-        this.topicKey = topicKey;
-    }
-
-    public void setParserKey(String parserKey) {
-        this.parserKey = parserKey;
     }
 }

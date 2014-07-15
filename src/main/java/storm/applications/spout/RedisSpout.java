@@ -10,7 +10,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.parser.Parser;
+import storm.applications.spout.parser.Parser;
 import storm.applications.util.ClassLoaderUtils;
 import storm.applications.util.ConfigUtility;
 import storm.applications.util.StreamValues;
@@ -24,20 +24,14 @@ public class RedisSpout extends AbstractSpout {
     private LinkedBlockingQueue<String> queue;
     private JedisPool pool;
     private Parser parser;
-    
-    private String hostKey      = BaseConf.REDIS_HOST;
-    private String portKey      = BaseConf.REDIS_PORT;
-    private String patternKey   = BaseConf.REDIS_PATTERN;
-    private String queueSizeKey = BaseConf.REDIS_QUEUE_SIZE;
-    private String parserKey    = BaseConf.SPOUT_PARSER;
-        
+   
     @Override
     protected void initialize() {
-        String parserClass = ConfigUtility.getString(config, parserKey);
-        String host        = ConfigUtility.getString(config, hostKey);
-        String pattern     = ConfigUtility.getString(config, patternKey);
-        int port           = ConfigUtility.getInt(config, portKey);
-        int queueSize      = ConfigUtility.getInt(config, queueSizeKey);
+        String parserClass = ConfigUtility.getString(config, getConfigKey(BaseConf.SPOUT_PARSER));
+        String host        = ConfigUtility.getString(config, getConfigKey(BaseConf.REDIS_HOST));
+        String pattern     = ConfigUtility.getString(config, getConfigKey(BaseConf.REDIS_PATTERN));
+        int port           = ConfigUtility.getInt(config, getConfigKey(BaseConf.REDIS_PORT));
+        int queueSize      = ConfigUtility.getInt(config, getConfigKey(BaseConf.REDIS_QUEUE_SIZE));
         
         parser = (Parser) ClassLoaderUtils.newInstance(parserClass, "parser", LOG);
         parser.initialize(config);
@@ -116,25 +110,5 @@ public class RedisSpout extends AbstractSpout {
 
         @Override
         public void onUnsubscribe(String channel, int subscribedChannels) { }
-    }
-
-    public void setHostKey(String hostKey) {
-        this.hostKey = hostKey;
-    }
-
-    public void setPortKey(String portKey) {
-        this.portKey = portKey;
-    }
-
-    public void setPatternKey(String patternKey) {
-        this.patternKey = patternKey;
-    }
-
-    public void setQueueSizeKey(String queueSizeKey) {
-        this.queueSizeKey = queueSizeKey;
-    }
-
-    public void setParserKey(String parserKey) {
-        this.parserKey = parserKey;
     }
 }
