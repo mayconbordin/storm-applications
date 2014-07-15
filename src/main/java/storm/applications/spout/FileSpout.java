@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.spout.parser.Parser;
 import storm.applications.util.ClassLoaderUtils;
-import storm.applications.util.ConfigUtility;
 import storm.applications.util.StreamValues;
 
 public abstract class FileSpout extends AbstractSpout {
@@ -24,7 +23,7 @@ public abstract class FileSpout extends AbstractSpout {
 
     @Override
     public void initialize() {
-        String parserClass = ConfigUtility.getString(config, getConfigKey(BaseConf.SPOUT_PARSER));
+        String parserClass = config.getString(getConfigKey(BaseConf.SPOUT_PARSER));
         parser = (Parser) ClassLoaderUtils.newInstance(parserClass, "parser", LOG);
         parser.initialize(config);
         
@@ -33,7 +32,7 @@ public abstract class FileSpout extends AbstractSpout {
     }
     
     protected void buildIndex() {
-        File dir = new File(ConfigUtility.getString(config, getConfigKey(BaseConf.SPOUT_PATH)));
+        File dir = new File(config.getString(getConfigKey(BaseConf.SPOUT_PATH)));
         
         if (dir.isDirectory()) {
             files = dir.listFiles();

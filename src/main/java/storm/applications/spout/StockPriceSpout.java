@@ -30,13 +30,13 @@ public class StockPriceSpout extends AbstractSpout {
 
     @Override
     public void initialize() {
-        days     = ConfigUtility.getInt(config, Conf.SPOUT_DAYS);
-        interval = ConfigUtility.getInt(config, Conf.SPOUT_INTERVAL);
+        days     = config.getInt(Conf.SPOUT_DAYS);
+        interval = config.getInt(Conf.SPOUT_INTERVAL);
         
-        String symbolsStr   = ConfigUtility.getString(config, Conf.SPOUT_SYMBOLS);
+        String symbolsStr   = config.getString(Conf.SPOUT_SYMBOLS);
         symbols = symbolsStr.split(",");
         
-        String fetcherClass = ConfigUtility.getString(config, Conf.SPOUT_FETCHER);
+        String fetcherClass = config.getString(Conf.SPOUT_FETCHER);
         fetcher = (QuoteFetcher) ClassLoaderUtils.newInstance(fetcherClass, "fetcher", LOG);
         
         queue = new LinkedBlockingQueue<>();
@@ -75,7 +75,7 @@ public class StockPriceSpout extends AbstractSpout {
         Quote quote = queue.poll();
         
         if (quote != null) {
-            collector.emit(new Values(quote.getSymbol(), quote));
+            collector.emit(new Values(quote.getSymbol(), quote.getAverage(), quote.getVolume(), quote.getOpenDate(), quote.getInterval()));
         }
     }
 }

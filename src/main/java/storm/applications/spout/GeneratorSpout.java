@@ -19,7 +19,7 @@ public class GeneratorSpout extends AbstractSpout {
 
     @Override
     protected void initialize() {
-        String generatorClass = ConfigUtility.getString(config, getConfigKey(BaseConf.SPOUT_GENERATOR));
+        String generatorClass = config.getString(getConfigKey(BaseConf.SPOUT_GENERATOR));
         generator = (Generator) ClassLoaderUtils.newInstance(generatorClass, "parser", LOG);
         generator.initialize(config);
     }

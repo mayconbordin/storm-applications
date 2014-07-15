@@ -9,6 +9,7 @@ import backtype.storm.utils.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import storm.applications.constants.BaseConstants.BaseConst;
+import storm.applications.util.Configuration;
 
 /**
  *
@@ -16,7 +17,7 @@ import storm.applications.constants.BaseConstants.BaseConst;
  */
 public abstract class AbstractSpout extends BaseRichSpout {
     protected String configPrefix = BaseConst.DEFAULT_CONFIG_PREFIX;
-    protected Map config;
+    protected Configuration config;
     protected SpoutOutputCollector collector;
     protected TopologyContext context;
     protected Map<String, Fields> fields;
@@ -42,7 +43,7 @@ public abstract class AbstractSpout extends BaseRichSpout {
 
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-        this.config = conf;
+        this.config = new Configuration(conf);
         this.collector = collector;
         this.context = context;
         

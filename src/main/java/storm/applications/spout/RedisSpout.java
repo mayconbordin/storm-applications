@@ -27,11 +27,11 @@ public class RedisSpout extends AbstractSpout {
    
     @Override
     protected void initialize() {
-        String parserClass = ConfigUtility.getString(config, getConfigKey(BaseConf.SPOUT_PARSER));
-        String host        = ConfigUtility.getString(config, getConfigKey(BaseConf.REDIS_HOST));
-        String pattern     = ConfigUtility.getString(config, getConfigKey(BaseConf.REDIS_PATTERN));
-        int port           = ConfigUtility.getInt(config, getConfigKey(BaseConf.REDIS_PORT));
-        int queueSize      = ConfigUtility.getInt(config, getConfigKey(BaseConf.REDIS_QUEUE_SIZE));
+        String parserClass = config.getString(getConfigKey(BaseConf.SPOUT_PARSER));
+        String host        = config.getString(getConfigKey(BaseConf.REDIS_HOST));
+        String pattern     = config.getString(getConfigKey(BaseConf.REDIS_PATTERN));
+        int port           = config.getInt(getConfigKey(BaseConf.REDIS_PORT));
+        int queueSize      = config.getInt(getConfigKey(BaseConf.REDIS_QUEUE_SIZE));
         
         parser = (Parser) ClassLoaderUtils.newInstance(parserClass, "parser", LOG);
         parser.initialize(config);

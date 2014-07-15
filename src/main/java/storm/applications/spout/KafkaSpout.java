@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.spout.parser.Parser;
 import storm.applications.util.ClassLoaderUtils;
-import storm.applications.util.ConfigUtility;
 import storm.applications.util.StreamValues;
 import storm.kafka.BrokerHosts;
 import storm.kafka.SpoutConfig;
@@ -32,11 +31,11 @@ public class KafkaSpout extends AbstractSpout {
 
     @Override
     protected void initialize() {
-        String parserClass = ConfigUtility.getString(config, getConfigKey(BaseConf.SPOUT_PARSER));
-        String host        = ConfigUtility.getString(config, getConfigKey(BaseConf.KAFKA_HOST));
-        String topic       = ConfigUtility.getString(config, getConfigKey(BaseConf.KAFKA_SPOUT_TOPIC));
-        String consumerId  = ConfigUtility.getString(config, getConfigKey(BaseConf.KAFKA_CONSUMER_ID));
-        String path        = ConfigUtility.getString(config, getConfigKey(BaseConf.KAFKA_ZOOKEEPER_PATH));
+        String parserClass = config.getString(getConfigKey(BaseConf.SPOUT_PARSER));
+        String host        = config.getString(getConfigKey(BaseConf.KAFKA_HOST));
+        String topic       = config.getString(getConfigKey(BaseConf.KAFKA_SPOUT_TOPIC));
+        String consumerId  = config.getString(getConfigKey(BaseConf.KAFKA_CONSUMER_ID));
+        String path        = config.getString(getConfigKey(BaseConf.KAFKA_ZOOKEEPER_PATH));
         
         Parser parser = (Parser) ClassLoaderUtils.newInstance(parserClass, "parser", LOG);
         parser.initialize(config);

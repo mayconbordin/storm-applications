@@ -39,10 +39,10 @@ public class TwitterStreamingSpout extends AbstractSpout {
         cfgBuilder.setIncludeEntitiesEnabled(true);
         cfgBuilder.setJSONStoreEnabled(true);
         
-        cfgBuilder.setOAuthAccessToken(ConfigUtility.getString(config, getConfigKey(BaseConf.TWITTER_ACCESS_TOKEN)));
-        cfgBuilder.setOAuthAccessTokenSecret(ConfigUtility.getString(config, getConfigKey(BaseConf.TWITTER_ACCESS_TOKEN_SECRET)));
-        cfgBuilder.setOAuthConsumerKey(ConfigUtility.getString(config, getConfigKey(BaseConf.TWITTER_CONSUMER_KEY)));
-        cfgBuilder.setOAuthConsumerSecret(ConfigUtility.getString(config, getConfigKey(BaseConf.TWITTER_CONSUMER_SECRET)));
+        cfgBuilder.setOAuthAccessToken(config.getString(getConfigKey(BaseConf.TWITTER_ACCESS_TOKEN)));
+        cfgBuilder.setOAuthAccessTokenSecret(config.getString(getConfigKey(BaseConf.TWITTER_ACCESS_TOKEN_SECRET)));
+        cfgBuilder.setOAuthConsumerKey(config.getString(getConfigKey(BaseConf.TWITTER_CONSUMER_KEY)));
+        cfgBuilder.setOAuthConsumerSecret(config.getString(getConfigKey(BaseConf.TWITTER_CONSUMER_SECRET)));
 
         twitterStream = new TwitterStreamFactory(cfgBuilder.build()).getInstance();
         twitterStream.addListener(statusListener);

@@ -28,7 +28,7 @@ public class TradeQuoteSimulatedSpout extends StockPriceSpout {
             // the size offered ranges from 10% to 80% of the volume
             int askSize = RandomUtil.randInt((int)(quote.getVolume()*0.1), (int)(quote.getVolume()*0.8));
             
-            collector.emit(Stream.QUOTES, new Values(quote.getSymbol(), askPrice, askSize, quote.getOpenDate().plusMinutes(2)));
+            collector.emit(Stream.QUOTES, new Values(quote.getSymbol(), askPrice, askSize, quote.getOpenDate().plusMinutes(2), quote.getInterval()));
         }
     }
     
