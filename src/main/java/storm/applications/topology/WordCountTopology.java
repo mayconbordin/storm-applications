@@ -2,94 +2,55 @@ package storm.applications.topology;
 
 import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
-import backtype.storm.spout.SchemeAsMultiScheme;
-import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
-import com.hmsonline.storm.cassandra.StormCassandraConstants;
-import com.hmsonline.storm.cassandra.bolt.AckStrategy;
-import com.hmsonline.storm.cassandra.bolt.CassandraBatchingBolt;
-import com.hmsonline.storm.cassandra.bolt.mapper.DefaultTupleMapper;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import storm.applications.constants.WordCountConstants.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import storm.applications.bolt.SplitSentenceBolt;
 import storm.applications.bolt.WordCountBolt;
-import storm.applications.util.ConfigUtility;
-import storm.kafka.BrokerHosts;
-import storm.kafka.KafkaSpout;
-import storm.kafka.SpoutConfig;
-import storm.kafka.StringScheme;
-import storm.kafka.ZkHosts;
+import static storm.applications.constants.WordCountConstants.*;
 
-public class WordCountTopology extends AbstractTopology {
-    private String kafkaTopicSentences;
-    private String kafkaZookeeperPath;
-    private String kafkaConsumerId;
-    private String cassandraKeyspace;
-    private String wordCountCf;
-    private String wordCountKey;
-    private BrokerHosts brokerHosts;
-    private int spoutThreads;
+public class WordCountTopology extends BasicTopology {
+    private static final Logger LOG = LoggerFactory.getLogger(WordCountTopology.class);
+
     private int splitSentenceThreads;
     private int wordCountThreads;
-    private int sinkThreads;
 
     public WordCountTopology(String topologyName, Config config) {
         super(topologyName, config);
     }
     
     @Override
-    public void prepare() {
-        String kafkaHost = ConfigUtility.getString(config, Conf.KAFKA_HOST);
-        brokerHosts = new ZkHosts(kafkaHost);
-        
-        kafkaTopicSentences  = ConfigUtility.getString(config, Conf.KAFKA_TOPIC_SENTENCES);
-        kafkaZookeeperPath   = ConfigUtility.getString(config, Conf.KAFKA_ZOOKEEPER_PATH);
-        kafkaConsumerId      = ConfigUtility.getString(config, Conf.KAFKA_COMSUMER_ID);
-        
-        spoutThreads         = ConfigUtility.getInt(config, Conf.SPOUT_THREADS);
-        splitSentenceThreads = ConfigUtility.getInt(config, Conf.SPLIT_SENTENCE_THREADS);
-        wordCountThreads     = ConfigUtility.getInt(config, Conf.WORD_COUNT_THREADS);
-        sinkThreads          = ConfigUtility.getInt(config, Conf.SINK_THREADS);
-        
-        cassandraKeyspace = ConfigUtility.getString(config, Conf.CASSANDRA_KEYSPACE);
-        wordCountCf = ConfigUtility.getString(config, Conf.CASSANDRA_WORDCOUNT_CF);
-        wordCountKey = ConfigUtility.getString(config, Conf.CASSANDRA_WORDCOUNT_KEY);
-        
-        Map<String, Object> clientConfig = new HashMap<String, Object>();
-        clientConfig.put(StormCassandraConstants.CASSANDRA_HOST, ConfigUtility.getString(config, Conf.CASSANDRA_HOST));
-        clientConfig.put(StormCassandraConstants.CASSANDRA_KEYSPACE, Arrays.asList(new String [] { cassandraKeyspace }));
-        config.put(Conf.CASSANDRA_CONFIG, clientConfig);
+    public void initialize() {
+        splitSentenceThreads = config.getInt(Conf.SPLITTER_THREADS, 1);
+        wordCountThreads     = config.getInt(Conf.COUNTER_THREADS, 1);
     }
 
     @Override
     public StormTopology buildTopology() {
-        builder = new TopologyBuilder();
-        
-        // Spout
-        SpoutConfig spoutConfig = new SpoutConfig(brokerHosts, kafkaTopicSentences, 
-                kafkaZookeeperPath, kafkaConsumerId);
-        KafkaSpout spout = new KafkaSpout(spoutConfig);
-        spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
-        
-        // Sink
-        CassandraBatchingBolt<String, String, String> cassandraSink = new CassandraBatchingBolt<String, String, String>(Conf.CASSANDRA_CONFIG,
-                new DefaultTupleMapper(cassandraKeyspace, wordCountCf, wordCountKey));
-        cassandraSink.setAckStrategy(AckStrategy.ACK_ON_WRITE);
+        spout.setFields(null);
         
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         
-        builder.setBolt(Component.SPLIT_SENTENCE, new SplitSentenceBolt(), splitSentenceThreads)
+        builder.setBolt(Component.SPLITTER, new SplitSentenceBolt(), splitSentenceThreads)
                .shuffleGrouping(Component.SPOUT);
         
-        builder.setBolt(Component.WORD_COUNT, new WordCountBolt(), wordCountThreads)
-               .fieldsGrouping(Component.SPLIT_SENTENCE, new Fields(Field.WORD));
+        builder.setBolt(Component.COUNTER, new WordCountBolt(), wordCountThreads)
+               .fieldsGrouping(Component.SPLITTER, new Fields(Field.WORD));
         
-        builder.setBolt(Component.SINK, cassandraSink, sinkThreads)
-               .shuffleGrouping(Component.WORD_COUNT);
+        builder.setBolt(Component.SINK, sink, sinkThreads)
+               .shuffleGrouping(Component.COUNTER);
         
         return builder.createTopology();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return LOG;
+    }
+
+    @Override
+    public String getConfigPrefix() {
+        return PREFIX;
     }
     
 }

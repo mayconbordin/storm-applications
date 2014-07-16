@@ -1,9 +1,5 @@
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -12,18 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 import storm.applications.constants.WordCountConstants.Field;
 
-public class WordCountBolt extends BaseRichBolt {
-    private OutputCollector collector;
-    private Map<String, MutableLong> counts = new HashMap<String, MutableLong>();
+public class WordCountBolt extends AbstractBolt {
+    private final Map<String, MutableLong> counts = new HashMap<>();
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(Field.WORD, Field.COUNT));
-    }
-
-    @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
+    public Fields getDefaultFields() {
+        return new Fields(Field.WORD, Field.COUNT);
     }
 
     @Override
