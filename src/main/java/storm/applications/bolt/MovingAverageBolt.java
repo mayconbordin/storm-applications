@@ -1,17 +1,16 @@
 package storm.applications.bolt;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 
-import backtype.storm.topology.BasicOutputCollector;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import storm.applications.constants.SpikeDetectionConstants.Conf;
+import storm.applications.constants.SpikeDetectionConstants.Field;
 
 /**
  * Calculates the average over a window for distinct elements.
@@ -19,35 +18,33 @@ import org.slf4j.LoggerFactory;
  * 
  * @author surajwaghulde
  */
-public class MovingAverageBolt extends BaseBasicBolt {
-    private static final long serialVersionUID = 1L;
+public class MovingAverageBolt extends AbstractBolt {
     private static final Logger LOG = LoggerFactory.getLogger(MovingAverageBolt.class);
     
-    private int movingAverageWindow = 1000;
-    private Map<String, LinkedList<Double>> deviceIDtoStreamMap = new HashMap<String, LinkedList<Double>>();
-    private Map<String, Double> deviceIDtoSumOfEvents = new HashMap<String, Double>();
+    private int movingAverageWindow;
+    private Map<String, LinkedList<Double>> deviceIDtoStreamMap;
+    private Map<String, Double> deviceIDtoSumOfEvents;
 
-    public MovingAverageBolt() {
-
-    }
-
-    public MovingAverageBolt(int movingAverageWindow) {
-        this.movingAverageWindow = movingAverageWindow;
+    @Override
+    public void initialize() {
+        this.movingAverageWindow = config.getInt(Conf.MOVING_AVERAGE_WINDOW, 1000);
+        deviceIDtoStreamMap   = new HashMap<>();
+        deviceIDtoSumOfEvents = new HashMap<>();
     }
 
     @Override
-    public void execute(final Tuple tuple, final BasicOutputCollector collector) {
+    public void execute(final Tuple tuple) {
         final String deviceID = tuple.getString(0);
         final double nextDouble = (double)tuple.getInteger(1);
         double movingAvergeInstant = movingAverage(deviceID, nextDouble);
         
-        LOG.info(movingAvergeInstant + " : " + nextDouble);
         collector.emit(new Values(deviceID, movingAvergeInstant, nextDouble));
     }
 
     public double movingAverage(String deviceID, double nextDouble) {
-        LinkedList<Double> valueList = new LinkedList<Double>();
+        LinkedList<Double> valueList = new LinkedList<>();
         double sum = 0.0;
+        
         if (deviceIDtoStreamMap.containsKey(deviceID)) {
             valueList = deviceIDtoStreamMap.get(deviceID);
             sum = deviceIDtoSumOfEvents.get(deviceID);
@@ -69,7 +66,7 @@ public class MovingAverageBolt extends BaseBasicBolt {
     }
 
     @Override
-    public void declareOutputFields(final OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("deviceID", "movingAverage", "value"));
+    public Fields getDefaultFields() {
+        return new Fields(Field.DEVICE_ID, Field.MOVING_AVG, Field.VALUE);
     }
 }

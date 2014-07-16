@@ -1,12 +1,11 @@
 package storm.applications.spout.generator;
 
 import backtype.storm.tuple.Values;
-import java.util.Map;
+import java.util.Date;
 import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
-import storm.applications.constants.SpikeDetectionConstants;
 import storm.applications.constants.SpikeDetectionConstants.Conf;
-import storm.applications.util.ConfigUtility;
+import storm.applications.util.Configuration;
 import storm.applications.util.StreamValues;
 
 /**
@@ -19,17 +18,17 @@ public class SensorGenerator extends Generator {
     private final Random random = new Random();
     
     @Override
-    public void initialize(Map config) {
+    public void initialize(Configuration config) {
         super.initialize(config);
         
-        count = ConfigUtility.getLong(config, Conf.GENERATOR_COUNT, 1000000);
+        count = config.getLong(Conf.GENERATOR_COUNT, 1000000);
         deviceID = RandomStringUtils.randomAlphanumeric(20);
     }
 
     @Override
     public StreamValues generate() {
         if (count-- > 0) {
-            return new StreamValues(deviceID, (random.nextDouble() * 10) + 50);                        
+            return new StreamValues(deviceID, new Date(), (random.nextDouble() * 10) + 50);                        
         } else if (count-- == -1) {
             return new StreamValues(new Values(deviceID, -1.0));
         }
