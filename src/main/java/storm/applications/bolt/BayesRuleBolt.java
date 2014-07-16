@@ -9,8 +9,9 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import storm.applications.constants.SpamFilterConstants;
+import storm.applications.constants.SpamFilterConstants.Conf;
 import storm.applications.constants.SpamFilterConstants.Field;
 import storm.applications.model.spam.Word;
 
@@ -18,21 +19,23 @@ import storm.applications.model.spam.Word;
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public class BayesRuleBolt extends BaseRichBolt {
-    private static final float SPAM_PROB = 0.9f;
+public class BayesRuleBolt extends AbstractBolt {
+    private double spamProbability;
     
-    private OutputCollector collector;
     private Map<String, AnalysisSummary> analysisSummary;
 
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(Field.ID, Field.SPAM_PROB, Field.IS_SPAM));
+    @Override
+    public Fields getDefaultFields() {
+        return new Fields(Field.ID, Field.SPAM_PROB, Field.IS_SPAM);
     }
 
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
-        analysisSummary = new HashMap<String, AnalysisSummary>();
+    @Override
+    public void initialize() {
+        spamProbability = config.getDouble(Conf.BAYES_RULE_SPAM_PROB, 0.9d);
+        analysisSummary = new HashMap<>();
     }
 
+    @Override
     public void execute(Tuple input) {
         String id    = input.getStringByField(Field.ID);
         Word word    = (Word) input.getValueByField(Field.WORD);
@@ -53,7 +56,7 @@ public class BayesRuleBolt extends BaseRichBolt {
             // calculate bayes
             float pspam = bayes(summary);
             
-            collector.emit(new Values(id, pspam, (pspam > SPAM_PROB)));
+            collector.emit(new Values(id, pspam, (pspam > spamProbability)));
             analysisSummary.remove(id);
         }
     }
@@ -88,8 +91,11 @@ public class BayesRuleBolt extends BaseRichBolt {
                 // For every word in the list already
                 Word nw = summary.get(j);
 
-                // If it's more interesting stick it in the list
-                if (word.interesting() > nw.interesting()) {
+                // If it's the same word, don't bother
+                if (word.getWord().equals(nw.getWord())) {
+                    break;
+                    // If it's more interesting stick it in the list
+                } else if (word.interesting() > nw.interesting()) {
                     summary.add(j, word);
                     break;
                 }

@@ -1,34 +1,57 @@
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import java.util.Map;
-import storm.applications.constants.SpamFilterConstants.*;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoException;
+import com.esotericsoftware.kryo.io.Input;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import storm.applications.constants.SpamFilterConstants.Conf;
+import storm.applications.constants.SpamFilterConstants.Field;
+import storm.applications.constants.SpamFilterConstants.Stream;
 import storm.applications.model.spam.Word;
+import storm.applications.model.spam.WordMap;
 
 /**
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public class WordProbabilityBolt extends BaseRichBolt {
-    private OutputCollector collector; 
-    private Map<String, Word> words;
-    private int spamTotal = 0;
-    private int hamTotal = 0;
+public class WordProbabilityBolt extends AbstractBolt {
+    private static final Logger LOG = LoggerFactory.getLogger(WordProbabilityBolt.class);
+    private static Kryo kryoInstance;
+    
+    private WordMap words;
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream(Stream.ANALYSIS, new Fields(Field.ID, Field.WORD, Field.NUM_WORDS));
+    public Fields getDefaultFields() {
+        return new Fields(Field.ID, Field.WORD, Field.NUM_WORDS);
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
+    public void initialize() {
+        String wordMapFile = config.getString(Conf.WORD_PROB_WORDMAP, null);
+        if (wordMapFile != null) {
+            try {
+                Input input = new Input(new FileInputStream(wordMapFile));
+                WordMap object = getKryoInstance().readObject(input, WordMap.class);
+                input.close();
+                words = object;
+            } catch(FileNotFoundException ex) {
+                LOG.error("The file path was not found", ex);
+            } catch(KryoException ex) {
+                LOG.error("Unable to deserialize the wordmap object", ex);
+            } finally {
+                if (words == null) {
+                    words = new WordMap();
+                }
+            }
+        } else {
+            words = new WordMap();
+        }
     }
 
     @Override
@@ -56,11 +79,11 @@ public class WordProbabilityBolt extends BaseRichBolt {
             int spamCount = input.getIntegerByField(Field.SPAM_TOTAL);
             int hamCount  = input.getIntegerByField(Field.HAM_TOTAL);
             
-            spamTotal += spamCount;
-            hamTotal  += hamCount;
+            words.incSpamTotal(spamCount);
+            words.incHamTotal(hamCount);
             
             for (Word word : words.values()) {
-                word.calcProbs(spamTotal, hamTotal);
+                word.calcProbs(words.getSpamTotal(), words.getHamTotal());
             }
         }
         
@@ -76,8 +99,17 @@ public class WordProbabilityBolt extends BaseRichBolt {
                 w.setPSpam(0.4f);
             }
             
-            collector.emit(Stream.ANALYSIS, new Values(id, w, numWords));
+            collector.emit(new Values(id, w, numWords));
         }
     }
     
+    private static Kryo getKryoInstance() {
+        if (kryoInstance == null) {
+            kryoInstance = new Kryo();
+            kryoInstance.register(Word.class, new Word.WordSerializer());
+            kryoInstance.register(WordMap.class, new WordMap.WordMapSerializer());
+        }
+        
+        return kryoInstance;
+    }
 }

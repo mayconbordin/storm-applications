@@ -7,7 +7,7 @@ import com.esotericsoftware.kryo.io.Output;
 import java.io.Serializable;
 
 public class Word implements Serializable {
-    private static final long serialVersionUID = 1005352831987770022L;
+    private static final long serialVersionUID = 1005352831987770023L;
 
     private String word;    // The String itself
     private int countBad;   // The total times it appears in "bad" messages 
@@ -15,6 +15,9 @@ public class Word implements Serializable {
     private float rBad;     // bad count / total bad words
     private float rGood;    // good count / total good words
     private float pSpam;    // probability this word is Spam
+
+    public Word() {
+    }
     
     // Create a word, initialize all vars to 0
     public Word(String s) {
@@ -54,20 +57,20 @@ public class Word implements Serializable {
         countGood += increment;
     }
     
-    public void calcProbs(int badTotal, int goodTotal) {
+    public void calcProbs(long badTotal, long goodTotal) {
         calcBadProb(badTotal);
         calcGoodProb(goodTotal);
         finalizeProb();
     }
 
     // Computer how often this word is bad
-    public void calcBadProb(int total) {
+    public void calcBadProb(long total) {
         if (total > 0)
             rBad = countBad / (float) total;
     }
 
     // Computer how often this word is good
-    public void calcGoodProb(int total) {
+    public void calcGoodProb(long total) {
         if (total > 0)
             rGood = 2*countGood / (float) total; // multiply 2 to help fight against false positives (via Graham)
     }
@@ -123,5 +126,10 @@ public class Word implements Serializable {
             return new Word(input.readString(), input.readInt(), input.readInt(),
                     input.readFloat(), input.readFloat(), input.readFloat());
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Word{" + "word=" + word + ", countBad=" + countBad + ", countGood=" + countGood + ", rBad=" + rBad + ", rGood=" + rGood + ", pSpam=" + pSpam + '}';
     }
 }

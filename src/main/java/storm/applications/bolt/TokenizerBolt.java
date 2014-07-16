@@ -18,25 +18,24 @@ import storm.applications.constants.SpamFilterConstants.*;
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public class TokenizerBolt extends BaseRichBolt {
+public class TokenizerBolt extends AbstractBolt {
     // How to split the String into  tokens
     private static final String splitregex = "\\W";
     
     // Regex to eliminate junk (although we really should welcome the junk)
     private static final Pattern wordregex = Pattern.compile("\\w+");
     
-    private OutputCollector collector;
-
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declareStream(Stream.TRAINING, new Fields(Field.WORD, Field.COUNT, Field.IS_SPAM));
-        declarer.declareStream(Stream.TRAINING_SUM, new Fields(Field.SPAM_TOTAL, Field.SPAM_TOTAL));
-        declarer.declareStream(Stream.ANALYSIS, new Fields(Field.ID, Field.WORD, Field.NUM_WORDS));
+    public Map<String, Fields> getDefaultStreamFields() {
+        Map<String, Fields> streams = new HashMap<>();
+        streams.put(Stream.TRAINING, new Fields(Field.WORD, Field.COUNT, Field.IS_SPAM));
+        streams.put(Stream.TRAINING_SUM, new Fields(Field.SPAM_TOTAL, Field.SPAM_TOTAL));
+        streams.put(Stream.ANALYSIS, new Fields(Field.ID, Field.WORD, Field.NUM_WORDS));
+        return streams;
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
+    public void initialize() {
     }
 
     @Override
@@ -78,7 +77,7 @@ public class TokenizerBolt extends BaseRichBolt {
     
     private Map<String, MutableInt> tokenize(String content) {
         String[] tokens = content.split(splitregex);
-        Map<String, MutableInt> words = new HashMap<String, MutableInt>();
+        Map<String, MutableInt> words = new HashMap<>();
 
         for (String token : tokens) {
             String word = token.toLowerCase();

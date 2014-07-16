@@ -2,85 +2,64 @@ package storm.applications.topology;
 
 import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
-import backtype.storm.spout.SchemeAsMultiScheme;
-import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
-import storm.applications.constants.SpamFilterConstants.Component;
-import storm.applications.constants.SpamFilterConstants.Conf;
-import storm.applications.constants.SpamFilterConstants.Field;
-import storm.applications.constants.SpamFilterConstants.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import storm.applications.bolt.BayesRuleBolt;
-import storm.applications.bolt.EmailParserBolt;
-import storm.applications.bolt.WordProbabilityBolt;
 import storm.applications.bolt.TokenizerBolt;
-import storm.applications.util.ConfigUtility;
-import storm.kafka.*;
+import storm.applications.bolt.WordProbabilityBolt;
+import static storm.applications.constants.SpamFilterConstants.*;
+import storm.applications.sink.BaseSink;
+import storm.applications.spout.AbstractSpout;
 
 /**
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public class SpamFilterTopology extends AbstractTopology {
-    private String kafkaTopicTraining;
-    private String kafkaTopicAnalysis;
-    private String kafkaZookeeperPath;
-    private String kafkaConsumerId;
-    private BrokerHosts brokerHosts;
+    private static final Logger LOG = LoggerFactory.getLogger(SpamFilterTopology.class);
+    
+    private AbstractSpout trainingSpout;
+    private AbstractSpout analysisSpout;
+    private BaseSink sink;
+    
     private int trainingSpoutThreads;
     private int analysisSpoutThreads;
     private int parserThreads;
     private int tokenizerThreads;
     private int wordProbThreads;
     private int bayesRuleThreads;
+    private int sinkThreads;
     
     public SpamFilterTopology(String topologyName, Config config) {
         super(topologyName, config);
     }
 
     @Override
-    public void prepare() {
-        String kafkaHost = ConfigUtility.getString(config, Conf.KAFKA_HOST);
-        brokerHosts = new ZkHosts(kafkaHost);
+    public void initialize() {
+        trainingSpout = loadSpout("training");
+        analysisSpout = loadSpout("analysis");
+        sink = loadSink();
         
-        kafkaTopicTraining = ConfigUtility.getString(config, Conf.KAFKA_TOPIC_TRAINING);
-        kafkaTopicAnalysis = ConfigUtility.getString(config, Conf.KAFKA_TOPIC_ANALYSIS);
-        kafkaZookeeperPath = ConfigUtility.getString(config, Conf.KAFKA_ZOOKEEPER_PATH);
-        kafkaConsumerId    = ConfigUtility.getString(config, Conf.KAFKA_COMSUMER_ID);
-        
-        trainingSpoutThreads = ConfigUtility.getInt(config, Conf.TRAINING_SPOUT_THREADS);
-        analysisSpoutThreads = ConfigUtility.getInt(config, Conf.ANALYSIS_SPOUT_THREADS);
-        parserThreads        = ConfigUtility.getInt(config, Conf.PARSER_THREADS);
-        tokenizerThreads     = ConfigUtility.getInt(config, Conf.TOKENIZER_THREADS);
-        wordProbThreads      = ConfigUtility.getInt(config, Conf.WORD_PROB_THREADS);
-        bayesRuleThreads     = ConfigUtility.getInt(config, Conf.BAYES_RULE_THREADS);
+        trainingSpoutThreads = config.getInt(getConfigKey(Conf.SPOUT_THREADS, "training"), 1);
+        analysisSpoutThreads = config.getInt(getConfigKey(Conf.SPOUT_THREADS, "analysis"), 1);
+        tokenizerThreads     = config.getInt(Conf.TOKENIZER_THREADS, 1);
+        wordProbThreads      = config.getInt(Conf.WORD_PROB_THREADS, 1);
+        bayesRuleThreads     = config.getInt(Conf.BAYES_RULE_THREADS, 1);
+        sinkThreads          = config.getInt(Conf.SINK_THREADS, 1);
     }
     
     @Override
     public StormTopology buildTopology() {
-        builder = new TopologyBuilder();
-        
-        // Training Spout
-        SpoutConfig trainingConf = new SpoutConfig(brokerHosts, kafkaTopicTraining, 
-                kafkaZookeeperPath, kafkaConsumerId);
-        KafkaSpout trainingSpout = new KafkaSpout(trainingConf);
-        trainingConf.scheme = new SchemeAsMultiScheme(new StringScheme());
-        
-        // Analysis Spout
-        SpoutConfig analysisConf = new SpoutConfig(brokerHosts, kafkaTopicAnalysis, 
-                kafkaZookeeperPath, kafkaConsumerId);
-        KafkaSpout analysisSpout = new KafkaSpout(analysisConf);
-        analysisConf.scheme = new SchemeAsMultiScheme(new StringScheme());
+        trainingSpout.setFields(new Fields(Field.ID, Field.MESSAGE, Field.IS_SPAM));
+        analysisSpout.setFields(new Fields(Field.ID, Field.MESSAGE));
         
         builder.setSpout(Component.TRAINING_SPOUT, trainingSpout, trainingSpoutThreads);
         builder.setSpout(Component.ANALYSIS_SPOUT, analysisSpout, analysisSpoutThreads);
-        
-        builder.setBolt(Component.PARSER, new EmailParserBolt(), parserThreads)
+
+        builder.setBolt(Component.TOKENIZER, new TokenizerBolt(), tokenizerThreads)
                .shuffleGrouping(Component.TRAINING_SPOUT)
                .shuffleGrouping(Component.ANALYSIS_SPOUT);
-        
-        builder.setBolt(Component.TOKENIZER, new TokenizerBolt(), tokenizerThreads)
-               .shuffleGrouping(Component.PARSER, Stream.TRAINING)
-               .shuffleGrouping(Component.PARSER, Stream.ANALYSIS);
         
         builder.setBolt(Component.WORD_PROBABILITY, new WordProbabilityBolt(), wordProbThreads)
                .fieldsGrouping(Component.TOKENIZER, Stream.TRAINING, new Fields(Field.WORD))
@@ -88,8 +67,21 @@ public class SpamFilterTopology extends AbstractTopology {
                .allGrouping(Component.TOKENIZER, Stream.TRAINING_SUM);
         
         builder.setBolt(Component.BAYES_RULE, new BayesRuleBolt(), bayesRuleThreads)
-               .fieldsGrouping(Component.WORD_PROBABILITY, Stream.ANALYSIS, new Fields(Field.ID));
+               .fieldsGrouping(Component.WORD_PROBABILITY, new Fields(Field.ID));
+        
+        builder.setBolt(Component.SINK, sink, sinkThreads)
+               .shuffleGrouping(Component.BAYES_RULE);
         
         return builder.createTopology();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return LOG;
+    }
+
+    @Override
+    public String getConfigPrefix() {
+        return PREFIX;
     }
 }
