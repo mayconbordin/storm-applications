@@ -19,15 +19,15 @@ public class ClassLoaderUtils {
             return classObject.newInstance();
         } catch (ClassNotFoundException ex) {
             String error = String.format(NOT_FOUND_ERROR, name, className);
-            logger.error(error);
+            logger.error(error, ex);
             throw new RuntimeException(error, ex);
         } catch (IllegalAccessException ex) {
             String error = String.format(ILLEGAL_ACCESS_ERROR, name, className);
-            logger.error(error);
+            logger.error(error, ex);
             throw new RuntimeException(error, ex);
         } catch (InstantiationException ex) {
             String error = String.format(INSTANTIATION_ERROR, name, className);
-            logger.error(error);
+            logger.error(error, ex);
             throw new RuntimeException(error, ex);
         }
     }
