@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import storm.applications.bolt.AbstractBolt;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.constants.BaseConstants.BaseConst;
+import storm.applications.sink.formatter.BasicFormatter;
 import storm.applications.sink.formatter.Formatter;
 import storm.applications.util.ClassLoaderUtils;
 
@@ -15,8 +16,13 @@ public abstract class BaseSink extends AbstractBolt {
     
     @Override
     public void initialize() {
-        String formatterClass = config.getString(getConfigKey(BaseConf.SINK_FORMATTER));
-        formatter = (Formatter) ClassLoaderUtils.newInstance(formatterClass, "formatter", getLogger());
+        String formatterClass = config.getString(getConfigKey(BaseConf.SINK_FORMATTER), null);
+        
+        if (formatterClass == null) {
+            formatter = new BasicFormatter();
+        } else {
+            formatter = (Formatter) ClassLoaderUtils.newInstance(formatterClass, "formatter", getLogger());
+        }
     }
     
     @Override
