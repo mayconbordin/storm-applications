@@ -15,22 +15,22 @@ public class CTBolt extends AbstractFilterBolt {
     private static final Logger LOG = LoggerFactory.getLogger(CTBolt.class);
 
     public CTBolt(String configPrefix) {
-        super(configPrefix, CALLTIME_FIELD);
+        super(configPrefix, Field.CALLTIME);
     }
     
     @Override
     public void execute(Tuple input) {
-        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(RECORD_FIELD);
-        boolean newCallee = input.getBooleanByField(NEW_CALLEE_FIELD);
+        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(Field.RECORD);
+        boolean newCallee = input.getBooleanByField(Field.NEW_CALLEE);
         
         if (cdr.isCallEstablished() && newCallee) {
-            String caller = input.getStringByField(CALLING_NUM_FIELD);
+            String caller = input.getStringByField(Field.CALLING_NUM);
             long timestamp = cdr.getAnswerTime().getMillis()/1000;
 
             filter.add(caller, cdr.getCallDuration(), timestamp);
             double calltime = filter.estimateCount(caller, timestamp);
 
-            LOG.info(String.format("CallTime: %f", calltime));
+            LOG.debug(String.format("CallTime: %f", calltime));
             collector.emit(new Values(caller, timestamp, calltime, cdr));
         }
     }

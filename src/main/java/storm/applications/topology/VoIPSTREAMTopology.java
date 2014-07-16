@@ -2,8 +2,9 @@ package storm.applications.topology;
 
 import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
-import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static storm.applications.constants.VoIPSTREAMConstants.*;
 import storm.applications.bolt.ACDBolt;
 import storm.applications.bolt.CTBolt;
@@ -15,16 +16,14 @@ import storm.applications.bolt.RCRBolt;
 import storm.applications.bolt.ScoreBolt;
 import storm.applications.bolt.URLBolt;
 import storm.applications.bolt.VariationDetectorBolt;
-import storm.applications.sink.FileSink;
-import storm.applications.spout.CDRGeneratorSpout;
-import storm.applications.util.ConfigUtility;
 
 /**
  * 
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public class VoIPSTREAMTopology extends AbstractTopology {
-    private int spoutThreads;
+public class VoIPSTREAMTopology extends BasicTopology {
+    private static final Logger LOG = LoggerFactory.getLogger(VoIPSTREAMTopology.class);
+    
     private int varDetectThreads;
     private int ecrThreads;
     private int rcrThreads;
@@ -33,98 +32,97 @@ public class VoIPSTREAMTopology extends AbstractTopology {
     private int ct24Threads;
     private int fofirThreads;
     private int urlThreads;
-    private int globalAcdThreads;
     private int acdThreads;
     private int scorerThreads;
-    private int sinkThreads;
-    private String spoutType;
-    private String spoutPath;
 
     public VoIPSTREAMTopology(String topologyName, Config config) {
         super(topologyName, config);
     }
 
     @Override
-    public void prepare() {
-        spoutThreads     = ConfigUtility.getInt(config, "voipstream.spout.threads");
-        varDetectThreads = ConfigUtility.getInt(config, "voipstream.vardetect.threads");
-        ecrThreads       = ConfigUtility.getInt(config, "voipstream.ecr.threads");
-        rcrThreads       = ConfigUtility.getInt(config, "voipstream.rcr.threads");
-        encrThreads      = ConfigUtility.getInt(config, "voipstream.encr.threads");
-        ecr24Threads     = ConfigUtility.getInt(config, "voipstream.ecr24.threads");
-        ct24Threads      = ConfigUtility.getInt(config, "voipstream.ct24.threads");
-        fofirThreads     = ConfigUtility.getInt(config, "voipstream.fofir.threads");
-        urlThreads       = ConfigUtility.getInt(config, "voipstream.url.threads");
-        globalAcdThreads = ConfigUtility.getInt(config, "voipstream.globalacd.threads");
-        acdThreads       = ConfigUtility.getInt(config, "voipstream.acd.threads");
-        scorerThreads    = ConfigUtility.getInt(config, "voipstream.scorer.threads");
-        sinkThreads      = ConfigUtility.getInt(config, "voipstream.sink.threads");
-        spoutType        = ConfigUtility.getString(config, "voipstream.spout.type");
-        spoutPath        = ConfigUtility.getString(config, "voipstream.sink.path");
+    public void initialize() {
+        varDetectThreads = config.getInt(Conf.VAR_DETECT_THREADS, 1);
+        ecrThreads       = config.getInt(Conf.ECR_THREADS, 1);
+        rcrThreads       = config.getInt(Conf.RCR_THREADS, 1);
+        encrThreads      = config.getInt(Conf.ENCR_THREADS, 1);
+        ecr24Threads     = config.getInt(Conf.ECR24_THREADS, 1);
+        ct24Threads      = config.getInt(Conf.CT24_THREADS, 1);
+        fofirThreads     = config.getInt(Conf.FOFIR_THREADS, 1);
+        urlThreads       = config.getInt(Conf.URL_THREADS, 1);
+        acdThreads       = config.getInt(Conf.ACD_THREADS, 1);
+        scorerThreads    = config.getInt(Conf.SCORER_THREADS, 1);
     }
     
     @Override
     public StormTopology buildTopology() {
-        builder = new TopologyBuilder();
-
-        if (spoutType.equals(SPOUT_GENERATOR))
-            builder.setSpout(CDR_SPOUT, new CDRGeneratorSpout(), spoutThreads);
-
+        spout.setFields(new Fields(Field.CALLING_NUM, Field.CALLED_NUM, Field.ANSWER_TIME, Field.RECORD));
         
-        builder.setBolt(VARIATION_DETECTOR_BOLT, new VariationDetectorBolt(), varDetectThreads)
-               .fieldsGrouping(CDR_SPOUT, new Fields(CALLING_NUM_FIELD, CALLED_NUM_FIELD));
+        builder.setSpout(Component.SPOUT, spout, spoutThreads);
+
+        builder.setBolt(Component.VARIATION_DETECTOR, new VariationDetectorBolt(), varDetectThreads)
+               .fieldsGrouping(Component.SPOUT, new Fields(Field.CALLING_NUM, Field.CALLED_NUM));
         
         // Filters
 
-        builder.setBolt(ECR_BOLT, new ECRBolt("ecr"), ecrThreads)
-               .fieldsGrouping(VARIATION_DETECTOR_BOLT, new Fields(CALLING_NUM_FIELD));
+        builder.setBolt(Component.ECR, new ECRBolt("ecr"), ecrThreads)
+               .fieldsGrouping(Component.VARIATION_DETECTOR, new Fields(Field.CALLING_NUM));
         
-        builder.setBolt(RCR_BOLT, new RCRBolt(), rcrThreads)
-               .fieldsGrouping(VARIATION_DETECTOR_BOLT, BACKUP_STREAM, new Fields(CALLING_NUM_FIELD))
-               .fieldsGrouping(VARIATION_DETECTOR_BOLT, new Fields(CALLED_NUM_FIELD));
+        builder.setBolt(Component.RCR, new RCRBolt(), rcrThreads)
+               .fieldsGrouping(Component.VARIATION_DETECTOR, Stream.BACKUP, new Fields(Field.CALLING_NUM))
+               .fieldsGrouping(Component.VARIATION_DETECTOR, new Fields(Field.CALLED_NUM));
         
-        builder.setBolt(ENCR_BOLT, new ENCRBolt(), encrThreads)
-               .fieldsGrouping(VARIATION_DETECTOR_BOLT, new Fields(CALLING_NUM_FIELD));
+        builder.setBolt(Component.ENCR, new ENCRBolt(), encrThreads)
+               .fieldsGrouping(Component.VARIATION_DETECTOR, new Fields(Field.CALLING_NUM));
         
-        builder.setBolt(ECR24_BOLT, new ECRBolt("ecr24"), ecr24Threads)
-               .fieldsGrouping(VARIATION_DETECTOR_BOLT, new Fields(CALLING_NUM_FIELD));
+        builder.setBolt(Component.ECR24, new ECRBolt("ecr24"), ecr24Threads)
+               .fieldsGrouping(Component.VARIATION_DETECTOR, new Fields(Field.CALLING_NUM));
  
-        builder.setBolt(CT24_BOLT, new CTBolt("ct24"), ct24Threads)
-               .fieldsGrouping(VARIATION_DETECTOR_BOLT, new Fields(CALLING_NUM_FIELD));
+        builder.setBolt(Component.CT24, new CTBolt("ct24"), ct24Threads)
+               .fieldsGrouping(Component.VARIATION_DETECTOR, new Fields(Field.CALLING_NUM));
         
         
         // Modules
         
-        builder.setBolt(FOFIR_BOLT, new FoFiRBolt(), fofirThreads)
-               .fieldsGrouping(RCR_BOLT, new Fields(CALLING_NUM_FIELD))
-               .fieldsGrouping(ECR_BOLT, new Fields(CALLING_NUM_FIELD));
+        builder.setBolt(Component.FOFIR, new FoFiRBolt(), fofirThreads)
+               .fieldsGrouping(Component.RCR, new Fields(Field.CALLING_NUM))
+               .fieldsGrouping(Component.ECR, new Fields(Field.CALLING_NUM));
         
         
-        builder.setBolt(URL_BOLT, new URLBolt(), urlThreads)
-               .fieldsGrouping(ENCR_BOLT, new Fields(CALLING_NUM_FIELD))
-               .fieldsGrouping(ECR_BOLT, new Fields(CALLING_NUM_FIELD));
+        builder.setBolt(Component.URL, new URLBolt(), urlThreads)
+               .fieldsGrouping(Component.ENCR, new Fields(Field.CALLING_NUM))
+               .fieldsGrouping(Component.ECR, new Fields(Field.CALLING_NUM));
         
         // the average must be global, so there must be a single instance doing that
         // perhaps a separate bolt, or if multiple bolts are used then a merger should
         // be employed at the end point.
-        builder.setBolt(GLOBAL_ACD_BOLT, new GlobalACDBolt(), globalAcdThreads)
-               .fieldsGrouping(VARIATION_DETECTOR_BOLT, new Fields(CALLING_NUM_FIELD));
+        builder.setBolt(Component.GLOBAL_ACD, new GlobalACDBolt(), 1)
+               .allGrouping(Component.VARIATION_DETECTOR);
         
-        builder.setBolt(ACD_BOLT, new ACDBolt(), acdThreads)
-               .fieldsGrouping(ECR24_BOLT, new Fields(CALLING_NUM_FIELD))
-               .fieldsGrouping(CT24_BOLT, new Fields(CALLING_NUM_FIELD))
-               .allGrouping(GLOBAL_ACD_BOLT);
+        builder.setBolt(Component.ACD, new ACDBolt(), acdThreads)
+               .fieldsGrouping(Component.ECR24, new Fields(Field.CALLING_NUM))
+               .fieldsGrouping(Component.CT24, new Fields(Field.CALLING_NUM))
+               .allGrouping(Component.GLOBAL_ACD);
         
         
         // Score
-        builder.setBolt(SCORER_BOLT, new ScoreBolt(), scorerThreads)
-               .fieldsGrouping(FOFIR_BOLT, new Fields(CALLING_NUM_FIELD))
-               .fieldsGrouping(URL_BOLT, new Fields(CALLING_NUM_FIELD))
-               .fieldsGrouping(ACD_BOLT, new Fields(CALLING_NUM_FIELD));
+        builder.setBolt(Component.SCORER, new ScoreBolt(), scorerThreads)
+               .fieldsGrouping(Component.FOFIR, new Fields(Field.CALLING_NUM))
+               .fieldsGrouping(Component.URL, new Fields(Field.CALLING_NUM))
+               .fieldsGrouping(Component.ACD, new Fields(Field.CALLING_NUM));
         
-        builder.setBolt(FILE_SINK, new FileSink(spoutPath), sinkThreads)
-               .fieldsGrouping(SCORER_BOLT, new Fields(CALLING_NUM_FIELD));
+        builder.setBolt(Component.SINK, sink, sinkThreads)
+               .fieldsGrouping(Component.SCORER, new Fields(Field.CALLING_NUM));
         
         return builder.createTopology();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return LOG;
+    }
+
+    @Override
+    public String getConfigPrefix() {
+        return PREFIX;
     }
 }

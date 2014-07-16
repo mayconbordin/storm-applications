@@ -10,18 +10,16 @@ import java.util.HashMap;
 import java.util.Map;
 import static storm.applications.constants.VoIPSTREAMConstants.*;
 import storm.applications.model.cdr.CallDetailRecord;
-import storm.applications.util.ConfigUtility;
 
 /**
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public abstract class AbstractScoreBolt extends BaseRichBolt {
+public abstract class AbstractScoreBolt extends AbstractBolt {
     protected static enum Source {
         ECR, RCR, ECR24, ENCR, CT24, VD, FOFIR, ACD, GACD, URL, NONE
     }
     
-    protected OutputCollector collector;
     protected double thresholdMin;
     protected double thresholdMax;
     protected String configPrefix;
@@ -32,45 +30,43 @@ public abstract class AbstractScoreBolt extends BaseRichBolt {
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(CALLING_NUM_FIELD, TIMESTAMP_FIELD, SCORE_FIELD, RECORD_FIELD));
+    public Fields getDefaultFields() {
+        return new Fields(Field.CALLING_NUM, Field.TIMESTAMP, Field.SCORE, Field.RECORD);
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
-        
-        map = new HashMap<String, Entry>();
+    public void initialize() {
+        map = new HashMap<>();
 
         // parameters
         if (configPrefix != null) {
-            thresholdMin = ConfigUtility.getDouble(stormConf, "voipstream." + configPrefix + ".threshold.min");
-            thresholdMax = ConfigUtility.getDouble(stormConf, "voipstream." + configPrefix + ".threshold.max");
+            thresholdMin = config.getDouble(String.format(Conf.SCORE_THRESHOLD_MIN, configPrefix));
+            thresholdMax = config.getDouble(String.format(Conf.SCORE_THRESHOLD_MAX, configPrefix));
         }
     }
     
     protected abstract Source[] getFields();
     
     protected static Source parseComponentId(String id) {
-        if (id.equals(VARIATION_DETECTOR_BOLT))
+        if (id.equals(Component.VARIATION_DETECTOR))
             return Source.VD;
-        else if (id.equals(ECR24_BOLT))
+        else if (id.equals(Component.ECR24))
             return Source.ECR24;
-        else if (id.equals(CT24_BOLT))
+        else if (id.equals(Component.CT24))
             return Source.CT24;
-        else if (id.equals(ECR_BOLT))
+        else if (id.equals(Component.ECR))
             return Source.ECR;
-        else if (id.equals(RCR_BOLT))
+        else if (id.equals(Component.RCR))
             return Source.RCR;
-        else if (id.equals(ENCR_BOLT))
+        else if (id.equals(Component.ENCR))
             return Source.ENCR;
-        else if (id.equals(ACD_BOLT))
+        else if (id.equals(Component.ACD))
             return Source.ACD;
-        else if (id.equals(GLOBAL_ACD_BOLT))
+        else if (id.equals(Component.GLOBAL_ACD))
             return Source.GACD;
-        else if (id.equals(URL_BOLT))
+        else if (id.equals(Component.URL))
             return Source.URL;
-        else if (id.equals(FOFIR_BOLT))
+        else if (id.equals(Component.FOFIR))
             return Source.FOFIR;
         else
             return Source.NONE;

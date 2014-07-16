@@ -1,16 +1,12 @@
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import java.util.Arrays;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static storm.applications.constants.VoIPSTREAMConstants.*;
 import storm.applications.model.cdr.CallDetailRecord;
-import storm.applications.util.ConfigUtility;
 
 /**
  *
@@ -26,13 +22,13 @@ public class ScoreBolt extends AbstractScoreBolt {
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        super.prepare(stormConf, context, collector);
+    public void initialize() {
+        super.initialize();
                 
         // parameters
-        double fofirWeight = ConfigUtility.getDouble(stormConf, "voipstream.fofir.weight");
-        double urlWeight   = ConfigUtility.getDouble(stormConf, "voipstream.url.weight");
-        double acdWeight   = ConfigUtility.getDouble(stormConf, "voipstream.acd.weight");
+        double fofirWeight = config.getDouble(Conf.FOFIR_WEIGHT);
+        double urlWeight   = config.getDouble(Conf.URL_WEIGHT);
+        double acdWeight   = config.getDouble(Conf.ACD_WEIGHT);
         
         weights = new double[3];
         weights[0] = fofirWeight;
@@ -42,7 +38,7 @@ public class ScoreBolt extends AbstractScoreBolt {
 
     @Override
     public void execute(Tuple input) {
-        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(RECORD_FIELD);
+        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(Field.RECORD);
         Source src     = parseComponentId(input.getSourceComponent());
         String caller  = cdr.getCallingNumber();
         long timestamp = cdr.getAnswerTime().getMillis()/1000;

@@ -15,16 +15,16 @@ public class ENCRBolt extends AbstractFilterBolt {
     private static final Logger LOG = LoggerFactory.getLogger(ENCRBolt.class);
 
     public ENCRBolt() {
-        super("encr", RATE_FIELD);
+        super("encr", Field.RATE);
     }
 
     @Override
     public void execute(Tuple input) {
-        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(RECORD_FIELD);
-        boolean newCallee = input.getBooleanByField(NEW_CALLEE_FIELD);
+        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(Field.RECORD);
+        boolean newCallee = input.getBooleanByField(Field.NEW_CALLEE);
         
         if (cdr.isCallEstablished() && newCallee) {
-            String caller = input.getStringByField(CALLING_NUM_FIELD);
+            String caller = input.getStringByField(Field.CALLING_NUM);
             long timestamp = cdr.getAnswerTime().getMillis()/1000;
 
             filter.add(caller, 1, timestamp);

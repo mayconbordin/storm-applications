@@ -12,36 +12,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static storm.applications.constants.VoIPSTREAMConstants.*;
 import storm.applications.model.cdr.CallDetailRecord;
-import storm.applications.util.ConfigUtility;
 import storm.applications.util.VariableEWMA;
 
 /**
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public class GlobalACDBolt extends BaseRichBolt {
+public class GlobalACDBolt extends AbstractBolt {
     private static final Logger LOG = LoggerFactory.getLogger(GlobalACDBolt.class);
     
-    private OutputCollector collector;
     private VariableEWMA avgCallDuration;
-    private double age;
+    private double decayFactor;
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(TIMESTAMP_FIELD, AVERAGE_FIELD));
+    public Fields getDefaultFields() {
+        return new Fields(Field.TIMESTAMP, Field.AVERAGE);
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
-
-        age = ConfigUtility.getDouble(stormConf, "voipstream.acd.age"); //86400s = 24h
-        avgCallDuration = new VariableEWMA(age);
+    public void initialize() {
+        decayFactor = config.getDouble(Conf.ACD_DECAY_FACTOR, 86400); //86400s = 24h
+        avgCallDuration = new VariableEWMA(decayFactor);
     }
 
     @Override
     public void execute(Tuple input) {
-        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(RECORD_FIELD);
+        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(Field.RECORD);
         long timestamp = cdr.getAnswerTime().getMillis()/1000;
 
         avgCallDuration.add(cdr.getCallDuration());

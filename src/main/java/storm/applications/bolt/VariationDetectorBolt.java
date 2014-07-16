@@ -2,24 +2,19 @@ package storm.applications.bolt;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import java.util.HashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static storm.applications.constants.VoIPSTREAMConstants.*;
 import storm.applications.model.cdr.CallDetailRecord;
 import storm.applications.util.BloomFilter;
-import storm.applications.util.ConfigUtility;
 
-public class VariationDetectorBolt extends BaseRichBolt {
-    private static final Logger LOG = Logger.getLogger(VariationDetectorBolt.class);
+public class VariationDetectorBolt extends AbstractBolt {
+    private static final Logger LOG = LoggerFactory.getLogger(VariationDetectorBolt.class);
     
-    private OutputCollector collector;
     private BloomFilter<String> detector;
     private BloomFilter<String> learner;
     private int approxInsertSize;
@@ -27,30 +22,31 @@ public class VariationDetectorBolt extends BaseRichBolt {
     private double cycleThreshold;
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        Fields fields = new Fields(CALLING_NUM_FIELD, CALLED_NUM_FIELD, ANSWER_TIME_FIELD,
-                NEW_CALLEE_FIELD, RECORD_FIELD);
+    public Map<String, Fields> getDefaultStreamFields() {
+        Map<String, Fields> streams = new HashMap<>();
+
+        Fields fields = new Fields(Field.CALLING_NUM, Field.CALLED_NUM, Field.ANSWER_TIME, Field.NEW_CALLEE, Field.RECORD);
         
-        declarer.declare(fields);
-        declarer.declareStream(BACKUP_STREAM, fields);
+        streams.put(Stream.DEFAULT, fields);
+        streams.put(Stream.BACKUP, fields);
+        
+        return streams;
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
+    public void initialize() {
+        approxInsertSize = config.getInt(Conf.VAR_DETECT_APROX_SIZE);
+        falsePostiveRate = config.getDouble(Conf.VAR_DETECT_ERROR_RATE);
         
-        approxInsertSize = ConfigUtility.getInt(stormConf, "voipstream.variation.aprox_size");
-        falsePostiveRate = ConfigUtility.getDouble(stormConf, "voipstream.variation.error_rate");
-        
-        detector = new BloomFilter<String>(falsePostiveRate, approxInsertSize);
-        learner  = new BloomFilter<String>(falsePostiveRate, approxInsertSize);
+        detector = new BloomFilter<>(falsePostiveRate, approxInsertSize);
+        learner  = new BloomFilter<>(falsePostiveRate, approxInsertSize);
         
         cycleThreshold = detector.size()/Math.sqrt(2);
     }
 
     @Override
     public void execute(Tuple input) {
-        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(RECORD_FIELD);
+        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(Field.RECORD);
         String key = String.format("%s:%s", cdr.getCallingNumber(), cdr.getCalledNumber());
         boolean newCallee = false;
         
@@ -69,11 +65,11 @@ public class VariationDetectorBolt extends BaseRichBolt {
             rotateFilters();
         }
         
-        Values v = new Values(cdr.getCallingNumber(), cdr.getCalledNumber(), 
+        Values values = new Values(cdr.getCallingNumber(), cdr.getCalledNumber(), 
                 cdr.getAnswerTime(), newCallee, cdr);
         
-        collector.emit(v);
-        collector.emit(BACKUP_STREAM, v);
+        collector.emit(values);
+        collector.emit(Stream.BACKUP, values);
     }
     
     private void rotateFilters() {

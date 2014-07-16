@@ -9,17 +9,15 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static storm.applications.constants.VoIPSTREAMConstants.*;
-import storm.applications.util.ConfigUtility;
 import storm.applications.util.ODTDBloomFilter;
 
 /**
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
-public abstract class AbstractFilterBolt extends BaseRichBolt {
+public abstract class AbstractFilterBolt extends AbstractBolt {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractFilterBolt.class);
     
-    protected OutputCollector collector;
     protected ODTDBloomFilter filter;
     
     protected String configPrefix;
@@ -31,19 +29,16 @@ public abstract class AbstractFilterBolt extends BaseRichBolt {
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(CALLING_NUM_FIELD, TIMESTAMP_FIELD, outputField, RECORD_FIELD));
+    public Fields getDefaultFields() {
+        return new Fields(Field.CALLING_NUM, Field.TIMESTAMP, outputField, Field.RECORD);
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
-        
-        // parameters
-        int numElements       = ConfigUtility.getInt(stormConf, "voipstream." + configPrefix + ".num_elements");
-        int bucketsPerElement = ConfigUtility.getInt(stormConf, "voipstream." + configPrefix + ".buckets_per_element");
-        int bucketsPerWord    = ConfigUtility.getInt(stormConf, "voipstream." + configPrefix + ".buckets_per_word");
-        double beta           = ConfigUtility.getDouble(stormConf, "voipstream." + configPrefix + ".beta");
+    public void initialize() {
+        int numElements       = config.getInt(String.format(Conf.FILTER_NUM_ELEMENTS, configPrefix));
+        int bucketsPerElement = config.getInt(String.format(Conf.FILTER_BUCKETS_PEL, configPrefix));
+        int bucketsPerWord    = config.getInt(String.format(Conf.FILTER_BUCKETS_PWR, configPrefix));
+        double beta           = config.getDouble(String.format(Conf.FILTER_BETA, configPrefix));
         
         filter = new ODTDBloomFilter(numElements, bucketsPerElement, beta, bucketsPerWord);
     }

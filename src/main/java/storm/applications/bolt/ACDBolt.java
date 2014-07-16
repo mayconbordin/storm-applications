@@ -20,13 +20,14 @@ public class ACDBolt extends AbstractScoreBolt {
         super("acd");
     }
 
+    @Override
     public void execute(Tuple input) {
         Source src = parseComponentId(input.getSourceComponent());
         
         if (src == Source.GACD) {
-            avg = input.getDoubleByField(AVERAGE_FIELD);
+            avg = input.getDoubleByField(Field.AVERAGE);
         } else {
-            CallDetailRecord cdr = (CallDetailRecord) input.getValueByField("record");
+            CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(Field.RECORD);
             String number  = input.getString(0);
             long timestamp = input.getLong(1);
             double rate    = input.getDouble(2);

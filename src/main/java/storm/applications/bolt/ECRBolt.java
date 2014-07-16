@@ -15,12 +15,12 @@ public class ECRBolt extends AbstractFilterBolt {
     private static final Logger LOG = LoggerFactory.getLogger(ECRBolt.class);
 
     public ECRBolt(String configPrefix) {
-        super(configPrefix, RATE_FIELD);
+        super(configPrefix, Field.RATE);
     }
 
     @Override
     public void execute(Tuple input) {
-        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(RECORD_FIELD);
+        CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(Field.RECORD);
         
         if (cdr.isCallEstablished()) {
             String caller  = cdr.getCallingNumber();
