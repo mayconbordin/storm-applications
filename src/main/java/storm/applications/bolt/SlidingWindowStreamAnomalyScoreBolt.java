@@ -5,10 +5,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -19,34 +15,28 @@ import static storm.applications.constants.MachineOutlierConstants.*;
  * @author yexijiang
  *
  */
-public class SlidingWindowStreamAnomalyScoreBolt extends BaseRichBolt {
+public class SlidingWindowStreamAnomalyScoreBolt extends AbstractBolt {
     // hold the recent scores for each stream
     private Map<String, Queue<Double>> slidingWindowMap;
     private int windowLength;
-    private OutputCollector collector;
     private long previousTimestamp;
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        Object objL = stormConf.get("sliding.window.length");
-        if (objL == null || objL.toString().trim().length() == 0) {
-            this.windowLength = 10;
-        } else {
-            this.windowLength = Integer.parseInt(objL.toString());
-        }
-        this.slidingWindowMap = new HashMap<String, Queue<Double>>();
-        this.collector = collector;
-        this.previousTimestamp = 0;
+    public void initialize() {
+        windowLength = config.getInt(Conf.ANOMALY_SCORER_WINDOW_LENGTH, 10);
+        slidingWindowMap = new HashMap<>();
+        previousTimestamp = 0;
     }
 
     @Override
     public void execute(Tuple input) {
-        long timestamp = input.getLong(2);
-        String id = input.getString(0);
-        double dataInstanceAnomalyScore = input.getDouble(1);
+        long timestamp = input.getLongByField(Field.TIMESTAMP);
+        String id = input.getStringByField(Field.ID);
+        double dataInstanceAnomalyScore = input.getDoubleByField(Field.DATAINST_ANOMALY_SCORE);
+        
         Queue<Double> slidingWindow = slidingWindowMap.get(id);
         if (slidingWindow == null) {
-            slidingWindow = new LinkedList<Double>();
+            slidingWindow = new LinkedList<>();
         }
 
         // update sliding window
@@ -61,13 +51,12 @@ public class SlidingWindowStreamAnomalyScoreBolt extends BaseRichBolt {
             sumScore += score;
         }
         
-        this.collector.emit(new Values(id, sumScore, timestamp, input.getValue(3), dataInstanceAnomalyScore));
-        this.collector.ack(input);
+        collector.emit(new Values(id, sumScore, timestamp, input.getValue(3), dataInstanceAnomalyScore));
+        collector.ack(input);
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(ID_FIELD, STREAM_ANOMALY_SCORE_FIELD, TIMESTAMP_FIELD,
-            OBSERVATION_FIELD, CUR_DATAINST_SCORE_FIELD));
+    public Fields getDefaultFields() {
+        return new Fields(Field.ID, Field.STREAM_ANOMALY_SCORE, Field.TIMESTAMP, Field.OBSERVATION, Field.CUR_DATAINST_SCORE);
     }
 }

@@ -2,12 +2,6 @@ package storm.applications.bolt;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -19,24 +13,23 @@ import storm.applications.util.BFPRT;
  * @author yexijiang
  *
  */
-public class AlertTriggerBolt extends BaseRichBolt {
+public class AlertTriggerBolt extends AbstractBolt {
     private static final double dupper = Math.sqrt(2);
     private long previousTimestamp;
-    private OutputCollector collector;
     private List<Tuple> streamList;
     private double minDataInstanceScore = Double.MAX_VALUE;
     private double maxDataInstanceScore = 0;
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
-        this.previousTimestamp = 0;
-        this.streamList = new ArrayList<Tuple>();
+    public void initialize() {
+        previousTimestamp = 0;
+        streamList = new ArrayList<>();
     }
 
     @Override
     public void execute(Tuple input) {
-        long timestamp = input.getLong(2);
+        long timestamp = input.getLongByField(Field.TIMESTAMP);
+        
         if (timestamp > previousTimestamp) {
             // new batch of stream scores
             if (!streamList.isEmpty()) {
@@ -52,9 +45,9 @@ public class AlertTriggerBolt extends BaseRichBolt {
                     boolean isAbnormal = false;
 
                     // current stream score deviates from the majority
-                    if((streamScore > 2 * medianScore - minScore) && (streamScore > minScore + 2 * dupper)) {
+                    if ((streamScore > 2 * medianScore - minScore) && (streamScore > minScore + 2 * dupper)) {
                         // check whether cur data instance score return to normal
-                        if(curDataInstScore > 0.1 + minDataInstanceScore) {
+                        if (curDataInstScore > 0.1 + minDataInstanceScore) {
                             isAbnormal = true;
                         }
                     }
@@ -63,12 +56,12 @@ public class AlertTriggerBolt extends BaseRichBolt {
                     collector.emit(new Values(streamProfile.getString(0), streamScore, streamProfile.getLong(2), isAbnormal, streamProfile.getValue(3)));
                 }
                 
-                this.streamList.clear();
+                streamList.clear();
                 minDataInstanceScore = Double.MAX_VALUE;
                 maxDataInstanceScore = 0;
             }
 
-            this.previousTimestamp = timestamp;
+            previousTimestamp = timestamp;
         }
 
         double dataInstScore = input.getDouble(4);
@@ -80,14 +73,13 @@ public class AlertTriggerBolt extends BaseRichBolt {
             minDataInstanceScore = dataInstScore;
         }
 
-        this.streamList.add(input);
-        this.collector.ack(input);
+        streamList.add(input);
+        collector.ack(input);
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(ANOMALY_STREAM_FIELD, STREAM_ANOMALY_SCORE_FIELD, 
-                TIMESTAMP_FIELD, IS_ABNORMAL_FIELD, OBSERVATION_FIELD));
+    public Fields getDefaultFields() {
+        return new Fields(Field.ANOMALY_STREAM, Field.STREAM_ANOMALY_SCORE, Field.TIMESTAMP, Field.IS_ABNORMAL, Field.OBSERVATION);
     }
 
     /**
@@ -95,7 +87,7 @@ public class AlertTriggerBolt extends BaseRichBolt {
      * @return
      */
     private List<Tuple> identifyAbnormalStreams() {
-        List<Tuple> abnormalStreamList = new ArrayList<Tuple>();
+        List<Tuple> abnormalStreamList = new ArrayList<>();
         int medianIdx = (int)(streamList.size() / 2);
         BFPRT.bfprt(streamList, medianIdx);
         abnormalStreamList.addAll(streamList);

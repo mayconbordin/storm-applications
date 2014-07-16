@@ -18,28 +18,23 @@ import storm.applications.model.metadata.MachineMetadata;
 import storm.applications.util.Entropy;
 import storm.applications.util.MaximumLikelihoodNormalDistribution;
 
-public class DataInstancesScoreBolt extends BaseRichBolt {
-    private OutputCollector collector;
+public class DataInstancesScoreBolt extends AbstractBolt {
     private long previousTimestamp;
     private Map<Double, List<String>> histogram; // histogram for a batch of data
                                                                                                                                                                                             // instances.
     private int totalCountInBatch; // total count for a batch of data instances.
 
-    public DataInstancesScoreBolt() {
-        this.previousTimestamp = 0;
-        histogram = new HashMap<Double, List<String>>();
+    @Override
+    public void initialize() {
+        previousTimestamp = 0;
+        histogram = new HashMap<>();
         totalCountInBatch = 0;
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
-    }
-
-    @Override
     public void execute(Tuple input) {
-        long curTimestamp = input.getLong(0);
-        String machineIp = input.getString(1);
+        long curTimestamp = input.getLongByField(Field.TIMESTAMP);
+        String machineIp = input.getStringByField(Field.ID);
         
         if (curTimestamp != previousTimestamp && totalCountInBatch != 0) { 
             // score data instances of previous batch
@@ -61,7 +56,6 @@ public class DataInstancesScoreBolt extends BaseRichBolt {
             }
 
             // emit to stream score bolt
-            String output = "";
             Set<Double> keySet = histogram.keySet();
             for (double key : keySet) {
                 List<String> entityList = histogram.get(key);
@@ -81,7 +75,6 @@ public class DataInstancesScoreBolt extends BaseRichBolt {
 
                 for (String entityId : entityList) {
                     collector.emit(new Values(entityId, curTimestamp, score));
-                    output += "\t\tEntity: " + entityId + "\tScore:" + score + "\t\tCPU idle:" + key + "\n";
                 }
             }
 
@@ -95,7 +88,7 @@ public class DataInstancesScoreBolt extends BaseRichBolt {
         idleTime = idleTime > 0 ? idleTime / 100000 * 100000 : 0;
         List<String> instancesList = histogram.get(idleTime);
         if (instancesList == null) {
-            instancesList = new ArrayList<String>();
+            instancesList = new ArrayList<>();
         }
         
         instancesList.add(machineIp);
@@ -104,7 +97,7 @@ public class DataInstancesScoreBolt extends BaseRichBolt {
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(ENTITY_ID_FIELD, TIMESTAMP_FIELD, DATAINST_SCORE_FIELD));
+    public Fields getDefaultFields() {
+        return new Fields(Field.ENTITY_ID, Field.TIMESTAMP, Field.DATAINST_SCORE);
     }
 }

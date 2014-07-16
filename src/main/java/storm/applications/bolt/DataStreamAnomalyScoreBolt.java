@@ -18,96 +18,74 @@ import static storm.applications.constants.MachineOutlierConstants.*;
  * @param <T>
  *
  */
-public class DataStreamAnomalyScoreBolt<T> extends BaseRichBolt {
+public class DataStreamAnomalyScoreBolt<T> extends AbstractBolt {
     private Map<String, StreamProfile<T>> streamProfiles;
-    private OutputCollector collector;
     private double lambda;
     private double factor;
     private double threashold;
     private boolean shrinkNextRound;
     private long previousTimestamp;
 
-    public DataStreamAnomalyScoreBolt() {
-    }
-
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
-        this.lambda = Double.parseDouble(stormConf.get("lambda").toString());
+    public void initialize() {
+        this.lambda = config.getDouble(Conf.ANOMALY_SCORER_LAMBDA);
         this.factor = Math.pow(Math.E, -lambda);
         this.threashold = 1 / (1 - factor) * 0.5;
         this.shrinkNextRound = false;
-        this.streamProfiles = new HashMap<String, StreamProfile<T>>();
+        this.streamProfiles = new HashMap<>();
         this.previousTimestamp = 0;
     }
 
     @Override
     public void execute(Tuple input) {
-        long timestamp = input.getLong(2);
+        long timestamp = input.getLongByField(Field.TIMESTAMP);
 
-        if (timestamp > this.previousTimestamp) {
-            String alertMessage = "" + this.previousTimestamp + "\n";
-            
-            for (Map.Entry<String, StreamProfile<T>> streamProfileEntry : this.streamProfiles.entrySet()) {
+        if (timestamp > previousTimestamp) {            
+            for (Map.Entry<String, StreamProfile<T>> streamProfileEntry : streamProfiles.entrySet()) {
                 StreamProfile<T> streamProfile = streamProfileEntry.getValue();
-                if (this.shrinkNextRound == true) {
+                if (shrinkNextRound == true) {
                     streamProfile.streamAnomalyScore = 0;
                 }
                 
-                this.collector.emit(new Values(streamProfileEntry.getKey(), 
-                        streamProfile.streamAnomalyScore, this.previousTimestamp, 
+                collector.emit(new Values(streamProfileEntry.getKey(), 
+                        streamProfile.streamAnomalyScore, previousTimestamp, 
                         streamProfile.currentDataInstance, 
                         streamProfile.currentDataInstanceScore));
             }
             
-            if (this.shrinkNextRound == true) {
-                this.shrinkNextRound = false;
+            if (shrinkNextRound == true) {
+                shrinkNextRound = false;
             }
             
-            this.previousTimestamp = timestamp;
+            previousTimestamp = timestamp;
         }
 
         String id = input.getString(0);
-        StreamProfile<T> profile = this.streamProfiles.get(id);
+        StreamProfile<T> profile = streamProfiles.get(id);
         double dataInstanceAnomalyScore = input.getDouble(1);
         
         if (profile == null) {
-            profile = new StreamProfile<T>(id, (T)input.getValue(3),
+            profile = new StreamProfile<>(id, (T)input.getValue(3),
                     dataInstanceAnomalyScore, input.getDouble(1));
             
-            this.streamProfiles.put(id, profile);
+            streamProfiles.put(id, profile);
         } else {
             //	update stream score
             profile.streamAnomalyScore = profile.streamAnomalyScore * factor + dataInstanceAnomalyScore;
             profile.currentDataInstance = (T)input.getValue(3);
             profile.currentDataInstanceScore = dataInstanceAnomalyScore;
-            if (profile.streamAnomalyScore > this.threashold) {
-                this.shrinkNextRound = true;
+            if (profile.streamAnomalyScore > threashold) {
+                shrinkNextRound = true;
             }
-            this.streamProfiles.put(id, profile);
+            streamProfiles.put(id, profile);
         }
         
-        this.collector.ack(input);
+        collector.ack(input);
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(ID_FIELD, STREAM_ANOMALY_SCORE_FIELD, TIMESTAMP_FIELD,
-                OBSERVATION_FIELD, CUR_DATAINST_SCORE_FIELD));		
-    }
-
-    private void print() {
-        for (int i = 0; i < 15; ++i) {
-            System.out.println();
-        }
-
-        for (Map.Entry<String, StreamProfile<T>> entry : streamProfiles.entrySet()) {
-            System.out.println(entry.getKey() + "\t" + entry.getValue().streamAnomalyScore);
-        }
-
-        for (int i = 0; i < 15; ++i) {
-            System.out.println();
-        }
+    public Fields getDefaultFields() {
+        return new Fields(Field.ID, Field.STREAM_ANOMALY_SCORE, Field.TIMESTAMP, Field.OBSERVATION, Field.CUR_DATAINST_SCORE);		
     }
 
     /**

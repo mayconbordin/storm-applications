@@ -1,22 +1,40 @@
 package storm.applications.constants;
 
-public class MachineOutlierConstants {
-    public static final String METADATA_SPOUT = "metadataSpout";
-    public static final String SCORER_BOLT = "scorerBolt";
-    public static final String ANOMALY_SCORER_BOLT = "anomalyScorerBolt";
-    public static final String ALERT_TRIGGER_BOLT = "alertTriggerBolt";
-    public static final String FILE_SINK = "fileSink";
+public interface MachineOutlierConstants extends BaseConstants {
+    String PREFIX = "mo";
     
-    public static final String ID_FIELD = "id";
-    public static final String TIMESTAMP_FIELD = "timestamp";
-    public static final String IP_FIELD = "ip";
-    public static final String ENTITY_ID_FIELD = "entityID";
-    public static final String METADATA_FIELD = "metadata";
-    public static final String DATAINST_ANOMALY_SCORE_FIELD = "dataInstanceAnomalyScore";
-    public static final String DATAINST_SCORE_FIELD = "dataInstanceScore";
-    public static final String CUR_DATAINST_SCORE_FIELD = "curDataInstanceScore";
-    public static final String STREAM_ANOMALY_SCORE_FIELD = "streamAnomalyScore";
-    public static final String OBSERVATION_FIELD = "observation";
-    public static final String ANOMALY_STREAM_FIELD = "anomalyStream";
-    public static final String IS_ABNORMAL_FIELD = "isAbnormal";
+    interface Conf extends BaseConf {
+        String GENERATOR_NUM_MACHINES = "mo.generator.num_machines";
+        
+        String SCORER_THREADS               = "mo.scorer.threads";
+        String SCORER_DATA_TYPE             = "mo.scorer.data_type";
+        String ANOMALY_SCORER_THREADS       = "mo.anomaly_scorer.threads";
+        String ANOMALY_SCORER_WINDOW_LENGTH = "mo.anomaly_scorer.window_length";
+        String ANOMALY_SCORER_LAMBDA        = "mo.anomaly_scorer.lambda";
+        String ALERT_TRIGGER_THREADS        = "mo.alert_trigger.threads";
+        String ALERT_TRIGGER_TOPK           = "mo.alert_trigger.topk";
+    }
+    
+    interface Component extends BaseComponent {
+        String SCORER = "scorerBolt";
+        String ANOMALY_SCORER = "anomalyScorerBolt";
+        String ALERT_TRIGGER = "alertTriggerBolt";
+    }
+    
+    interface Field {
+        String ID = "id";
+        String TIMESTAMP = "timestamp";
+        String IP = "ip";
+        String ENTITY_ID = "entityID";
+        String METADATA = "metadata";
+        String DATAINST_ANOMALY_SCORE = "dataInstanceAnomalyScore";
+        String DATAINST_SCORE = "dataInstanceScore";
+        String CUR_DATAINST_SCORE = "curDataInstanceScore";
+        String STREAM_ANOMALY_SCORE = "streamAnomalyScore";
+        String OBSERVATION = "observation";
+        String ANOMALY_STREAM = "anomalyStream";
+        String IS_ABNORMAL = "isAbnormal";
+    }
+    
+    
 }

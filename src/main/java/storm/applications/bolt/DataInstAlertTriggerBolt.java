@@ -2,12 +2,6 @@ package storm.applications.bolt;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -19,26 +13,25 @@ import storm.applications.util.BFPRT;
  * @author Yexi Jiang (http://users.cs.fiu.edu/~yjian004)
  *
  */
-public class DataInstAlertTriggerBolt extends BaseRichBolt {
+public class DataInstAlertTriggerBolt extends AbstractBolt {
     private static final double dupper = 1.0;
     private long previousTimestamp;
-    private OutputCollector collector;
     private List<Tuple> streamList;
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.collector = collector;
-        this.previousTimestamp = 0;
-        this.streamList = new ArrayList<Tuple>();
+    public void initialize() {
+        previousTimestamp = 0;
+        streamList = new ArrayList<>();
     }
 
     @Override
     public void execute(Tuple input) {
-        long timestamp = input.getLong(2);
+        long timestamp = input.getLongByField(Field.TIMESTAMP);
+        
         if (timestamp > previousTimestamp) {
             // new batch of stream scores
             if (!streamList.isEmpty()) {
-                List<Tuple> abnormalStreams = this.identifyAbnormalStreams();
+                List<Tuple> abnormalStreams = identifyAbnormalStreams();
                 int medianIdx = (int)Math.round(streamList.size() / 2);
                 double minScore = abnormalStreams.get(0).getDouble(1);
                 double medianScore = abnormalStreams.get(medianIdx).getDouble(1);
@@ -57,20 +50,19 @@ public class DataInstAlertTriggerBolt extends BaseRichBolt {
                             isAbnormal, streamProfile.getValue(3)));
                 }
                 
-                this.streamList.clear();
+                streamList.clear();
             }
 
-            this.previousTimestamp = timestamp;
+            previousTimestamp = timestamp;
         }
 
-        this.streamList.add(input);
-        this.collector.ack(input);
+        streamList.add(input);
+        collector.ack(input);
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(ANOMALY_STREAM_FIELD, STREAM_ANOMALY_SCORE_FIELD, 
-                TIMESTAMP_FIELD, IS_ABNORMAL_FIELD, OBSERVATION_FIELD));
+    public Fields getDefaultFields() {
+        return new Fields(Field.ANOMALY_STREAM, Field.STREAM_ANOMALY_SCORE, Field.TIMESTAMP, Field.IS_ABNORMAL, Field.OBSERVATION);
     }
 
     /**
@@ -78,7 +70,7 @@ public class DataInstAlertTriggerBolt extends BaseRichBolt {
      * @return
      */
     private List<Tuple> identifyAbnormalStreams() {
-        List<Tuple> abnormalStreamList = new ArrayList<Tuple>();
+        List<Tuple> abnormalStreamList = new ArrayList<>();
 
         int medianIdx = (int)Math.round(streamList.size() / 2);
         Tuple medianTuple = BFPRT.bfprt(streamList, medianIdx);
