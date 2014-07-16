@@ -13,7 +13,7 @@ public class BasicFormatter extends Formatter {
         String line = "";
             
         for (int i=0; i<tuple.size(); i++) {
-            if (i != 0) line += ";";
+            if (i != 0) line += "; ";
             line += String.format("%s", tuple.getValue(i));
         }
         
