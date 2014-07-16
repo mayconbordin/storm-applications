@@ -47,8 +47,8 @@ public class RollingCountBolt extends AbstractBolt {
             + " (you can safely ignore this warning during the startup phase)";
 
     private SlidingWindowCounter<Object> counter;
-    private int windowLengthInSeconds = 300;
-    private int emitFrequencyInSeconds = 60;
+    private int windowLengthInSeconds = 10;
+    private int emitFrequencyInSeconds = 2;
     private NthLastModifiedTimeTracker lastModifiedTracker;
 
     @Override
@@ -65,7 +65,7 @@ public class RollingCountBolt extends AbstractBolt {
     @Override
     public void execute(Tuple tuple) {
         if (TupleUtils.isTickTuple(tuple)) {
-            LOG.debug("Received tick tuple, triggering emit of current window counts");
+            LOG.info("Received tick tuple, triggering emit of current window counts");
             emitCurrentWindowCounts();
         } else {
             countObjAndAck(tuple);

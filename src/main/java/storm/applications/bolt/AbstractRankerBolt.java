@@ -77,7 +77,7 @@ public abstract class AbstractRankerBolt extends AbstractBolt {
     @Override
     public final void execute(Tuple tuple) {
         if (TupleUtils.isTickTuple(tuple)) {
-            getLogger().debug("Received tick tuple, triggering emit of current rankings");
+            getLogger().info("Received tick tuple, triggering emit of current rankings");
             emitRankings();
         }
         else {

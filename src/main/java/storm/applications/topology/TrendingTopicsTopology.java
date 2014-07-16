@@ -36,6 +36,7 @@ public class TrendingTopicsTopology extends BasicTopology {
         counterThreads        = config.getInt(Conf.COUNTER_THREADS, 1);
         iRankerThreads        = config.getInt(Conf.IRANKER_THREADS, 1);
         tRankerThreads        = config.getInt(Conf.IRANKER_THREADS, 1);
+        topn                  = config.getInt(Conf.TOPN, 10);
     }
 
     @Override
