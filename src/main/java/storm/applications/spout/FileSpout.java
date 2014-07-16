@@ -13,7 +13,7 @@ import storm.applications.spout.parser.Parser;
 import storm.applications.util.ClassLoaderUtils;
 import storm.applications.util.StreamValues;
 
-public abstract class FileSpout extends AbstractSpout {
+public class FileSpout extends AbstractSpout {
     private static final Logger LOG = LoggerFactory.getLogger(FileSpout.class);
     
     protected Parser parser;
