@@ -23,8 +23,8 @@ public abstract class BasicTopology extends AbstractTopology {
 
     @Override
     public void initialize() {
-        spout = loadSpout(BaseConf.SPOUT_CLASS);
-        sink  = loadSink(BaseConf.SINK_CLASS);
+        spout = loadSpout();
+        sink  = loadSink();
         
         spoutThreads = config.getInt(getConfigKey(BaseConf.SPOUT_THREADS), 1);
         sinkThreads  = config.getInt(getConfigKey(BaseConf.SINK_THREADS), 1);
