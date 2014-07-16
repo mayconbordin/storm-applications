@@ -19,7 +19,9 @@ package storm.applications.model.learner;
 
 import java.util.HashMap;
 import java.util.Map;
-import storm.applications.util.ConfigUtility;
+import storm.applications.constants.ReinforcementLearnerConstants;
+import storm.applications.constants.ReinforcementLearnerConstants.Conf;
+import storm.applications.util.Configuration;
 import storm.applications.util.SimpleStat;
 
 /**
@@ -28,18 +30,20 @@ import storm.applications.util.SimpleStat;
  *
  */
 public class RandomGreedyLearner extends ReinforcementLearner {
-    private double  randomSelectionProb;
-    private String  	probRedAlgorithm;
-    private  double	probReductionConstant;
-    private Map<String, SimpleStat> rewardStats = new HashMap<String, SimpleStat>();
     private static final String PROB_RED_LINEAR = "linear";
     private static final String PROB_RED_LOG_LINEAR = "logLinear";
-
+    
+    private double randomSelectionProb;
+    private String probRedAlgorithm;
+    private double probReductionConstant;
+    
+    private Map<String, SimpleStat> rewardStats = new HashMap<>();
+    
     @Override
-    public void initialize(Map<String, Object> config) {
-        randomSelectionProb = ConfigUtility.getDouble(config, "random.selection.prob", 0.5);
-        probRedAlgorithm = ConfigUtility.getString(config,"prob.reduction.algorithm", PROB_RED_LINEAR );
-        probReductionConstant = ConfigUtility.getDouble(config, "prob.reduction.constant",  1.0);
+    public void initialize(Configuration config) {
+        randomSelectionProb   = config.getDouble(Conf.RANDOM_SELECTION_PROB, 0.5);
+        probRedAlgorithm      = config.getString(Conf.PROB_RED_ALGORITHM, PROB_RED_LINEAR );
+        probReductionConstant = config.getDouble(Conf.PROB_RED_CONSTANT,  1.0);
 
         for (String action : actions) {
             rewardStats.put(action, new SimpleStat());

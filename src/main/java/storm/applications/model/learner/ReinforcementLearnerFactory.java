@@ -14,11 +14,10 @@
  * implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-
-
 package storm.applications.model.learner;
 
-import java.util.Map;
+import storm.applications.constants.ReinforcementLearnerConstants.Learner;
+import storm.applications.util.Configuration;
 
 /**
  * Factory to create reinforcement learner
@@ -32,21 +31,27 @@ public class ReinforcementLearnerFactory {
      * @param config
      * @return
      */
-    public static ReinforcementLearner create(String learnerID, String[] actions, Map<String, Object> config) {
+    public static ReinforcementLearner create(String learnerID, String[] actions, Configuration config) {
         ReinforcementLearner learner = null;
         
-        if (learnerID.equals("intervalEstimator")) {
-            learner = new IntervalEstimator();
-        } else if (learnerID.equals("sampsonSampler")) {
-            learner = new SampsonSampler();
-        } else if (learnerID.equals("optimisticSampsonSampler")) {
-            learner = new OptimisticSampsonSampler();
-        } else if (learnerID.equals("randomGreedyLearner")) {
-            learner = new RandomGreedyLearner();
+        switch (learnerID) {
+            case Learner.INTERVAL_ESTIMATOR:
+                learner = new IntervalEstimator();
+                break;
+            case Learner.SAMPSON_SAMPLER:
+                learner = new SampsonSampler();
+                break;
+            case Learner.OPT_SAMPSON_SAMPLER:
+                learner = new OptimisticSampsonSampler();
+                break;
+            case Learner.RANDOM_GREEDY:
+                learner = new RandomGreedyLearner();
+                break;
         }
         
-        if (learner != null)
+        if (learner != null) {
             learner.withActions(actions).initialize(config);
+        }
         
         return learner;
     }

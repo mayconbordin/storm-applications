@@ -14,11 +14,10 @@
  * implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-
 package storm.applications.model.learner;
 
 import java.util.Map;
-
+import storm.applications.util.Configuration;
 
 /**
  * This interface for all reinforcement learners
@@ -61,7 +60,7 @@ public abstract class ReinforcementLearner {
     /**
      * @param config
      */
-    public abstract void initialize(Map<String, Object> config);
+    public abstract void initialize(Configuration config);
 
     /**
      * Selects the next action 

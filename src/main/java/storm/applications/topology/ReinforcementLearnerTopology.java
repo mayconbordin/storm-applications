@@ -19,13 +19,13 @@ package storm.applications.topology;
 
 import backtype.storm.Config;
 import backtype.storm.generated.StormTopology;
-import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static storm.applications.constants.ReinforcementLearnerConstants.*;
-import storm.applications.sink.RedisActionSink;
 import storm.applications.bolt.ReinforcementLearnerBolt;
-import storm.applications.spout.ReinforcementRedisSpout;
-import storm.applications.util.ConfigUtility;
+import storm.applications.sink.BaseSink;
+import storm.applications.spout.AbstractSpout;
 
 /**
  * Builds and submits storm topology for reinforcement learning
@@ -33,54 +33,58 @@ import storm.applications.util.ConfigUtility;
  *
  */
 public class ReinforcementLearnerTopology extends AbstractTopology {
-    private String eventQueue;
-    private String rewardQueue;
-    private String actionQueue;
-    private int spoutThreads;
-    private int boltThreads;
-    private int numWorkers;
-    private int maxSpoutPending;
-    private int maxTaskParalleism;
+    private static final Logger LOG = LoggerFactory.getLogger(ReinforcementLearnerTopology.class);
+    
+    private AbstractSpout eventSpout;
+    private AbstractSpout rewardSpout;
+    private BaseSink actionSink;
+    
+    private int eventSpoutThreads;
+    private int rewardSpoutThreads;
+    private int learnerThreads;
+    private int sinkThreads;
     
     public ReinforcementLearnerTopology(String topologyName, Config config) {
         super(topologyName, config);
     }
     
     @Override
-    public void prepare() {
-        eventQueue  = ConfigUtility.getString(config, "redis.event.queue");
-        rewardQueue = ConfigUtility.getString(config, "redis.reward.queue");
-        actionQueue = ConfigUtility.getString(config, "redis.action.queue");
+    public void initialize() {
+        eventSpout  = loadSpout("event");
+        rewardSpout = loadSpout("reward");
+        actionSink  = loadSink();
         
-        spoutThreads = ConfigUtility.getInt(config, "spout.threads", 1);
-        boltThreads  = ConfigUtility.getInt(config, "bolt.threads", 1);
-        numWorkers   = ConfigUtility.getInt(config, "num.workers", 1);
-        
-        maxSpoutPending   = ConfigUtility.getInt(config, "max.spout.pending", 1000);
-        maxTaskParalleism = ConfigUtility.getInt(config, "max.task.parallelism", 100);
+        eventSpoutThreads  = config.getInt(getConfigKey(BaseConf.SPOUT_THREADS, "event"), 1);
+        rewardSpoutThreads = config.getInt(getConfigKey(BaseConf.SPOUT_THREADS, "reward"), 1);
+        learnerThreads     = config.getInt(Conf.LEARNER_THREADS, 1);
+        sinkThreads        = config.getInt(getConfigKey(BaseConf.SINK_THREADS), 1);
     }
 
     @Override
     public StormTopology buildTopology() {
-        builder = new TopologyBuilder();
-
-        ReinforcementRedisSpout eventSpout = new ReinforcementRedisSpout(eventQueue, new Fields(EVENT_ID, ROUND_NUM));
-        builder.setSpout(EVENT_SPOUT, eventSpout, spoutThreads);
+        eventSpout.setFields(new Fields(Field.EVENT_ID, Field.ROUND_NUM));
+        rewardSpout.setFields(new Fields(Field.ACTION_ID, Field.REWARD));
         
-        ReinforcementRedisSpout rewardSpout = new ReinforcementRedisSpout(rewardQueue, new Fields(ACTION_ID, REWARD));
-        builder.setSpout(REWARD_SPOUT, rewardSpout, spoutThreads);
+        builder.setSpout(Component.EVENT_SPOUT, eventSpout, eventSpoutThreads);
+        builder.setSpout(Component.REWARD_SPOUT, rewardSpout, rewardSpoutThreads);
 
-        builder.setBolt(REINFORCE_BOLT, new ReinforcementLearnerBolt(), boltThreads)
-               .shuffleGrouping(EVENT_SPOUT)
-               .allGrouping(REWARD_SPOUT);
+        builder.setBolt(Component.LEARNER, new ReinforcementLearnerBolt(), learnerThreads)
+               .shuffleGrouping(Component.EVENT_SPOUT)
+               .allGrouping(Component.REWARD_SPOUT);
         
-        builder.setBolt(ACTION_BOLT, new RedisActionSink(actionQueue))
-               .shuffleGrouping(REINFORCE_BOLT);
+        builder.setBolt(Component.SINK, actionSink, sinkThreads)
+               .shuffleGrouping(Component.LEARNER);
 
-        config.setNumWorkers(numWorkers);
-        config.setMaxSpoutPending(maxSpoutPending);
-        config.setMaxTaskParallelism(maxTaskParalleism);
-        
         return builder.createTopology();
+    }
+
+    @Override
+    public Logger getLogger() {
+        return LOG;
+    }
+
+    @Override
+    public String getConfigPrefix() {
+        return PREFIX;
     }
 }

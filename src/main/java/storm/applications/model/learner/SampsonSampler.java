@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import storm.applications.util.ConfigUtility;
+import storm.applications.constants.ReinforcementLearnerConstants;
+import storm.applications.constants.ReinforcementLearnerConstants.Conf;
+import storm.applications.util.Configuration;
 
 /**
  * Sampson sampler probabilistic matching reinforcement learning
@@ -29,7 +31,7 @@ import storm.applications.util.ConfigUtility;
  *
  */
 public class SampsonSampler extends ReinforcementLearner {
-    protected  Map<String, List<Integer>> rewardDistr = new HashMap<String, List<Integer>>();
+    protected  Map<String, List<Integer>> rewardDistr = new HashMap<>();
     private int minSampleSize;
     private int maxReward;
 
@@ -41,7 +43,7 @@ public class SampsonSampler extends ReinforcementLearner {
     public void setReward(String actionID, int reward) {
         List<Integer> rewards = rewardDistr.get(actionID);
         if (null == rewards) {
-            rewards = new ArrayList<Integer>();
+            rewards = new ArrayList<>();
             rewardDistr.put(actionID, rewards);
         }
         rewards.add(reward);
@@ -57,6 +59,7 @@ public class SampsonSampler extends ReinforcementLearner {
         int maxRewardCurrent = 0;
         int index = 0;
         int reward = 0;
+        
         for (String actionID : rewardDistr.keySet()) {
             List<Integer> rewards = rewardDistr.get(actionID);
             if (rewards.size() > minSampleSize) {
@@ -87,8 +90,8 @@ public class SampsonSampler extends ReinforcementLearner {
     }
 
     @Override
-    public void initialize(Map<String, Object> config) {
-        minSampleSize = ConfigUtility.getInt(config, "min.sample.size");
-        maxReward = ConfigUtility.getInt(config, "max.reward");
+    public void initialize(Configuration config) {
+        minSampleSize = config.getInt(Conf.MIN_SAMPLE_SIZE);
+        maxReward = config.getInt(Conf.MAX_REWARD);
     }
 }

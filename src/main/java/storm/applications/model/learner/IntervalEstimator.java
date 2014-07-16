@@ -21,8 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import storm.applications.constants.ReinforcementLearnerConstants.Conf;
 
-import storm.applications.util.ConfigUtility;
+import storm.applications.util.Configuration;
 import storm.applications.util.HistogramStat;
 
 
@@ -31,7 +32,9 @@ import storm.applications.util.HistogramStat;
  * @author pranab
  *
  */
-public class IntervalEstimator extends ReinforcementLearner{
+public class IntervalEstimator extends ReinforcementLearner {
+    private static final Logger LOG = LoggerFactory.getLogger(IntervalEstimator.class);
+    
     private int binWidth;
     private int confidenceLimit;
     private int minConfidenceLimit;
@@ -39,25 +42,27 @@ public class IntervalEstimator extends ReinforcementLearner{
     private int confidenceLimitReductionStep;
     private int confidenceLimitReductionRoundInterval;
     private int minDistrSample;
-    private Map<String, HistogramStat> rewardDistr = new HashMap<String, HistogramStat>(); 
     private int lastRoundNum = 1;
     private long randomSelectCount;
     private long intvEstSelectCount;
-    private boolean debugOn;
     private long logCounter;
     private long roundCounter;
     private boolean lowSample = true;
-    private static final Logger LOG = LoggerFactory.getLogger(IntervalEstimator.class);
+    private boolean debugOn;
+    
+    private Map<String, HistogramStat> rewardDistr = new HashMap<>(); 
+    
 
     @Override
-    public void initialize(Map<String, Object> config) {
-        binWidth = ConfigUtility.getInt(config, "bin.width");
-        confidenceLimit = ConfigUtility.getInt(config, "confidence.limit");
-        minConfidenceLimit = ConfigUtility.getInt(config, "min.confidence.limit");
+    public void initialize(Configuration config) {
+        binWidth = config.getInt(Conf.BIN_WIDTH);
+        confidenceLimit = config.getInt(Conf.CONFIDENCE_LIMIT);
+        minConfidenceLimit = config.getInt(Conf.MIN_CONFIDENCE_LIMIT);
         curConfidenceLimit = confidenceLimit;
-        confidenceLimitReductionStep = ConfigUtility.getInt(config, "confidence.limit.reduction.step");
-        confidenceLimitReductionRoundInterval = ConfigUtility.getInt(config, "confidence.limit.reduction.round.interval");
-        minDistrSample = ConfigUtility.getInt(config, "min.reward.distr.sample");
+        confidenceLimitReductionStep = config.getInt(Conf.CONFIDENCE_LIMIT_RED_STEP);
+        confidenceLimitReductionRoundInterval = config.getInt(Conf.CONFIDENCE_LIMIT_RED_ROUND_INT);
+        minDistrSample = config.getInt(Conf.MIN_DIST_SAMPLE);
+        debugOn = config.getBoolean(Conf.DEBUG_ON, false);
 
         for (String action : actions) {
             rewardDistr.put(action, new HistogramStat(binWidth));
@@ -65,7 +70,6 @@ public class IntervalEstimator extends ReinforcementLearner{
 
         initSelectedActions();
 
-        debugOn = ConfigUtility.getBoolean(config,"debug.on", false);
         if (debugOn) {
             LOG.info("confidenceLimit:" + confidenceLimit + " minConfidenceLimit:" 
                     + minConfidenceLimit + " confidenceLimitReductionStep:" 
