@@ -10,9 +10,10 @@ import storm.applications.bolt.GeoStatsBolt;
 import storm.applications.bolt.GeographyBolt;
 import storm.applications.bolt.RepeatVisitBolt;
 import storm.applications.bolt.VisitStatsBolt;
-import storm.applications.util.ConfigUtility;
+import storm.applications.sink.BaseSink;
+import storm.applications.spout.AbstractSpout;
 
-public class ClickAnalyticsTopology extends BasicTopology {
+public class ClickAnalyticsTopology extends AbstractTopology {
     private static final Logger LOG = LoggerFactory.getLogger(ClickAnalyticsTopology.class);
     
     private int repeatsThreads;
@@ -20,20 +21,36 @@ public class ClickAnalyticsTopology extends BasicTopology {
     private int totalStatsThreads;
     private int geoStatsThreads;
     
+    private AbstractSpout spout;
+    private BaseSink visitSink;
+    private BaseSink locationSink;
+    private int spoutThreads;
+    private int visitSinkThreads;
+    private int locationSinkThreads;
+    
     public ClickAnalyticsTopology(String topologyName, Config config) {
         super(topologyName, config);
     }
     
     @Override
     public void initialize() {
-        repeatsThreads    = ConfigUtility.getInt(config, Conf.REPEATS_THREADS, 1);
-        geographyThreads  = ConfigUtility.getInt(config, Conf.GEOGRAPHY_THREADS, 1);
-        totalStatsThreads = ConfigUtility.getInt(config, Conf.TOTAL_STATS_THREADS, 1);
-        geoStatsThreads   = ConfigUtility.getInt(config, Conf.GEO_STATS_THREADS, 1);
+        repeatsThreads       = config.getInt(Conf.REPEATS_THREADS, 1);
+        geographyThreads     = config.getInt(Conf.GEOGRAPHY_THREADS, 1);
+        totalStatsThreads    = config.getInt(Conf.TOTAL_STATS_THREADS, 1);
+        geoStatsThreads      = config.getInt(Conf.GEO_STATS_THREADS, 1);
+        spoutThreads         = config.getInt(BaseConf.SPOUT_THREADS, 1);
+        visitSinkThreads     = config.getInt(getConfigKey(BaseConf.SINK_THREADS, "visit"), 1);
+        locationSinkThreads  = config.getInt(getConfigKey(BaseConf.SINK_THREADS, "location"), 1);
+        
+        spout        = loadSpout();
+        visitSink    = loadSink("visit");
+        locationSink = loadSink("location");
     }
 
     @Override
     public StormTopology buildTopology() {
+        spout.setFields(new Fields(Field.IP, Field.URL, Field.CLIENT_KEY));
+        
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
 
         // First layer of bolts
@@ -49,6 +66,13 @@ public class ClickAnalyticsTopology extends BasicTopology {
         
         builder.setBolt(Component.GEO_STATS, new GeoStatsBolt(), geoStatsThreads)
                .fieldsGrouping(Component.GEOGRAPHY, new Fields(Field.COUNTRY));
+        
+        // sinks
+        builder.setBolt(Component.SINK_VISIT, visitSink, visitSinkThreads)
+               .shuffleGrouping(Component.TOTAL_STATS);
+        
+        builder.setBolt(Component.SINK_LOCATION, locationSink, locationSinkThreads)
+               .fieldsGrouping(Component.GEO_STATS, new Fields(Field.COUNTRY));
 
         return builder.createTopology();
     }
@@ -56,5 +80,10 @@ public class ClickAnalyticsTopology extends BasicTopology {
     @Override
     public Logger getLogger() {
         return LOG;
+    }
+
+    @Override
+    public String getConfigPrefix() {
+        return PREFIX;
     }
 }

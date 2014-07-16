@@ -5,10 +5,10 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
 import backtype.storm.utils.Utils;
 import java.util.HashMap;
 import java.util.Map;
+import storm.applications.util.Configuration;
 
 /**
  *
@@ -16,9 +16,9 @@ import java.util.Map;
  */
 public abstract class AbstractBolt extends BaseRichBolt {
     protected OutputCollector collector;
-    protected Map config;
+    protected Configuration config;
     protected TopologyContext context;
-    protected Map<String, Fields> fields;
+    private Map<String, Fields> fields;
 
     public AbstractBolt() {
         fields = new HashMap<>();
@@ -33,20 +33,38 @@ public abstract class AbstractBolt extends BaseRichBolt {
     }
     
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+    public final void declareOutputFields(OutputFieldsDeclarer declarer) {
+        if (fields.isEmpty()) {
+            if (getDefaultFields() != null)
+                fields.put(Utils.DEFAULT_STREAM_ID, getDefaultFields());
+            
+            if (getDefaultStreamFields() != null)
+                fields.putAll(getDefaultStreamFields());
+        }
+        
         for (Map.Entry<String, Fields> e : fields.entrySet()) {
             declarer.declareStream(e.getKey(), e.getValue());
         }
     }
+    
+    public Fields getDefaultFields() {
+        return null;
+    }
+    
+    public Map<String, Fields> getDefaultStreamFields() {
+        return null;
+    }
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.config = stormConf;
+        this.config = new Configuration(stormConf);
         this.context = context;
         this.collector = collector;
         
         initialize();
     }
 
-    public abstract void initialize();
+    public void initialize() {
+        
+    }
 }

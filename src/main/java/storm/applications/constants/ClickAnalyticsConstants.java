@@ -1,6 +1,8 @@
 package storm.applications.constants;
 
 public interface ClickAnalyticsConstants extends BaseConstants {
+    String PREFIX = "ca";
+    
     interface Conf extends BaseConf {
         String REPEATS_THREADS       = "ca.repeats.threads";
         String GEOGRAPHY_THREADS     = "ca.geography.threads";
@@ -28,5 +30,7 @@ public interface ClickAnalyticsConstants extends BaseConstants {
         String GEOGRAPHY = "geographyBolt";
         String TOTAL_STATS = "totalStats";
         String GEO_STATS = "geoStats";
+        String SINK_VISIT = "sinkVisit";
+        String SINK_LOCATION = "sinkLocation";
     }
 }

@@ -1,12 +1,9 @@
 package storm.applications.topology;
 
 import backtype.storm.Config;
-import storm.applications.constants.BaseConstants;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.sink.BaseSink;
 import storm.applications.spout.AbstractSpout;
-import storm.applications.util.ClassLoaderUtils;
-import storm.applications.util.ConfigUtility;
 
 /**
  * The basic topology has only one spout and one sink, configured by the default
@@ -26,13 +23,10 @@ public abstract class BasicTopology extends AbstractTopology {
 
     @Override
     public void initialize() {
-        String spoutClass = ConfigUtility.getString(config, BaseConf.SPOUT_CLASS);
-        spout = (AbstractSpout) ClassLoaderUtils.newInstance(spoutClass, "spout", getLogger());
+        spout = loadSpout(BaseConf.SPOUT_CLASS);
+        sink  = loadSink(BaseConf.SINK_CLASS);
         
-        String sinkClass = ConfigUtility.getString(config, BaseConf.SINK_CLASS);
-        sink = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
-        
-        spoutThreads = ConfigUtility.getInt(config, BaseConf.SPOUT_THREADS, 1);
-        sinkThreads  = ConfigUtility.getInt(config, BaseConf.SINK_THREADS, 1);
+        spoutThreads = config.getInt(getConfigKey(BaseConf.SPOUT_THREADS), 1);
+        sinkThreads  = config.getInt(getConfigKey(BaseConf.SINK_THREADS), 1);
     }
 }

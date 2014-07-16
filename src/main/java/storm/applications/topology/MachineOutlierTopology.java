@@ -23,6 +23,8 @@ public class MachineOutlierTopology extends BasicTopology {
 
     @Override
     public void initialize() {
+        super.initialize();
+        
         scorerThreads        = config.getInt(Conf.SCORER_THREADS, 1);
         anomalyScorerThreads = config.getInt(Conf.ANOMALY_SCORER_THREADS, 1);
         alertTriggerThreads  = config.getInt(Conf.ALERT_TRIGGER_THREADS, 1);

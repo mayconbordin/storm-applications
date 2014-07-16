@@ -2,11 +2,9 @@ package storm.applications.spout;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import storm.applications.constants.BaseConstants;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.spout.generator.Generator;
 import storm.applications.util.ClassLoaderUtils;
-import storm.applications.util.ConfigUtility;
 import storm.applications.util.StreamValues;
 
 /**

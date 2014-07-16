@@ -42,7 +42,7 @@ public class AppDriver {
                 LOG.info("Loaded topology {}", cls.getCanonicalName());
 
                 AbstractTopology topology = (AbstractTopology) c.newInstance(topologyName, config);
-                topology.prepare();
+                topology.initialize();
                 return topology.buildTopology();
             } catch (ReflectiveOperationException ex) {
                 LOG.error("Unable to load topology class", ex);

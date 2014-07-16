@@ -5,6 +5,8 @@ package storm.applications.constants;
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public interface AdsAnalyticsConstants extends BaseConstants {
+    String PREFIX = "aa";
+    
     interface Conf extends BaseConf {
         String CTR_THREADS = "aa.ctr.threads";
         String CTR_EMIT_FREQUENCY = "aa.ctr.emit_frequency";

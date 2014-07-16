@@ -1,9 +1,5 @@
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -49,8 +45,8 @@ public class GeoStatsBolt extends AbstractBolt {
         private static final int COUNT_INDEX = 0;
         private static final int PERCENTAGE_INDEX = 1;
         
-        private String countryName;
-        private Map<String, List<Integer>> cityStats = new HashMap<String, List<Integer>>();
+        private final String countryName;
+        private final Map<String, List<Integer>> cityStats = new HashMap<>();
 
         public CountryStats(String countryName) {
             this.countryName = countryName;
@@ -60,9 +56,9 @@ public class GeoStatsBolt extends AbstractBolt {
             countryTotal++;
             
             if (cityStats.containsKey(cityName)) {
-                cityStats.get(cityName).set(COUNT_INDEX, cityStats.get(cityName).get(COUNT_INDEX).intValue() + 1 );
+                cityStats.get(cityName).set(COUNT_INDEX, cityStats.get(cityName).get(COUNT_INDEX) + 1 );
             } else {
-                List<Integer> list = new LinkedList<Integer>();
+                List<Integer> list = new LinkedList<>();
                 list.add(1);
                 list.add(0);
                 cityStats.put(cityName, list);
@@ -77,7 +73,7 @@ public class GeoStatsBolt extends AbstractBolt {
         }
 
         public int getCityTotal(String cityName) {
-            return cityStats.get(cityName).get(COUNT_INDEX).intValue();
+            return cityStats.get(cityName).get(COUNT_INDEX);
         }
 
         @Override

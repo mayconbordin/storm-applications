@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import static storm.applications.constants.BargainIndexConstants.*;
 import storm.applications.bolt.BargainIndexBolt;
 import storm.applications.bolt.VwapBolt;
-import storm.applications.util.ConfigUtility;
 
 /**
  * 
@@ -26,20 +25,25 @@ public class BargainIndexTopology extends BasicTopology {
 
     @Override
     public void initialize() {
-        vwapThreads         = ConfigUtility.getInt(config, Conf.VWAP_THREADS, 1);
-        bargainIndexThreads = ConfigUtility.getInt(config, Conf.BARGAIN_INDEX_THREADS, 1);
+        super.initialize();
+        
+        vwapThreads         = config.getInt(Conf.VWAP_THREADS, 1);
+        bargainIndexThreads = config.getInt(Conf.BARGAIN_INDEX_THREADS, 1);
     }
 
     @Override
     public StormTopology buildTopology() {
-        builder.setSpout(Component.TRADES_QUOTES, spout, spoutThreads);
+        spout.setFields(Stream.TRADES, new Fields(Field.STOCK, Field.PRICE, Field.VOLUME, Field.DATE, Field.INTERVAL));
+        spout.setFields(Stream.QUOTES, new Fields(Field.STOCK, Field.PRICE, Field.VOLUME, Field.DATE, Field.INTERVAL));
+        
+        builder.setSpout(Component.SPOUT, spout, spoutThreads);
 
         builder.setBolt(Component.VWAP , new VwapBolt(), vwapThreads)
-               .fieldsGrouping(Component.TRADES_QUOTES, Stream.TRADES, new Fields(Field.STOCK));
+               .fieldsGrouping(Component.SPOUT, Stream.TRADES, new Fields(Field.STOCK));
         
         builder.setBolt(Component.BARGAIN_INDEX, new BargainIndexBolt(), bargainIndexThreads)
                .fieldsGrouping(Component.VWAP, new Fields(Field.STOCK))
-               .fieldsGrouping(Component.TRADES_QUOTES, Stream.QUOTES, new Fields(Field.STOCK));
+               .fieldsGrouping(Component.SPOUT, Stream.QUOTES, new Fields(Field.STOCK));
         
         builder.setBolt(Component.SINK, sink, sinkThreads)
                .fieldsGrouping(Component.BARGAIN_INDEX, new Fields(Field.STOCK));
@@ -50,6 +54,11 @@ public class BargainIndexTopology extends BasicTopology {
     @Override
     public Logger getLogger() {
         return LOG;
+    }
+
+    @Override
+    public String getConfigPrefix() {
+        return PREFIX;
     }
     
 }

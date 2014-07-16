@@ -4,7 +4,6 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import static storm.applications.constants.ClickAnalyticsConstants.*;
-import storm.applications.util.ConfigUtility;
 import storm.applications.util.geoip.IPLocation;
 import storm.applications.util.geoip.IPLocationFactory;
 import storm.applications.util.geoip.Location;
@@ -17,7 +16,7 @@ public class GeographyBolt extends AbstractBolt {
 
     @Override
     public void initialize() {
-        String ipResolver = ConfigUtility.getString(config, Conf.GEOGRAPHY_IP_RESOLVER);
+        String ipResolver = config.getString(Conf.GEOGRAPHY_IP_RESOLVER);
         resolver = IPLocationFactory.create(ipResolver, config);
     }
 

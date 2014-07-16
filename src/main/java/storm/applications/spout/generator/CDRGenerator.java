@@ -5,7 +5,6 @@ import org.joda.time.DateTime;
 import storm.applications.constants.VoIPSTREAMConstants.Conf;
 import storm.applications.model.cdr.CDRDataGenerator;
 import storm.applications.model.cdr.CallDetailRecord;
-import storm.applications.util.ConfigUtility;
 import storm.applications.util.RandomUtil;
 import storm.applications.util.StreamValues;
 
@@ -20,8 +19,8 @@ public class CDRGenerator extends Generator {
     private Random rand = new Random();
 
     public CDRGenerator() {
-        population = ConfigUtility.getInt(config, Conf.GENERATOR_POPULATION, 50);
-        errorProb  = ConfigUtility.getDouble(config, Conf.GENERATOR_POPULATION, 0.05);
+        population = config.getInt(Conf.GENERATOR_POPULATION, 50);
+        errorProb  = config.getDouble(Conf.GENERATOR_POPULATION, 0.05);
         
         phoneNumbers = new String[population];
         

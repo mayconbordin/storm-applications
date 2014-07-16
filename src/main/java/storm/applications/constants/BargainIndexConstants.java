@@ -5,6 +5,8 @@ package storm.applications.constants;
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public interface BargainIndexConstants extends BaseConstants {
+    String PREFIX = "bi";
+    
     interface Conf extends BaseConf {
         String VWAP_THREADS = "bi.vwap.threads";
         String VWAP_PERIOD  = "bi.vwap.period";
@@ -17,11 +19,9 @@ public interface BargainIndexConstants extends BaseConstants {
         String SPOUT_INTERVAL = "bi.spout.interval";
     }
     
-    interface Component {
-        String TRADES_QUOTES = "tradesQuotesSpout";
+    interface Component extends BaseComponent {
         String VWAP = "vwapBolt";
         String BARGAIN_INDEX = "bargainIndexBolt";
-        String SINK = "sink";
     }
     
     interface Periodicity {

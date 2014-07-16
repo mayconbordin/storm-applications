@@ -54,10 +54,10 @@ public class ReinforcementLearnerTopology extends AbstractTopology {
         rewardSpout = loadSpout("reward");
         actionSink  = loadSink();
         
-        eventSpoutThreads  = config.getInt(getConfigKey(BaseConf.SPOUT_THREADS, "event"), 1);
-        rewardSpoutThreads = config.getInt(getConfigKey(BaseConf.SPOUT_THREADS, "reward"), 1);
+        eventSpoutThreads  = config.getInt(getConfigKey(Conf.SPOUT_THREADS, "event"), 1);
+        rewardSpoutThreads = config.getInt(getConfigKey(Conf.SPOUT_THREADS, "reward"), 1);
         learnerThreads     = config.getInt(Conf.LEARNER_THREADS, 1);
-        sinkThreads        = config.getInt(getConfigKey(BaseConf.SINK_THREADS), 1);
+        sinkThreads        = config.getInt(getConfigKey(Conf.SINK_THREADS), 1);
     }
 
     @Override

@@ -1,50 +1,60 @@
 package storm.applications.bolt;
 
-import storm.applications.model.log.LogEntry;
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import org.apache.log4j.Logger;
-
-import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.apache.commons.lang3.mutable.MutableLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import storm.applications.constants.LogProcessingConstants.Conf;
 import storm.applications.constants.LogProcessingConstants.Field;
+import storm.applications.util.DateUtils;
 
 /**
  * This bolt will count number of log events per minute
  */
-public class VolumeCountBolt extends BaseRichBolt {
-    private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(VolumeCountBolt.class);
-
-    private OutputCollector collector;
-
-    public static Long getMinuteForTime(Date time) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(time);
-        c.set(Calendar.SECOND,0);
-        c.set(Calendar.MILLISECOND, 0);
-        return c.getTimeInMillis();
-    }
+public class VolumeCountBolt extends AbstractBolt {
+    private static final Logger LOG = LoggerFactory.getLogger(VolumeCountBolt.class);
+    
+    private CircularFifoBuffer buffer;
+    private Map<Long, MutableLong> counts;
 
     @Override
-    public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
-        this.collector = outputCollector;
+    public void initialize() {
+        int windowSize = config.getInt(Conf.VOLUME_COUNTER_WINDOW, 60);
+        
+        buffer = new CircularFifoBuffer(windowSize);
+        counts = new HashMap<>(windowSize);
     }
 
     @Override
     public void execute(Tuple tuple) {
-        LogEntry entry = (LogEntry) tuple.getValueByField(Field.LOG_ENTRY);
-        collector.emit(new Values(getMinuteForTime(entry.getTimestamp()), entry.getSource(), 1L));
+        long minute = tuple.getLongByField(Field.TIMESTAMP_MINUTES);
+        
+        MutableLong count = counts.get(minute);
+        
+        if (count == null) {
+            if (buffer.isFull()) {
+                long oldMinute = (Long) buffer.remove();
+                counts.remove(oldMinute);
+            }
+            
+            count = new MutableLong(1);
+            counts.put(minute, count);
+            buffer.add(minute);
+        } else {
+            count.increment();
+        }
+        
+        collector.emit(new Values(minute, count.longValue()));
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields(Field.LOG_TIMESTAMP, Field.LOG_COLUMN, Field.LOG_INCREMENT));
+    public Fields getDefaultFields() {
+        return new Fields(Field.TIMESTAMP_MINUTES, Field.COUNT);
     }
 }

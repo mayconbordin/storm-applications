@@ -18,8 +18,8 @@ public class CtrBolt extends AbstractBolt {
     private Map<String, Summary> summaries;
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(Field.QUERY_ID, Field.AD_ID, Field.CTR));
+    public Fields getDefaultFields() {
+        return new Fields(Field.QUERY_ID, Field.AD_ID, Field.CTR);
     }
 
     @Override

@@ -40,6 +40,8 @@ public class TrendingTopicsTopology extends BasicTopology {
 
     @Override
     public StormTopology buildTopology() {
+        spout.setFields(new Fields(Field.TWEET));
+        
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         
         builder.setBolt(Component.TOPIC_EXTRACTOR, new TopicExtractorBolt(), topicExtractorThreads)

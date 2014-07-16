@@ -25,7 +25,6 @@ public class SpamFilterTopology extends AbstractTopology {
     
     private int trainingSpoutThreads;
     private int analysisSpoutThreads;
-    private int parserThreads;
     private int tokenizerThreads;
     private int wordProbThreads;
     private int bayesRuleThreads;
@@ -46,7 +45,7 @@ public class SpamFilterTopology extends AbstractTopology {
         tokenizerThreads     = config.getInt(Conf.TOKENIZER_THREADS, 1);
         wordProbThreads      = config.getInt(Conf.WORD_PROB_THREADS, 1);
         bayesRuleThreads     = config.getInt(Conf.BAYES_RULE_THREADS, 1);
-        sinkThreads          = config.getInt(Conf.SINK_THREADS, 1);
+        sinkThreads          = config.getInt(getConfigKey(Conf.SINK_THREADS), 1);
     }
     
     @Override

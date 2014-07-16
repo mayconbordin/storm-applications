@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.FraudDetectionConstants;
 import storm.applications.constants.FraudDetectionConstants.Conf;
-import storm.applications.util.ConfigUtility;
+import storm.applications.util.Configuration;
 
 import storm.applications.util.Pair;
 
@@ -54,14 +54,14 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
     private int[] maxStateProbIndex;
     private double[] entropy;
 
-    public MarkovModelPredictor(Map conf) {
-        String mmKey = ConfigUtility.getString(conf, Conf.MARKOV_MODEL_KEY);
+    public MarkovModelPredictor(Configuration conf) {
+        String mmKey = conf.getString(Conf.MARKOV_MODEL_KEY);
         String model = new MarkovModelFileSource().getModel(mmKey);
         markovModel = new MarkovModel(model);
-        localPredictor = ConfigUtility.getBoolean(conf, Conf.LOCAL_PREDICTOR);
+        localPredictor = conf.getBoolean(Conf.LOCAL_PREDICTOR);
         
         if (localPredictor) {
-            stateSeqWindowSize = ConfigUtility.getInt(conf, Conf.STATE_SEQ_WIN_SIZE);
+            stateSeqWindowSize = conf.getInt(Conf.STATE_SEQ_WIN_SIZE);
             LOG.info("local predictor window size:" + stateSeqWindowSize );
         }  else {
             stateSeqWindowSize = 5;
@@ -69,10 +69,10 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
         }
         
         //state value ordinal within record
-        stateOrdinal = ConfigUtility.getInt(conf, Conf.STATE_ORDINAL);
+        stateOrdinal = conf.getInt(Conf.STATE_ORDINAL);
 
         //detection algoritm
-        String algorithm = ConfigUtility.getString(conf, Conf.DETECTION_ALGO);
+        String algorithm = conf.getString(Conf.DETECTION_ALGO);
         LOG.info("detection algorithm:" + algorithm);
         
         if (algorithm.equals("missProbability")) {
@@ -113,7 +113,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
         }
 
         //metric threshold
-        metricThreshold = ConfigUtility.getDouble(conf, Conf.METRIC_THRESHOLD);
+        metricThreshold = conf.getDouble(Conf.METRIC_THRESHOLD);
     }
 
     @Override

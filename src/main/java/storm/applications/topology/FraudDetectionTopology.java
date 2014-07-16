@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static storm.applications.constants.FraudDetectionConstants.*;
 import storm.applications.bolt.FraudPredictorBolt;
-import storm.applications.util.ConfigUtility;
 
 /**
  * Storm topolgy driver for outlier detection
@@ -42,11 +41,15 @@ public class FraudDetectionTopology extends BasicTopology {
     
     @Override
     public void initialize() {
-        predictorThreads  = ConfigUtility.getInt(config, Conf.PREDICTOR_THREADS, 1);
+        super.initialize();
+        
+        predictorThreads  = config.getInt(Conf.PREDICTOR_THREADS, 1);
     }
     
     @Override
     public StormTopology buildTopology() {
+        spout.setFields(new Fields(Field.ENTITY_ID, Field.RECORD_DATA));
+        
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         
         builder.setBolt(Component.PREDICTOR, new FraudPredictorBolt(), predictorThreads)
@@ -61,5 +64,10 @@ public class FraudDetectionTopology extends BasicTopology {
     @Override
     public Logger getLogger() {
         return LOG;
+    }
+
+    @Override
+    public String getConfigPrefix() {
+        return PREFIX;
     }
 }

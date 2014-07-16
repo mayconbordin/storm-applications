@@ -26,6 +26,8 @@ public class SentimentAnalysisTopology extends BasicTopology {
 
     @Override
     public void initialize() {
+        super.initialize();
+        
         classifierThreads = config.getInt(Conf.CLASSIFIER_THREADS, 1);
     }
     

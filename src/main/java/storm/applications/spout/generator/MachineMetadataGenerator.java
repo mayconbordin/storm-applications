@@ -1,10 +1,9 @@
 package storm.applications.spout.generator;
 
-import java.util.Map;
 import java.util.Random;
 import storm.applications.constants.MachineOutlierConstants.Conf;
 import storm.applications.model.metadata.MachineMetadata;
-import storm.applications.util.ConfigUtility;
+import storm.applications.util.Configuration;
 import storm.applications.util.StreamValues;
 
 /**
@@ -37,10 +36,10 @@ public class MachineMetadataGenerator extends Generator {
     }
 
     @Override
-    public void initialize(Map config) {
+    public void initialize(Configuration config) {
         super.initialize(config);
         
-        numMachines = ConfigUtility.getInt(config, Conf.GENERATOR_NUM_MACHINES, 100);
+        numMachines = config.getInt(Conf.GENERATOR_NUM_MACHINES, 100);
         
         rand = new Random(System.currentTimeMillis());
         ipAddresses = new String[numMachines];

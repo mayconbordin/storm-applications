@@ -1,6 +1,5 @@
 package storm.applications.bolt;
 
-import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -9,7 +8,6 @@ import java.util.Map;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import static storm.applications.constants.BargainIndexConstants.*;
-import storm.applications.util.ConfigUtility;
 
 /**
  * Calculates the VWAP (Volume Weighted Average Price) throughout the day for each
@@ -25,13 +23,13 @@ public class VwapBolt extends AbstractBolt {
     private String period;
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(Field.STOCK, Field.VWAP, Field.START_DATE, Field.END_DATE));
+    public Fields getDefaultFields() {
+        return new Fields(Field.STOCK, Field.VWAP, Field.START_DATE, Field.END_DATE);
     }
 
     @Override
     public void initialize() {
-        period = ConfigUtility.getString(config, Conf.VWAP_PERIOD, Periodicity.DAILY);
+        period = config.getString(Conf.VWAP_PERIOD, Periodicity.DAILY);
         
         stocks = new HashMap<>();
         

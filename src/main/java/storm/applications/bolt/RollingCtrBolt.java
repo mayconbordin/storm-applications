@@ -1,7 +1,6 @@
 package storm.applications.bolt;
 
 import backtype.storm.Config;
-import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -15,7 +14,6 @@ import storm.applications.constants.AdsAnalyticsConstants.Field;
 import storm.applications.model.ads.AdEvent;
 import storm.applications.tools.NthLastModifiedTimeTracker;
 import storm.applications.tools.SlidingWindowCounter;
-import storm.applications.util.ConfigUtility;
 import storm.applications.util.TupleUtils;
 
 public class RollingCtrBolt extends AbstractBolt {
@@ -35,8 +33,8 @@ public class RollingCtrBolt extends AbstractBolt {
 
     @Override
     public void initialize() {
-        windowLengthInSeconds = ConfigUtility.getInt(config, Conf.CTR_WINDOW_LENGTH, 300);
-        emitFrequencyInSeconds = ConfigUtility.getInt(config, Conf.CTR_WINDOW_LENGTH, 60);
+        windowLengthInSeconds = config.getInt(Conf.CTR_WINDOW_LENGTH, 300);
+        emitFrequencyInSeconds = config.getInt(Conf.CTR_WINDOW_LENGTH, 60);
         
         int windowLenghtInSlots = windowLengthInSeconds / emitFrequencyInSeconds;
 
@@ -104,8 +102,8 @@ public class RollingCtrBolt extends AbstractBolt {
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(Field.QUERY_ID, Field.AD_ID, Field.CTR, Field.IMPRESSIONS,
-                Field.CLICKS, Field.WINDOW_LENGTH));
+    public Fields getDefaultFields() {
+        return new Fields(Field.QUERY_ID, Field.AD_ID, Field.CTR, Field.IMPRESSIONS,
+                Field.CLICKS, Field.WINDOW_LENGTH);
     }
 }

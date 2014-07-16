@@ -6,11 +6,7 @@ import backtype.storm.tuple.Fields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.bolt.RollingCtrBolt;
-import storm.applications.constants.AdsAnalyticsConstants.Component;
-import storm.applications.constants.AdsAnalyticsConstants.Conf;
-import storm.applications.constants.AdsAnalyticsConstants.Field;
-import storm.applications.constants.AdsAnalyticsConstants.Stream;
-import storm.applications.util.ConfigUtility;
+import static storm.applications.constants.AdsAnalyticsConstants.*;
 
 /**
  *
@@ -29,13 +25,13 @@ public class AdsAnalyticsTopology extends BasicTopology {
     public void initialize() {
         super.initialize();
         
-        ctrThreads = ConfigUtility.getInt(config, Conf.CTR_THREADS, 1);
+        ctrThreads = config.getInt(Conf.CTR_THREADS, 1);
     }
 
     @Override
     public StormTopology buildTopology() {
         spout.setFields(new Fields(Field.QUERY_ID, Field.AD_ID, Field.EVENT));
-
+        
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         
         builder.setBolt(Component.CTR, new RollingCtrBolt(), ctrThreads)
@@ -51,6 +47,11 @@ public class AdsAnalyticsTopology extends BasicTopology {
     @Override
     public Logger getLogger() {
         return LOG;
+    }
+
+    @Override
+    public String getConfigPrefix() {
+        return PREFIX;
     }
     
 }

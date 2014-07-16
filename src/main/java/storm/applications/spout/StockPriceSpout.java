@@ -12,7 +12,6 @@ import storm.applications.constants.BargainIndexConstants.Conf;
 import storm.applications.model.finance.Quote;
 import storm.applications.model.finance.QuoteFetcher;
 import storm.applications.util.ClassLoaderUtils;
-import storm.applications.util.ConfigUtility;
 
 /**
  * Change name to TAQ (Trade and Quotes)

@@ -26,6 +26,8 @@ public class SpikeDetectionTopology extends BasicTopology {
     
     @Override
     public void initialize() {
+        super.initialize();
+        
         movingAverageThreads = config.getInt(Conf.MOVING_AVERAGE_THREADS, 1);
         spikeDetectorThreads = config.getInt(Conf.SPIKE_DETECTOR_THREADS, 1);
     }

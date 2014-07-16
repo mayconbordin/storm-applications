@@ -12,7 +12,6 @@ import redis.clients.jedis.JedisPubSub;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.spout.parser.Parser;
 import storm.applications.util.ClassLoaderUtils;
-import storm.applications.util.ConfigUtility;
 import storm.applications.util.StreamValues;
 
 /**

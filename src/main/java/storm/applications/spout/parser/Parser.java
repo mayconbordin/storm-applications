@@ -2,7 +2,7 @@ package storm.applications.spout.parser;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import storm.applications.util.Configuration;
 import storm.applications.util.StreamValues;
 
 /**
@@ -10,9 +10,9 @@ import storm.applications.util.StreamValues;
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public abstract class Parser {
-    protected Map config;
+    protected Configuration config;
 
-    public void initialize(Map config) {
+    public void initialize(Configuration config) {
         this.config = config;
     }
 

@@ -1,5 +1,6 @@
 package storm.applications.spout.parser;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import storm.applications.util.DateUtils;
 import storm.applications.util.StreamValues;
 
 /**
@@ -35,7 +37,9 @@ public class CommonLogParser extends Parser {
             return null;
         }
         
-        StreamValues values = new StreamValues(entry.get(IP), entry.get(TIMESTAMP), entry.get(REQUEST),
+        long minute = DateUtils.getMinuteForTime((Date) entry.get(TIMESTAMP));
+        
+        StreamValues values = new StreamValues(entry.get(IP), entry.get(TIMESTAMP), minute, entry.get(REQUEST),
                 entry.get(RESPONSE), entry.get(BYTE_SIZE));
         
         return list(values);

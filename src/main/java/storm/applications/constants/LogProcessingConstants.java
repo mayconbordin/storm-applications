@@ -1,49 +1,38 @@
 package storm.applications.constants;
 
-public final class LogProcessingConstants {
-    public static final class Field {
-        public static final String LOG_ENTRY = "LogEntry";
-        public static final String LOG_IP = "ip";
-        public static final String LOG_STATUS_CODE = "statusCode";
-        public static final String STATUS_CODE_COUNT = "stautsCodeCount";
-        public static final String LOG_TIMESTAMP = "timestamp";
-        public static final String LOG_INCREMENT = "IncrementAmount";
-        public static final String LOG_COLUMN = "column";
-        public static final String COUNTRY = "country";
-        public static final String COUNTRY_NAME = "country_name";
-        public static final String CITY = "city";
-        public static final String COUNTRY_TOTAL = "countryTotal";
-        public static final String CITY_TOTAL = "cityTotal";
+public interface LogProcessingConstants extends BaseConstants {
+    String PREFIX = "lp";
+    
+    interface Field {
+        String IP = "ip";
+        String TIMESTAMP = "timestamp";
+        String TIMESTAMP_MINUTES = "timestampMinutes";
+        String REQUEST = "request";
+        String RESPONSE = "response";
+        String BYTE_SIZE = "byteSize";
+        String COUNT = "count";
+        String COUNTRY = "country";
+        String COUNTRY_NAME = "country_name";
+        String CITY = "city";
+        String COUNTRY_TOTAL = "countryTotal";
+        String CITY_TOTAL = "cityTotal";
     }
     
-    public static final class Conf {
-        public static final String KAFKA_HOSTS = "kafka.hosts";
-        public static final String KAFKA_PARTITIONS = "kafka.broker.partitions";
-        public static final String KAFKA_TOPIC = "kafka.topic";
-        public static final String KAFKA_ZOOKEEPER_PATH = "kafka.zookeeper.path";
-        public static final String KAFKA_CONSUMER_ID = "kafka.consumer.id";
-
-        public static final String CASSANDRA_HOST = "cassandra.host";
-        public static final String CASSANDRA_KEYSPACE = "cassandra.keyspace";
-        public static final String CASSANDRA_COUNT_CF_NAME = "cassandra.count.cf.name";
-        public static final String CASSANDRA_STATUS_CF_NAME = "cassandra.status.cf.name";
-        public static final String CASSANDRA_COUNTRY_CF_NAME = "cassandra.country.cf.name";
-        
-        public static final String ZOOKEEPER_HOST = "zookeeper.host";
-        public static final String ZOOKEEPER_PORT = "zookeeper.port";
+    interface Conf extends BaseConf {
+        String VOLUME_COUNTER_WINDOW  = "lp.volume_counter.window";
+        String VOLUME_COUNTER_THREADS = "lp.volume_counter.threads";
+        String STATUS_COUNTER_THREADS = "lp.status_counter.threads";
+        String GEO_FINDER_THREADS     = "lp.geo_finder.threads";
+        String GEO_STATS_THREADS      = "lp.geo_stats.threads";
     }
     
-    public static final class Component {
-        public static final String SPOUT = "spout";
-        public static final String PARSER = "parser";
-        public static final String VOLUME_COUNT = "volumeCounterOneMin";
-        public static final String COUNT_PERSIST = "countPersistor";
-        public static final String IP_STAT_PARSER = "ipStatusParser";
-        public static final String STAT_COUNT = "statusCounter";
-        public static final String STAT_COUNT_PERSIST = "statusCountePersistor";
-        public static final String GEO_FINDER = "geoLocationFinder";
-        public static final String COUNTRY_STATS = "countryStats";
-        public static final String COUNTRY_STATS_PERSIST = "countryStatsPersistor";
-        public static final String PRINTER = "printerBolt";
+    interface Component extends BaseComponent {
+        String VOLUME_COUNTER = "volumeCounterOneMin";
+        String VOLUME_SINK = "countSink";
+        String STATUS_COUNTER = "statusCounter";
+        String STATUS_SINK = "statusSink";
+        String GEO_FINDER = "geoFinder";
+        String GEO_STATS = "geoStats";
+        String GEO_SINK = "geoSink";
     }
 }

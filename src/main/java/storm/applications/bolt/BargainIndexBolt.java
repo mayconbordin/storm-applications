@@ -1,9 +1,5 @@
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -11,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.joda.time.DateTime;
 import static storm.applications.constants.BargainIndexConstants.*;
-import storm.applications.util.ConfigUtility;
 
 /**
  * Calculates the VWAP (Volume Weighted Average Price) throughout the day for each
@@ -25,13 +20,13 @@ public class BargainIndexBolt extends AbstractBolt {
     private double threshold;
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields(Field.STOCK, Field.PRICE, Field.VOLUME, Field.BARGAIN_INDEX));
+    public Fields getDefaultFields() {
+        return new Fields(Field.STOCK, Field.PRICE, Field.VOLUME, Field.BARGAIN_INDEX);
     }
 
     @Override
     public void initialize() {
-        threshold = ConfigUtility.getDouble(config, Conf.BARGAIN_INDEX_THRESHOLD, 0.001);
+        threshold = config.getDouble(Conf.BARGAIN_INDEX_THRESHOLD, 0.001);
         trades = new HashMap<>();
     }
 

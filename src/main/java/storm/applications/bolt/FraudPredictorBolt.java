@@ -8,7 +8,6 @@ import static storm.applications.constants.FraudDetectionConstants.*;
 import storm.applications.model.fraud.predictor.MarkovModelPredictor;
 import storm.applications.model.fraud.predictor.ModelBasedPredictor;
 import storm.applications.model.fraud.predictor.Prediction;
-import storm.applications.util.ConfigUtility;
 
 /**
  *
@@ -19,7 +18,7 @@ public class FraudPredictorBolt extends AbstractBolt {
 
     @Override
     public void initialize() {
-        String strategy = ConfigUtility.getString(config, Conf.PREDICTOR_MODEL);
+        String strategy = config.getString(Conf.PREDICTOR_MODEL);
 
         if (strategy.equals("mm")) {
             predictor = new MarkovModelPredictor(config);
