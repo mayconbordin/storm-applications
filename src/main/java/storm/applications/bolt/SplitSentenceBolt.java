@@ -3,6 +3,7 @@ package storm.applications.bolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import org.apache.commons.lang3.StringUtils;
 import storm.applications.constants.WordCountConstants.Field;
 
 public class SplitSentenceBolt extends AbstractBolt {
@@ -18,7 +19,8 @@ public class SplitSentenceBolt extends AbstractBolt {
         String[] words = input.getString(0).split(splitregex);
         
         for (String word : words) {
-            collector.emit(new Values(word));
+            if (!StringUtils.isBlank(word))
+                collector.emit(new Values(word));
         }
     }
     
