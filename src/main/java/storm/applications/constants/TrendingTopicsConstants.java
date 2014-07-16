@@ -1,35 +1,31 @@
 package storm.applications.constants;
 
-public interface TrendingTopicsConstants {
-    interface Component {
-        String SPOUT = "spout";
-        String COUNTER = "counter";
-        String INTERMEDIATE_RANKER = "intermediateRanker";
-        String TOTAL_RANKER = "totalRanker";
-        String SINK = "sink";
+public interface TrendingTopicsConstants extends BaseConstants {
+    String PREFIX = "tt";
+    
+    interface Component extends BaseComponent {
+        String TOPIC_EXTRACTOR = "topicExtractorBolt";
+        String COUNTER = "counterBolt";
+        String INTERMEDIATE_RANKER = "intermediateRankerBolt";
+        String TOTAL_RANKER = "totalRankerBolt";
     }
     
-    public static final class Conf {
-        public static final String KAFKA_HOST = "kafka.zookeeper.host";
-        public static final String KAFKA_TOPIC_TWEETS = "kafka.topic.tweets";
-        public static final String KAFKA_ZOOKEEPER_PATH = "kafka.zookeeper.path";
-        public static final String KAFKA_COMSUMER_ID = "kafka.consumer.id";
-        
-        public static final String SPOUT_THREADS = "tt.spout.threads";
-        public static final String COUNTER_THREADS = "tt.counter.threads";
-        public static final String IRANKER_THREADS = "tt.iranker.threads";
-        public static final String TRANKER_THREADS = "tt.tranker.threads";
-        public static final String SINK_THREADS = "tt.sink.threads";
-        
-        public static final String CASSANDRA_CONFIG = "cassandra-config";
-        public static final String CASSANDRA_HOST = "cassandra.host";
-        public static final String CASSANDRA_KEYSPACE = "cassandra.keyspace";
-        public static final String CASSANDRA_WORDCOUNT_CF = "wc.cassandra.cf";
-        public static final String CASSANDRA_WORDCOUNT_KEY = "wc.cassandra.key";
+    interface Conf extends BaseConf {
+        String TOPIC_EXTRACTOR_THREADS = "tt.topic_extractor.threads";
+        String COUNTER_THREADS = "tt.counter.threads";
+        String COUNTER_WINDOW = "tt.counter.window";
+        String COUNTER_FREQ = "tt.counter.frequency";
+        String IRANKER_THREADS = "tt.iranker.threads";
+        String TRANKER_THREADS = "tt.tranker.threads";
+        String TOPN = "tt.topn";
     }
     
     interface Field {
-        String WORD = "word";
-        String OBJ  = "obj";
+        String TWEET = "tweet";
+        String WORD  = "word";
+        String OBJ = "obj";
+        String RANKINGS   = "rankings";
+        String COUNT = "count";
+        String WINDOW_LENGTH = "windowLength";
     }
 }
