@@ -21,13 +21,15 @@ public class WordCountTopology extends BasicTopology {
     
     @Override
     public void initialize() {
+        super.initialize();
+        
         splitSentenceThreads = config.getInt(Conf.SPLITTER_THREADS, 1);
         wordCountThreads     = config.getInt(Conf.COUNTER_THREADS, 1);
     }
 
     @Override
     public StormTopology buildTopology() {
-        spout.setFields(null);
+        spout.setFields(new Fields(Field.TEXT));
         
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         
