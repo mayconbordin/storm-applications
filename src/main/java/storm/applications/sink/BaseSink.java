@@ -7,7 +7,6 @@ import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.constants.BaseConstants.BaseConst;
 import storm.applications.sink.formatter.Formatter;
 import storm.applications.util.ClassLoaderUtils;
-import storm.applications.util.ConfigUtility;
 
 
 public abstract class BaseSink extends AbstractBolt {
@@ -16,7 +15,7 @@ public abstract class BaseSink extends AbstractBolt {
     
     @Override
     public void initialize() {
-        String formatterClass = ConfigUtility.getString(config, getConfigKey(BaseConf.SINK_FORMATTER));
+        String formatterClass = config.getString(getConfigKey(BaseConf.SINK_FORMATTER));
         formatter = (Formatter) ClassLoaderUtils.newInstance(formatterClass, "formatter", getLogger());
     }
     

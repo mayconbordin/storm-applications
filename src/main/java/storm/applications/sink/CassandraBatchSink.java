@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.constants.BaseConstants.BaseConst;
-import storm.applications.util.ConfigUtility;
 
 /**
  *
@@ -27,11 +26,11 @@ public class CassandraBatchSink extends BaseSink {
     
     @Override
     public void initialize() {
-        String host           = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_SINK_CF));
-        String keyspace       = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_KEYSPACE));
-        String columnFamily   = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_SINK_CF));
-        String rowKeyField    = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_SINK_ROW_KEY_FIELD));
-        String ackStrategyStr = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_SINK_ACK_STRATEGY));
+        String host           = config.getString(getConfigKey(BaseConf.CASSANDRA_SINK_CF));
+        String keyspace       = config.getString(getConfigKey(BaseConf.CASSANDRA_KEYSPACE));
+        String columnFamily   = config.getString(getConfigKey(BaseConf.CASSANDRA_SINK_CF));
+        String rowKeyField    = config.getString(getConfigKey(BaseConf.CASSANDRA_SINK_ROW_KEY_FIELD));
+        String ackStrategyStr = config.getString(getConfigKey(BaseConf.CASSANDRA_SINK_ACK_STRATEGY));
         
         Map<String, Object> clientConfig = new HashMap<>();
         clientConfig.put(BaseConf.CASSANDRA_HOST, host);

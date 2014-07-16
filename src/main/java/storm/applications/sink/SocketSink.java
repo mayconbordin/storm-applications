@@ -11,7 +11,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.util.ConfigUtility;
 
 /**
  * 
@@ -31,8 +30,8 @@ public class SocketSink extends BaseSink {
     public void initialize() {
         super.initialize();
         
-        port = ConfigUtility.getInt(config, getConfigKey(BaseConf.SINK_SOCKET_PORT), 6000);
-        charset = ConfigUtility.getString(config, getConfigKey(BaseConf.SINK_SOCKET_CHARSET), "US-ASCII");
+        port = config.getInt(getConfigKey(BaseConf.SINK_SOCKET_PORT), 6000);
+        charset = config.getString(getConfigKey(BaseConf.SINK_SOCKET_CHARSET), "US-ASCII");
         
         connections   = new ArrayList<>();
         outputStreams = new ArrayList<>();

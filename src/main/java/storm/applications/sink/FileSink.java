@@ -11,7 +11,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.util.ConfigUtility;
 import storm.applications.util.StringUtil;
 
 public class FileSink extends BaseSink {
@@ -24,7 +23,7 @@ public class FileSink extends BaseSink {
     public void initialize() {
         super.initialize();
         
-        file = ConfigUtility.getString(config, getConfigKey(BaseConf.SINK_PATH));
+        file = config.getString(getConfigKey(BaseConf.SINK_PATH));
         
         Map<String, Object> map = new HashMap<>(3);
         map.put("taskid", context.getThisTaskId());

@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import static storm.applications.constants.ReinforcementLearnerConstants.*;
-import storm.applications.util.ConfigUtility;
 
 public class RedisSink extends BaseSink {
     private static final Logger LOG = LoggerFactory.getLogger(RedisSink.class);
@@ -17,10 +16,10 @@ public class RedisSink extends BaseSink {
     public void initialize() {
         super.initialize();
         
-        queue = ConfigUtility.getString(config, getConfigKey(BaseConf.REDIS_SINK_QUEUE));
+        queue = config.getString(getConfigKey(BaseConf.REDIS_SINK_QUEUE));
         
-        String redisHost = ConfigUtility.getString(config, getConfigKey(BaseConf.REDIS_HOST));
-        int redisPort    = ConfigUtility.getInt(config, getConfigKey(BaseConf.REDIS_PORT));
+        String redisHost = config.getString(getConfigKey(BaseConf.REDIS_HOST));
+        int redisPort    = config.getInt(getConfigKey(BaseConf.REDIS_PORT));
         
         jedis = new Jedis(redisHost, redisPort);
     }

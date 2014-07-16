@@ -7,7 +7,6 @@ import com.hmsonline.storm.cassandra.bolt.mapper.TupleCounterMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.util.ConfigUtility;
 
 /**
  *
@@ -18,7 +17,7 @@ public class CassandraCountBatchSink extends CassandraBatchSink {
 
     @Override
     protected AbstractBatchingBolt createBolt(String keyspace, String columnFamily, String rowKeyField) {
-        String incField = ConfigUtility.getString(config, getConfigKey(BaseConf.CASSANDRA_SINK_INC_FIELD));
+        String incField = config.getString(getConfigKey(BaseConf.CASSANDRA_SINK_INC_FIELD));
         TupleCounterMapper tupleMapper = new DefaultTupleCounterMapper(keyspace, columnFamily, rowKeyField, incField);
         
         return new CassandraCounterBatchingBolt(configKey, tupleMapper);
