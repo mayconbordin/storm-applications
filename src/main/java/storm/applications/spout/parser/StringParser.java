@@ -15,7 +15,7 @@ public class StringParser extends Parser {
 
     @Override
     public List<StreamValues> parse(String str) {
-        if (StringUtils.isEmpty(str))
+        if (StringUtils.isBlank(str))
             return null;
         
         return list(new StreamValues(str));
