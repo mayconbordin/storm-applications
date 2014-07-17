@@ -1,17 +1,20 @@
 package storm.applications.sink.formatter;
 
+import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
-import java.util.Map;
+import storm.applications.util.Configuration;
 
 /**
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public abstract class Formatter {
-    protected Map config;
-
-    public void initialize(Map config) {
+    protected Configuration config;
+    protected TopologyContext context;
+    
+    public void initialize(Configuration config, TopologyContext context) {
         this.config = config;
+        this.context = context;
     }
     
     public abstract String format(Tuple tuple);
