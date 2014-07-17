@@ -21,16 +21,15 @@ public class RepeatVisitBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String ip = tuple.getStringByField(Field.IP);
         String clientKey = tuple.getStringByField(Field.CLIENT_KEY);
         String url = tuple.getStringByField(Field.URL);
         String key = url + ":" + clientKey;
         
         if (map.containsKey(key)) {
-             collector.emit(new Values(clientKey, Boolean.FALSE.toString()));
+             collector.emit(new Values(clientKey, url, Boolean.FALSE.toString()));
         } else {
             map.put(key, null);
-            collector.emit(new Values(clientKey, Boolean.TRUE.toString()));
+            collector.emit(new Values(clientKey, url, Boolean.TRUE.toString()));
         }
     }
 
