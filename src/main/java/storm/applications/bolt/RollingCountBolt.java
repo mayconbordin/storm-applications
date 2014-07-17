@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.constants.TrendingTopicsConstants;
 import storm.applications.constants.TrendingTopicsConstants.Conf;
 import storm.applications.constants.TrendingTopicsConstants.Field;
@@ -47,14 +48,21 @@ public class RollingCountBolt extends AbstractBolt {
             + " (you can safely ignore this warning during the startup phase)";
 
     private SlidingWindowCounter<Object> counter;
-    private int windowLengthInSeconds = 10;
-    private int emitFrequencyInSeconds = 2;
+    private int windowLengthInSeconds;
+    private int emitFrequencyInSeconds;
     private NthLastModifiedTimeTracker lastModifiedTracker;
+    
+    public RollingCountBolt() {
+        this(60);
+    }
+    
+    public RollingCountBolt(int emitFrequencyInSeconds) {
+        this.emitFrequencyInSeconds = emitFrequencyInSeconds;
+    }
 
     @Override
     public void initialize() {
-        windowLengthInSeconds  = config.getInt(Conf.COUNTER_WINDOW, 300);
-        emitFrequencyInSeconds = config.getInt(Conf.COUNTER_FREQ, 60);
+        windowLengthInSeconds = config.getInt(String.format(BaseConf.ROLLING_COUNT_WINDOW_LENGTH, configPrefix), 300);
         
         int numChunks = windowLengthInSeconds/emitFrequencyInSeconds;
         

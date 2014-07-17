@@ -8,6 +8,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.utils.Utils;
 import java.util.HashMap;
 import java.util.Map;
+import storm.applications.constants.BaseConstants;
 import storm.applications.util.Configuration;
 
 /**
@@ -18,6 +19,7 @@ public abstract class AbstractBolt extends BaseRichBolt {
     protected OutputCollector collector;
     protected Configuration config;
     protected TopologyContext context;
+    protected String configPrefix = BaseConstants.PREFIX;
     private Map<String, Fields> fields;
 
     public AbstractBolt() {
@@ -66,5 +68,9 @@ public abstract class AbstractBolt extends BaseRichBolt {
 
     public void initialize() {
         
+    }
+
+    public void setConfigPrefix(String configPrefix) {
+        this.configPrefix = configPrefix;
     }
 }

@@ -11,6 +11,8 @@ import java.util.Map;
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public interface BaseConstants {
+    String PREFIX = "storm";
+    
     interface BaseConf {
         String SPOUT_THREADS     = "%s.spout.threads";
         String SPOUT_CLASS       = "%s.spout.class";
@@ -47,6 +49,8 @@ public interface BaseConstants {
         String CASSANDRA_SINK_ROW_KEY_FIELD = "%s.cassandra.sink.field.row_key";
         String CASSANDRA_SINK_INC_FIELD     = "%s.cassandra.sink.field.increment";
         String CASSANDRA_SINK_ACK_STRATEGY  = "%s.cassandra.sink.ack_strategy";
+        
+        String ROLLING_COUNT_WINDOW_LENGTH = "%s.rolling_count.window_length";
         
         String GEOIP2_DB = "storm.geoip2.db";
         

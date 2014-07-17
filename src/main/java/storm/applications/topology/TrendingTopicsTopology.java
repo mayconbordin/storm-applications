@@ -22,7 +22,10 @@ public class TrendingTopicsTopology extends BasicTopology {
     private int iRankerThreads;
     private int tRankerThreads;
     
-    private int topn;
+    private int topk;
+    private int counterFrequency;
+    private int iRankerFrequency;
+    private int tRankerFrequnecy;
     
     public TrendingTopicsTopology(String topologyName, Config config) {
         super(topologyName, config);
@@ -36,7 +39,10 @@ public class TrendingTopicsTopology extends BasicTopology {
         counterThreads        = config.getInt(Conf.COUNTER_THREADS, 1);
         iRankerThreads        = config.getInt(Conf.IRANKER_THREADS, 1);
         tRankerThreads        = config.getInt(Conf.IRANKER_THREADS, 1);
-        topn                  = config.getInt(Conf.TOPN, 10);
+        topk                  = config.getInt(Conf.TOPK, 10);
+        counterFrequency      = config.getInt(Conf.COUNTER_FREQ, 60);
+        iRankerFrequency      = config.getInt(Conf.IRANKER_FREQ, 2);
+        tRankerFrequnecy      = config.getInt(Conf.TRANKER_FREQ, 2);
     }
 
     @Override
@@ -48,13 +54,13 @@ public class TrendingTopicsTopology extends BasicTopology {
         builder.setBolt(Component.TOPIC_EXTRACTOR, new TopicExtractorBolt(), topicExtractorThreads)
                .shuffleGrouping(Component.SPOUT);
         
-        builder.setBolt(Component.COUNTER, new RollingCountBolt(), counterThreads)
+        builder.setBolt(Component.COUNTER, new RollingCountBolt(counterFrequency), counterThreads)
                .fieldsGrouping(Component.TOPIC_EXTRACTOR, new Fields(Field.WORD));
         
-        builder.setBolt(Component.INTERMEDIATE_RANKER, new IntermediateRankingsBolt(topn), iRankerThreads)
+        builder.setBolt(Component.INTERMEDIATE_RANKER, new IntermediateRankingsBolt(topk, iRankerFrequency), iRankerThreads)
                .fieldsGrouping(Component.COUNTER, new Fields(Field.OBJ));
         
-        builder.setBolt(Component.TOTAL_RANKER, new TotalRankingsBolt(topn), tRankerThreads)
+        builder.setBolt(Component.TOTAL_RANKER, new TotalRankingsBolt(topk, tRankerFrequnecy), tRankerThreads)
                .globalGrouping(Component.INTERMEDIATE_RANKER);
         
         builder.setBolt(Component.SINK, sink, sinkThreads)
