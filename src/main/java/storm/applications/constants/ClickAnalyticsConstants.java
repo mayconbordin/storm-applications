@@ -6,7 +6,6 @@ public interface ClickAnalyticsConstants extends BaseConstants {
     interface Conf extends BaseConf {
         String REPEATS_THREADS       = "ca.repeats.threads";
         String GEOGRAPHY_THREADS     = "ca.geography.threads";
-        String GEOGRAPHY_IP_RESOLVER = "ca.geography.ip_resolver";
         String TOTAL_STATS_THREADS   = "ca.total_stats.threads";
         String GEO_STATS_THREADS     = "ca.geo_stats.threads";
     }

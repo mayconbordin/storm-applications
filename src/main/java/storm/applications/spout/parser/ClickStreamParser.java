@@ -2,7 +2,6 @@ package storm.applications.spout.parser;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

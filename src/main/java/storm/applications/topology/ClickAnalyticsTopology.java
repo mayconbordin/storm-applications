@@ -20,13 +20,13 @@ public class ClickAnalyticsTopology extends AbstractTopology {
     private int geographyThreads;
     private int totalStatsThreads;
     private int geoStatsThreads;
+    private int spoutThreads;
+    private int visitSinkThreads;
+    private int locationSinkThreads;
     
     private AbstractSpout spout;
     private BaseSink visitSink;
     private BaseSink locationSink;
-    private int spoutThreads;
-    private int visitSinkThreads;
-    private int locationSinkThreads;
     
     public ClickAnalyticsTopology(String topologyName, Config config) {
         super(topologyName, config);
