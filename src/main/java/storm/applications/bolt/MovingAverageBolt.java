@@ -1,6 +1,5 @@
 package storm.applications.bolt;
 
-
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -27,15 +26,15 @@ public class MovingAverageBolt extends AbstractBolt {
 
     @Override
     public void initialize() {
-        this.movingAverageWindow = config.getInt(Conf.MOVING_AVERAGE_WINDOW, 1000);
+        movingAverageWindow   = config.getInt(Conf.MOVING_AVERAGE_WINDOW, 1000);
         deviceIDtoStreamMap   = new HashMap<>();
         deviceIDtoSumOfEvents = new HashMap<>();
     }
 
     @Override
-    public void execute(final Tuple tuple) {
-        final String deviceID = tuple.getString(0);
-        final double nextDouble = (double)tuple.getInteger(1);
+    public void execute(Tuple tuple) {
+        String deviceID = tuple.getStringByField(Field.DEVICE_ID);
+        double nextDouble = tuple.getDoubleByField(Field.VALUE);
         double movingAvergeInstant = movingAverage(deviceID, nextDouble);
         
         collector.emit(new Values(deviceID, movingAvergeInstant, nextDouble));

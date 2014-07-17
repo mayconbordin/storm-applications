@@ -1,6 +1,5 @@
 package storm.applications.spout.parser;
 
-import backtype.storm.tuple.Values;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import org.joda.time.DateTime;
@@ -9,7 +8,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import storm.applications.constants.SpikeDetectionConstants;
 import storm.applications.constants.SpikeDetectionConstants.Conf;
 import storm.applications.util.Configuration;
 import storm.applications.util.StreamValues;

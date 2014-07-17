@@ -39,10 +39,13 @@ public class SpikeDetectionTopology extends BasicTopology {
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         
         builder.setBolt(Component.MOVING_AVERAGE, new MovingAverageBolt(), movingAverageThreads)
-               .shuffleGrouping(Component.SPOUT);
+               .fieldsGrouping(Component.SPOUT, new Fields(Field.DEVICE_ID));
         
         builder.setBolt(Component.SPIKE_DETECTOR, new SpikeDetectionBolt(), spikeDetectorThreads)
-               .shuffleGrouping("movingAverage");
+               .shuffleGrouping(Component.MOVING_AVERAGE);
+        
+        builder.setBolt(Component.SINK, sink, sinkThreads)
+               .shuffleGrouping(Component.SPIKE_DETECTOR);
         
         return builder.createTopology();
     }
