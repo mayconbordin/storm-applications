@@ -11,7 +11,7 @@ import java.util.Map;
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public interface BaseConstants {
-    String PREFIX = "storm";
+    String BASE_PREFIX = "storm";
     
     interface BaseConf {
         String SPOUT_THREADS     = "%s.spout.threads";
