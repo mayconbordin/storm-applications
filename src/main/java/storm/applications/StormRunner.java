@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public class StormRunner {
     @Parameter(names = {"-m", "--mode"}, description = "Mode for running the topology")
     public String mode = "local";
     
-    @Parameter(names = {"-a", "--app"}, description = "The application to be executed")
+    @Parameter(names = {"-a", "--app"}, description = "The application to be executed", required = true)
     public String application;
     
     @Parameter(names = {"-t", "--topology-name"}, required = false, description = "The name of the topology")
@@ -130,14 +131,17 @@ public class StormRunner {
         try {
             cmd.parse(args);
         } catch (ParameterException ex) {
+            System.err.println("Argument error: " + ex.getMessage());
             cmd.usage();
             System.exit(1);
         }
         
         try {
             runner.run();
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex.getCause());
+        } catch (AlreadyAliveException | InvalidTopologyException ex) {
+            LOG.error("Error in running topology remotely", ex);
+        } catch (InterruptedException ex) {
+            LOG.error("Error in running topology locally", ex);
         }
     }
     
