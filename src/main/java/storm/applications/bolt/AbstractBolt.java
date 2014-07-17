@@ -19,7 +19,7 @@ public abstract class AbstractBolt extends BaseRichBolt {
     protected OutputCollector collector;
     protected Configuration config;
     protected TopologyContext context;
-    protected String configPrefix = BaseConstants.PREFIX;
+    protected String configPrefix = BaseConstants.BASE_PREFIX;
     private Map<String, Fields> fields;
 
     public AbstractBolt() {
