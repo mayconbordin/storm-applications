@@ -52,6 +52,7 @@ public interface BaseConstants {
         
         String ROLLING_COUNT_WINDOW_LENGTH = "%s.rolling_count.window_length";
         
+        String GEOIP_INSTANCE = "storm.geoip.instance";
         String GEOIP2_DB = "storm.geoip2.db";
         
         String DEBUG_ON = Config.TOPOLOGY_DEBUG;
@@ -64,8 +65,6 @@ public interface BaseConstants {
                 .put("onReceive", AckStrategy.ACK_ON_RECEIVE) 
                 .put("ignore", AckStrategy.ACK_IGNORE) 
                 .build();
-        
-        String DEFAULT_CONFIG_PREFIX = "storm";
     }
     
     interface BaseComponent {
