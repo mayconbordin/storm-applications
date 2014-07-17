@@ -4,14 +4,12 @@ import backtype.storm.tuple.Fields;
 import org.slf4j.Logger;
 import storm.applications.bolt.AbstractBolt;
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.constants.BaseConstants.BaseConst;
 import storm.applications.sink.formatter.BasicFormatter;
 import storm.applications.sink.formatter.Formatter;
 import storm.applications.util.ClassLoaderUtils;
 
 
 public abstract class BaseSink extends AbstractBolt {
-    protected String configPrefix = BaseConst.DEFAULT_CONFIG_PREFIX;
     protected Formatter formatter;
     
     @Override
@@ -23,6 +21,8 @@ public abstract class BaseSink extends AbstractBolt {
         } else {
             formatter = (Formatter) ClassLoaderUtils.newInstance(formatterClass, "formatter", getLogger());
         }
+        
+        formatter.initialize(config, context);
     }
     
     @Override
@@ -32,10 +32,6 @@ public abstract class BaseSink extends AbstractBolt {
     
     protected String getConfigKey(String template) {
         return String.format(template, configPrefix);
-    }
-
-    public void setConfigPrefix(String configPrefix) {
-        this.configPrefix = configPrefix;
     }
     
     protected abstract Logger getLogger();
