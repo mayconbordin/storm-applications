@@ -59,8 +59,8 @@ public abstract class AbstractBolt extends BaseRichBolt {
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
-        this.config = new Configuration(stormConf);
-        this.context = context;
+        this.config    = new Configuration(stormConf);
+        this.context   = context;
         this.collector = collector;
         
         initialize();
