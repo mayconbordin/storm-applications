@@ -3,7 +3,6 @@ package storm.applications.bolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
@@ -12,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.LogProcessingConstants.Conf;
 import storm.applications.constants.LogProcessingConstants.Field;
-import storm.applications.util.DateUtils;
 
 /**
  * This bolt will count number of log events per minute

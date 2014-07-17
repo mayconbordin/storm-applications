@@ -16,7 +16,7 @@ public class GeographyBolt extends AbstractBolt {
 
     @Override
     public void initialize() {
-        String ipResolver = config.getString(Conf.GEOGRAPHY_IP_RESOLVER);
+        String ipResolver = config.getString(BaseConf.GEOIP_INSTANCE);
         resolver = IPLocationFactory.create(ipResolver, config);
     }
 
@@ -24,11 +24,14 @@ public class GeographyBolt extends AbstractBolt {
     public void execute(Tuple tuple) {
         String ip = tuple.getStringByField(Field.IP);
         
-        Location l = resolver.resolve(ip);
-        String city = l.getCity();
-        String country = l.getCountryName();
+        Location location = resolver.resolve(ip);
         
-        collector.emit(new Values(country, city));
+        if (location != null) {
+            String city = location.getCity();
+            String country = location.getCountryName();
+
+            collector.emit(new Values(country, city));
+        }
     }
 
     @Override

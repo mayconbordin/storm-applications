@@ -15,7 +15,7 @@ import storm.applications.constants.LogProcessingConstants.Field;
  */
 public class StatusCountBolt  extends AbstractBolt {
     private static final Logger LOG = LoggerFactory.getLogger(StatusCountBolt.class);
-    private Map<String, Integer> counts;
+    private Map<Integer, Integer> counts;
 
     @Override
     public void initialize() {
@@ -24,10 +24,10 @@ public class StatusCountBolt  extends AbstractBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        String statusCode = tuple.getStringByField(Field.RESPONSE);
+        int statusCode = tuple.getIntegerByField(Field.RESPONSE);
         int count = 0;
         
-        if (this.counts.containsKey(statusCode)) {
+        if (counts.containsKey(statusCode)) {
             count = counts.get(statusCode);
         }
         
