@@ -29,6 +29,19 @@ java -jar target/storm-applications-*-with-dependencies.jar --app <application-n
  - `-r, --runtime`: runtime in seconds for the application (local mode only) [default=300]
  - `-t, --topology-name`: the name of the topology (remote mode only)
 
+## Configuration
+
+Instead of each application having its own spouts and sinks (bolts that send data to other systems), we have defined a few basic spouts ([FileSpout](src/main/java/storm/applications/spout/FileSpout.java), [GeneratorSpout](src/main/java/storm/applications/spout/GeneratorSpout.java), [KafkaSpout](src/main/java/storm/applications/spout/KafkaSpout.java), [RedisSpout](src/main/java/storm/applications/spout/RedisSpout.java) and sinks (FileSink, RedisSink, SocketSink, ...).
+
+All but the `GeneratorSpout` need a `Parser`. The parser is application specific and translates, usually, a string line read from the source into a tuple. To set a spout that reads from a file and parses the data as a Common Log Format, the configuration file would look like this:
+
+```
+%app-prefix%.spout.threads=1
+%app-prefix%.spout.class=storm.applications.spout.FileSpout
+%app-prefix%.spout.path=./data/http-server.log
+%app-prefix%.spout.parser=storm.applications.spout.parser.CommonLogParser
+```
+
 ## Applications
 
 | Application Name      | Prefix | Sample Data              | Dataset
