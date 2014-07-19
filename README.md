@@ -31,16 +31,29 @@ java -jar target/storm-applications-*-with-dependencies.jar --app <application-n
 
 ## Configuration
 
-Instead of each application having its own spouts and sinks (bolts that send data to other systems), we have defined a few basic spouts ([FileSpout](src/main/java/storm/applications/spout/FileSpout.java), [GeneratorSpout](src/main/java/storm/applications/spout/GeneratorSpout.java), [KafkaSpout](src/main/java/storm/applications/spout/KafkaSpout.java), [RedisSpout](src/main/java/storm/applications/spout/RedisSpout.java) and sinks (FileSink, RedisSink, SocketSink, ...).
+Instead of each application having its own spouts and sinks (bolts that send data to other systems), we have defined a few basic spouts ([FileSpout](src/main/java/storm/applications/spout/FileSpout.java), [GeneratorSpout](src/main/java/storm/applications/spout/GeneratorSpout.java), [KafkaSpout](src/main/java/storm/applications/spout/KafkaSpout.java), [RedisSpout](src/main/java/storm/applications/spout/RedisSpout.java)) and sinks (FileSink, RedisSink, SocketSink, Cassandra..., NullSink).
 
-All but the `GeneratorSpout` need a `Parser`. The parser is application specific and translates, usually, a string line read from the source into a tuple. To set a spout that reads from a file and parses the data as a Common Log Format, the configuration file would look like this:
+All but the `GeneratorSpout` need a `Parser`. The parser receives a string and returns a list of values, following the schema defined in the topology. To set a spout that reads from a file and parses the data as a Common Log Format, the configuration file would look like this:
 
 ```
-%app-prefix%.spout.threads=1
-%app-prefix%.spout.class=storm.applications.spout.FileSpout
-%app-prefix%.spout.path=./data/http-server.log
-%app-prefix%.spout.parser=storm.applications.spout.parser.CommonLogParser
+<app-prefix>.spout.threads=1
+<app-prefix>.spout.class=storm.applications.spout.FileSpout
+<app-prefix>.spout.path=./data/http-server.log
+<app-prefix>.spout.parser=storm.applications.spout.parser.CommonLogParser
 ```
+
+The `GeneratorSpout` doesn't need a parser, instead it uses an instance of a class that extends the `Generator` class. Each time the generator is called it returns a new tuple.
+
+Similarly, some sink classes (`FileSink`, `ConsoleSink`, `RedisSink`, `SocketSink`) need a `Formatter` which receives a tuple and returns a string. Writing the output of an application to a file could be achieved with the following configuration:
+
+```
+<app-prefix>.sink.threads=1
+<app-prefix>.sink.class=storm.applications.sink.FileSink
+<app-prefix>.sink.path=./output/result_%(taskid).dat
+<app-prefix>.sink.formatter=storm.applications.sink.formatter.FullInfoFormatter
+```
+
+The `<app-prefix>` is the prefix of the application being executed, and the placeholder `%(taskid)` is used in the file path so that each instance of the `FileSink` can write to its own file, avoiding problems in case of two instances residing in the same machine.
 
 ## Applications
 
