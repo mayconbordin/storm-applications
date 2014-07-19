@@ -31,7 +31,7 @@ java -jar target/storm-applications-*-with-dependencies.jar --app <application-n
 
 ## Configuration
 
-Instead of each application having its own spouts and sinks (bolts that send data to other systems), we have defined a few basic spouts (FileSpout, GeneratorSpout, KafkaSpout, RedisSpout) and sinks (FileSink, RedisSink, SocketSink, Cassandra..., NullSink).
+Instead of each application having its own spouts and sinks (bolts that send data to other systems), we have defined a few basic spouts (`FileSpout`, `GeneratorSpout`, `KafkaSpout`, `RedisSpout`) and sinks (`FileSink`, `RedisSink`, `SocketSink`, `Cassandra...`, `NullSink`).
 
 All but the `GeneratorSpout` need a `Parser`. The parser receives a string and returns a list of values, following the schema defined in the topology. To set a spout that reads from a file and parses the data as a Common Log Format, the configuration file would look like this:
 
