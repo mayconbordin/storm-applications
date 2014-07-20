@@ -70,7 +70,7 @@ The `<app-prefix>` is the prefix of the application being executed, and the plac
 | sentiment-analysis    | sa     |                          | [Twitter Streaming][5]
 | spam-filter           | sf     | [enron.json][18]         | <p>[TREC 2007][9] (547MB, labeled)</p><p>[SPAM Archive][10] (~1.2GB, spam)</p><p>[Enron Email Dataset][11] (2.6GB, raw)</p><p>[Enron Spam Dataset][12] (50MB, labeled)</p>
 | spike-detection       | sd     | [sensors.dat][19]        | [Intel Berkeley Research Lab][4] (150MB)
-| traffic-monitoring    | tm     |                          | [Beijing Taxi Traces][21]
+| traffic-monitoring    | tm     | [taxi-traces.csv][22]    | [Beijing Taxi Traces][21]
 | trending-topics       | tt     |                          | [Twitter Streaming][5]
 | voipstream            | vs     |                          |
 | word-count            | wc     | [books.dat][20]          | [Project Gutenberg][1] (~8GB)
@@ -99,3 +99,4 @@ The `<app-prefix>` is the prefix of the application being executed, and the plac
 [20]: data/books.dat
 
 [21]: http://anrg.usc.edu/www/downloads/
+[22]: data/taxi-traces.csv
