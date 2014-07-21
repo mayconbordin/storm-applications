@@ -16,9 +16,8 @@ public class MarkovModelFileSource implements IMarkovModelSource {
     public MarkovModelFileSource() {
         charset = Charset.defaultCharset();
     }
-    
-    
 
+    @Override
     public String getModel(String key) {
         byte[] encoded;
         try {

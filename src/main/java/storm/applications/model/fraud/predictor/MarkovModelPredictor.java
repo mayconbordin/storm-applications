@@ -21,12 +21,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import storm.applications.constants.FraudDetectionConstants;
-import storm.applications.constants.FraudDetectionConstants.Conf;
+import static storm.applications.constants.FraudDetectionConstants.*;
 import storm.applications.util.Configuration;
-
 import storm.applications.util.Pair;
 
 /**
@@ -55,8 +54,15 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
     private double[] entropy;
 
     public MarkovModelPredictor(Configuration conf) {
-        String mmKey = conf.getString(Conf.MARKOV_MODEL_KEY);
-        String model = new MarkovModelFileSource().getModel(mmKey);
+        String mmKey = conf.getString(Conf.MARKOV_MODEL_KEY, null);
+        String model;
+        
+        if (StringUtils.isBlank(mmKey)) {
+            model = new MarkovModelResourceSource().getModel(DEFAULT_MODEL);
+        } else {
+            model = new MarkovModelFileSource().getModel(mmKey);
+        }
+        
         markovModel = new MarkovModel(model);
         localPredictor = conf.getBoolean(Conf.LOCAL_PREDICTOR);
         
