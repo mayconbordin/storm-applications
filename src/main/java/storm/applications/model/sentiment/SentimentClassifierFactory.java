@@ -13,12 +13,15 @@ public class SentimentClassifierFactory {
     public static SentimentClassifier create(String classifierName, Configuration config) {
         SentimentClassifier classifier;
         
-        if (classifierName.equals(BASIC)) {
-            classifier = new BasicClassifier();
-        } else if (classifierName.equals(LINGPIPE)) {
-            classifier = new LingPipeClassifier();
-        } else {
-            throw new IllegalArgumentException("There is not sentiment classifier named " + classifierName);
+        switch (classifierName) {
+            case BASIC:
+                classifier = new BasicClassifier();
+                break;
+            case LINGPIPE:
+                classifier = new LingPipeClassifier();
+                break;
+            default:
+                throw new IllegalArgumentException("There is not sentiment classifier named " + classifierName);
         }
         
         classifier.initialize(config);

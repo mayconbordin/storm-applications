@@ -16,14 +16,16 @@ import storm.applications.util.Configuration;
 
 public class BasicClassifier implements SentimentClassifier {
     private static final Logger LOG = LoggerFactory.getLogger(BasicClassifier.class);    
-    private SortedMap<String,Integer> afinnSentimentMap;
+    private static final String DEFAULT_PATH = "sentimentanalysis/AFINN-111.txt";
+    private SortedMap<String, Integer> afinnSentimentMap;
     
     @Override
     public void initialize(Configuration config) {
         afinnSentimentMap = Maps.newTreeMap();
         
         try {
-            final URL url = Resources.getResource(config.getString(Conf.BASIC_CLASSIFIER_PATH));
+            String path = config.getString(Conf.BASIC_CLASSIFIER_PATH, DEFAULT_PATH);
+            final URL url = Resources.getResource(path);
             final String text = Resources.toString(url, Charsets.UTF_8);
             final Iterable<String> lineSplit = Splitter.on("\n").trimResults().omitEmptyStrings().split(text);
             List<String> tabSplit;

@@ -32,7 +32,8 @@ public class CalculateSentimentBolt extends AbstractBolt {
 
     @Override
     public void initialize() {
-        classifier = SentimentClassifierFactory.create(config.getString(Conf.CLASSIFIER_TYPE), config);
+        String classifierType = config.getString(Conf.CLASSIFIER_TYPE, SentimentClassifierFactory.BASIC);
+        classifier = SentimentClassifierFactory.create(classifierType, config);
     }
 
     @Override

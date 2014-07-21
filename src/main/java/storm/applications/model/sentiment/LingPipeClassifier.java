@@ -12,12 +12,13 @@ import storm.applications.util.Configuration;
 
 public class LingPipeClassifier implements SentimentClassifier {
     private static final Logger LOG = LoggerFactory.getLogger(LingPipeClassifier.class);
+    private static final String DEFAULT_PATH = "sentimentanalysis/classifier.txt";
     private LMClassifier classifier;
     
     @Override
     public void initialize(Configuration config) {
         try {
-            String clsPath = config.getString(Conf.LINGPIPE_CLASSIFIER_PATH);
+            String clsPath = config.getString(Conf.LINGPIPE_CLASSIFIER_PATH, DEFAULT_PATH);
             classifier = (LMClassifier) AbstractExternalizable.readObject(new File(clsPath));
         } catch (ClassNotFoundException | IOException ex) {
             LOG.error(ex.getMessage(), ex);
