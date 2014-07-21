@@ -16,6 +16,7 @@ public class AdsAnalyticsTopology extends BasicTopology {
     private static final Logger LOG = LoggerFactory.getLogger(AdsAnalyticsTopology.class);
     
     private int ctrThreads;
+    private int ctrFrequency;
 
     public AdsAnalyticsTopology(String topologyName, Config config) {
         super(topologyName, config);
@@ -25,16 +26,19 @@ public class AdsAnalyticsTopology extends BasicTopology {
     public void initialize() {
         super.initialize();
         
-        ctrThreads = config.getInt(Conf.CTR_THREADS, 1);
+        ctrThreads   = config.getInt(Conf.CTR_THREADS, 1);
+        ctrFrequency = config.getInt(Conf.CTR_EMIT_FREQUENCY, 60);
     }
 
     @Override
     public StormTopology buildTopology() {
-        spout.setFields(new Fields(Field.QUERY_ID, Field.AD_ID, Field.EVENT));
+        Fields spoutFields = new Fields(Field.QUERY_ID, Field.AD_ID, Field.EVENT);
+        spout.setFields(Stream.CLICKS, spoutFields);
+        spout.setFields(Stream.IMPRESSIONS, spoutFields);
         
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         
-        builder.setBolt(Component.CTR, new RollingCtrBolt(), ctrThreads)
+        builder.setBolt(Component.CTR, new RollingCtrBolt(ctrFrequency), ctrThreads)
                .fieldsGrouping(Component.SPOUT, Stream.CLICKS, new Fields(Field.QUERY_ID, Field.AD_ID))
                .fieldsGrouping(Component.SPOUT, Stream.IMPRESSIONS, new Fields(Field.QUERY_ID, Field.AD_ID));
 

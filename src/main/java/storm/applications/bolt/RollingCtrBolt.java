@@ -30,11 +30,18 @@ public class RollingCtrBolt extends AbstractBolt {
     protected int emitFrequencyInSeconds;
     
     protected NthLastModifiedTimeTracker lastModifiedTracker;
+    
+    public RollingCtrBolt() {
+        this(60);
+    }
+
+    public RollingCtrBolt(int emitFrequencyInSeconds) {
+        this.emitFrequencyInSeconds = emitFrequencyInSeconds;
+    }
 
     @Override
     public void initialize() {
         windowLengthInSeconds = config.getInt(Conf.CTR_WINDOW_LENGTH, 300);
-        emitFrequencyInSeconds = config.getInt(Conf.CTR_WINDOW_LENGTH, 60);
         
         int windowLenghtInSlots = windowLengthInSeconds / emitFrequencyInSeconds;
 
