@@ -1,4 +1,4 @@
-package storm.applications.model.gis;
+package storm.applications.util.queue;
 
 import java.util.Collection;  
 import java.util.Iterator;  
