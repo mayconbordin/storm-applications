@@ -15,6 +15,10 @@ import storm.applications.util.ClassLoaderUtils;
 import storm.applications.util.FileUtils;
 import storm.applications.util.StreamValues;
 
+/**
+ * 
+ * @author Maycon Viana Bordin <mayconbordin@gmail.com>
+ */
 public class FileSpout extends AbstractSpout {
     private static final Logger LOG = LoggerFactory.getLogger(FileSpout.class);
     
@@ -22,10 +26,16 @@ public class FileSpout extends AbstractSpout {
     protected File[] files;
     protected Scanner scanner;
     protected int curFileIndex = 0;
-    protected boolean finished = false;
+    protected int curLineIndex = 0;
+    
+    protected int taskId;
+    protected int numTasks;
 
     @Override
     public void initialize() {
+        taskId   = context.getThisTaskIndex();//context.getThisTaskId();
+        numTasks = config.getInt(getConfigKey(BaseConf.SPOUT_THREADS));
+        
         String parserClass = config.getString(getConfigKey(BaseConf.SPOUT_PARSER));
         parser = (Parser) ClassLoaderUtils.newInstance(parserClass, "parser", LOG);
         parser.initialize(config);
@@ -83,37 +93,59 @@ public class FileSpout extends AbstractSpout {
     }
 
     protected String readFile() {
-        if (finished) return null;
-        
         String record = null;
-        
+                
         if (scanner.hasNextLine()) {
-            record = scanner.nextLine();
+            record = readLine();
         } else {
-            if (++curFileIndex < files.length) {
+            if ((curFileIndex+1) < files.length) {
                 openNextFile();
                 if (scanner.hasNextLine()) {
-                     record = scanner.nextLine();
+                     record = readLine();
                 }				 
             } else {
                 LOG.info("No more files to read");
-                finished = true;
             }
         }
         
         return record;
     }
+    
+    /**
+     * Read one line from the currently open file. If there's only one file, each
+     * instance of the spout will read only a portion of the file.
+     * @return The line
+     */
+    protected String readLine() {
+        if (files.length == 1) {
+            while (scanner.hasNextLine() && ++curLineIndex % numTasks != taskId)
+                scanner.nextLine();
+        }
+        
+        if (scanner.hasNextLine())
+            return scanner.nextLine();
+        else
+            return null;
+    }
 
+    /**
+     * Opens the next file from the index. If there's multiple instances of the
+     * spout, it will read only a portion of the files.
+     */
     protected void openNextFile() {
-        try {
-            File file = files[curFileIndex];
-            scanner = new Scanner(file);
-            LOG.info("Opened file {}, size {}", file.getName(), 
-                    FileUtils.humanReadableByteCount(file.length()));
-            
-        } catch (FileNotFoundException e) {
-            LOG.error(String.format("File %s not found", files[curFileIndex]), e);
-            throw new IllegalStateException("file not found");
+        while (++curFileIndex % numTasks != taskId) { }
+
+        if (curFileIndex < files.length) {
+            try {
+                File file = files[curFileIndex];
+                scanner = new Scanner(file);
+                curLineIndex = 0;
+                
+                LOG.info("Opened file {}, size {}", file.getName(), FileUtils.humanReadableByteCount(file.length()));
+            } catch (FileNotFoundException ex) {
+                LOG.error(String.format("File %s not found", files[curFileIndex]), ex);
+                throw new IllegalStateException("File not found", ex);
+            }
         }
     }
 }	
