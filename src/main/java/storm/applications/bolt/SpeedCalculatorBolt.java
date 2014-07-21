@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import storm.applications.constants.RealTimeTrafficConstants.Field;
+import storm.applications.constants.TrafficMonitoringConstants.Field;
 import storm.applications.model.gis.Road;
 
 /**

@@ -1,5 +1,7 @@
 package storm.applications.model.gis;
 
+import storm.applications.util.queue.FixedSizeQueue;
+
 public class Road {
     private final int roadID;
     private final FixedSizeQueue<Integer> roadSpeed;
