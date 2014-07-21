@@ -133,7 +133,9 @@ public class FileSpout extends AbstractSpout {
      * spout, it will read only a portion of the files.
      */
     protected void openNextFile() {
-        while (++curFileIndex % numTasks != taskId) { }
+        while ((curFileIndex+1) % numTasks != taskId) {
+            curFileIndex++;
+        }
 
         if (curFileIndex < files.length) {
             try {
