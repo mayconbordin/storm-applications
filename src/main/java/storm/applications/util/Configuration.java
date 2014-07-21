@@ -2,12 +2,10 @@ package storm.applications.util;
 
 import backtype.storm.Config;
 import java.util.Map;
+import java.util.Properties;
+import org.apache.commons.lang.math.NumberUtils;
 
 public class Configuration extends Config {
-
-    public Configuration(Map map) {
-        putAll(map);
-    }
     
     public String getString(String key) {
         String val = null;
@@ -39,16 +37,18 @@ public class Configuration extends Config {
         Object obj = get(key);
         
         if (null != obj) {
-            if (obj instanceof Integer) {
-                val = (Integer)obj;
-            } else if (obj instanceof String) {
+        if (obj instanceof Integer) {
+            val = (Integer)obj;
+        } else if (obj instanceof Number) {
+            val = ((Number)obj).intValue();
+        } else if (obj instanceof String) {
                 try {
                     val = Integer.parseInt((String)obj);
                 } catch (NumberFormatException ex) {
-                    throw new IllegalArgumentException("String value not found in configuration for " + key);
+                    throw new IllegalArgumentException("Value for configuration key " + key + " cannot be parsed to an Integer", ex);
                 }
             } else {
-                throw new IllegalArgumentException("String value not found in configuration for " + key);
+                throw new IllegalArgumentException("Integer value not found in configuration for " + key);
             }
         } else {
             throw new IllegalArgumentException("Nothing found in configuration for " + key);
@@ -158,5 +158,52 @@ public class Configuration extends Config {
 
     public boolean exists(String key) {
         return containsKey(key);
+    }
+    
+    public static Configuration fromMap(Map map) {
+        Configuration config = new Configuration();
+        
+        for (Object k : map.keySet()) {
+            String key   = (String) k;
+            Object value = map.get(key);
+            
+            if (value instanceof String) {
+                String str = (String) value;
+                
+                if (DataTypeUtils.isInteger(str)) {
+                    config.put(key, Integer.parseInt(str));
+                } else if (NumberUtils.isNumber(str)) {
+                    config.put(key, Double.parseDouble(str));
+                } else if (value.equals("true") || value.equals("false")) {
+                    config.put(key, Boolean.parseBoolean(str));
+                } else {
+                    config.put(key, value);
+                }
+            } else {
+                config.put(key, value);
+            }
+        }
+        
+        return config;
+    }
+    
+    public static Configuration fromProperties(Properties properties) {
+        Configuration config = new Configuration();
+
+        for (String key : properties.stringPropertyNames()) {
+            String value = properties.getProperty(key);
+            
+            if (DataTypeUtils.isInteger(value)) {
+                config.put(key, Integer.parseInt(value));
+            } else if (NumberUtils.isNumber(value)) {
+                config.put(key, Double.parseDouble(value));
+            } else if (value.equals("true") || value.equals("false")) {
+                config.put(key, Boolean.parseBoolean(value));
+            } else {
+                config.put(key, value);
+            }
+        }
+        
+        return config;
     }
 }

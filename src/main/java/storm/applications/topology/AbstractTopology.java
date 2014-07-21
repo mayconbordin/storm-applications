@@ -17,7 +17,7 @@ public abstract class AbstractTopology {
 
     public AbstractTopology(String topologyName, Config config) {
         this.topologyName = topologyName;
-        this.config = new Configuration(config);
+        this.config = Configuration.fromMap(config);
         this.builder = new TopologyBuilder();
     }
 

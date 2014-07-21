@@ -34,6 +34,7 @@ import storm.applications.topology.SpikeDetectionTopology;
 import storm.applications.topology.TrendingTopicsTopology;
 import storm.applications.topology.VoIPSTREAMTopology;
 import storm.applications.topology.WordCountTopology;
+import storm.applications.util.Configuration;
 import storm.applications.util.DataTypeUtils;
 
 /**
@@ -92,7 +93,7 @@ public class StormRunner {
             String cfg = (configFile == null) ? String.format(CFG_PATH, application) : configFile;
             Properties p = loadProperties(cfg, (configFile == null));
             
-            config = toConfig(p);
+            config = Configuration.fromProperties(p);
             LOG.info("Loaded configuration file {}", cfg);
         } catch (IOException ex) {
             throw new RuntimeException("Unable to load configuration file", ex);
@@ -196,25 +197,5 @@ public class StormRunner {
         is.close();
         
         return properties;
-    }
-    
-    public static Config toConfig(Properties properties) {
-        Config config = new Config();
-        
-        for (String key : properties.stringPropertyNames()) {
-            String value = properties.getProperty(key);
-            
-            if (DataTypeUtils.isInteger(value)) {
-                config.put(key, Integer.parseInt(value));
-            } else if (NumberUtils.isNumber(value)) {
-                config.put(key, Double.parseDouble(value));
-            } else if (value.equals("true") || value.equals("false")) {
-                config.put(key, Boolean.parseBoolean(value));
-            } else {
-                config.put(key, value);
-            }
-        }
-        
-        return config;
     }
 }

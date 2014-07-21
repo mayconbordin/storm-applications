@@ -43,9 +43,9 @@ public abstract class AbstractSpout extends BaseRichSpout {
 
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-        this.config = new Configuration(conf);
+        this.config    = Configuration.fromMap(conf);
         this.collector = collector;
-        this.context = context;
+        this.context   = context;
         
         initialize();
     }
