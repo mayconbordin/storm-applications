@@ -35,7 +35,7 @@ public class MapMatchingBolt extends AbstractBolt {
         lonMax = config.getDouble(Conf.MAP_MATCHER_LON_MAX);
         
         try {
-            sectors = new RoadGridList(shapeFile);
+            sectors = new RoadGridList(config, shapeFile);
         } catch (SQLException | IOException ex) {
             LOG.error("Error while loading shape file", ex);
             throw new RuntimeException("Error while loading shape file");
@@ -51,7 +51,7 @@ public class MapMatchingBolt extends AbstractBolt {
             double longitude = input.getDoubleByField(Field.LONGITUDE);
             
             if (speed <= 0) return;
-            if (longitude > lonMin || longitude < lonMax || latitude > latMin || latitude < latMax) return;
+            if (longitude > lonMax || longitude < lonMin || latitude > latMax || latitude < latMin) return;
             
             GPSRecord record = new GPSRecord(longitude, latitude, speed, bearing);
             
