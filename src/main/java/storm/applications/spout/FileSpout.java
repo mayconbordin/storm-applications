@@ -27,6 +27,7 @@ public class FileSpout extends AbstractSpout {
     protected Scanner scanner;
     protected int curFileIndex = 0;
     protected int curLineIndex = 0;
+    private boolean finished = false;
     
     protected int taskId;
     protected int numTasks;
@@ -93,6 +94,8 @@ public class FileSpout extends AbstractSpout {
     }
 
     protected String readFile() {
+        if (finished) return null;
+        
         String record = null;
                 
         if (scanner.hasNextLine()) {
@@ -105,6 +108,7 @@ public class FileSpout extends AbstractSpout {
                 }				 
             } else {
                 LOG.info("No more files to read");
+                finished = true;
             }
         }
         
