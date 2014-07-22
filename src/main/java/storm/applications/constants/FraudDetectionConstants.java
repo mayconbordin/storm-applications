@@ -2,6 +2,7 @@ package storm.applications.constants;
 
 public interface FraudDetectionConstants extends BaseConstants {
     String PREFIX = "fd";
+    String DEFAULT_MODEL = "frauddetection/model.txt";
     
     interface Conf extends BaseConf {
         String PREDICTOR_THREADS  = "fd.predictor.threads";
