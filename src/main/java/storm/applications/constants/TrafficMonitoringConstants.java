@@ -12,6 +12,9 @@ public interface TrafficMonitoringConstants extends BaseConstants {
         String MAP_MATCHER_LON_MAX = "tm.map_matcher.lon.max";
         
         String SPEED_CALCULATOR_THREADS = "tm.speed_calculator.threads";
+        
+        String ROAD_FEATURE_ID_KEY    = "tm.road.feature.id_key";
+        String ROAD_FEATURE_WIDTH_KEY = "tm.road.feature.width_key";
     }
     
     interface Component extends BaseComponent {

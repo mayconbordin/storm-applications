@@ -28,7 +28,7 @@ public class SpeedCalculatorBolt extends AbstractBolt {
     @Override
     public void execute(Tuple input) {
         int roadID = input.getIntegerByField(Field.ROAD_ID);
-        int speed = input.getIntegerByField(Field.SPEED);
+        int speed  = input.getIntegerByField(Field.SPEED);
         
         int averageSpeed = 0;
         int count = 0;
