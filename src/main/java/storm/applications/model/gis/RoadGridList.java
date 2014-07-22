@@ -15,12 +15,19 @@ import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.postgis.MultiLineString;
+import storm.applications.constants.TrafficMonitoringConstants.Conf;
+import storm.applications.util.Configuration;
 
 public class RoadGridList {
     private HashMap<String, RoadList> gridList = new HashMap<>();
+    private String idKey;
+    private String widthKey;
     
-    public RoadGridList(String path) throws SQLException, IOException {
+    public RoadGridList(Configuration config, String path) throws SQLException, IOException {
         gridList = read(path);
+        
+        idKey    = config.getString(Conf.ROAD_FEATURE_ID_KEY);
+        widthKey = config.getString(Conf.ROAD_FEATURE_WIDTH_KEY, null);
     }
     
     public RoadList getGridByID(String mapId) {
@@ -81,6 +88,7 @@ public class RoadGridList {
         }
         
         iterator.close(); 
+        shpDataStore.dispose();
 
         return gridList;
     }
@@ -97,15 +105,20 @@ public class RoadGridList {
         int gridCount = 0;
         int roadCount = 0;
         
-        for (Map.Entry<String, RoadList> grid : this.gridList.entrySet()) {
+        for (Map.Entry<String, RoadList> grid : gridList.entrySet()) {
             gridCount++;
             String s = grid.getKey();
 
             if (mapID.equals(s)) {
                 for (SimpleFeature feature: grid.getValue()) {
                     roadCount++;
-                    int returnRoadID = Integer.parseInt(feature.getAttribute("ID").toString());					
-                    width = Integer.parseInt(feature.getAttribute("WIDTH").toString());
+                    int returnRoadID = Integer.parseInt(feature.getAttribute(idKey).toString());
+                    
+                    if (widthKey != null) {
+                        width = Integer.parseInt(feature.getAttribute(widthKey).toString());
+                    } else {
+                        width = 5;
+                    }
                     
                     if (width <= 0) width = 5;
                     String geoStr = feature.getDefaultGeometry().toString();
@@ -117,14 +130,14 @@ public class RoadGridList {
                         ps.add(pt);
                     }
 
-                    int n =ps.size();
+                    int n = ps.size();
                     for (int i = 0; i < n - 1; i++) {
                         double distance = Polygon.pointToLine(ps.get(i).getX(), ps.get(i).getY(), ps.get(i+1).getX(), ps.get(i+1).getY(), p.getX(), p.getY())*111.2*1000;
 
                         if (distance < width) {
                             //System.out.printf("\ngridCount:%2d  roadCount:%5d  LessWidth,dist=%7.3f ",gridCount,roadCount,distance);
                             return returnRoadID;
-                        } else if(distance<minD) {
+                        } else if (distance < minD) {
                             minD = distance;
                             lastMiniRoadID = returnRoadID;
                         }
