@@ -8,19 +8,19 @@ import java.util.*;
 public class TimeSeries {
 
     private TreeMap<DateTime, BigDecimal> prices;
-    private HashMap<IndicatorParameter, List<BigDecimal>> previousPriceCache;
-    private HashMap<IndicatorParameter, BigDecimal> smaCache;
-    private HashMap<IndicatorParameter, Double> rocCache;
-    private HashMap<IndicatorParameter, BigDecimal> maxCache;
-    private HashMap<IndicatorParameter, BigDecimal> minCache;
+    private final HashMap<IndicatorParameter, List<BigDecimal>> previousPriceCache;
+    private final HashMap<IndicatorParameter, BigDecimal> smaCache;
+    private final HashMap<IndicatorParameter, Double> rocCache;
+    private final HashMap<IndicatorParameter, BigDecimal> maxCache;
+    private final HashMap<IndicatorParameter, BigDecimal> minCache;
 
     public TimeSeries(TreeMap<DateTime, BigDecimal> prices) throws Exception {
         this.prices = prices;
-        this.previousPriceCache = new HashMap<IndicatorParameter, List<BigDecimal>>();
-        this.smaCache = new HashMap<IndicatorParameter, BigDecimal>();
-        this.rocCache = new HashMap<IndicatorParameter, Double>();
-        this.maxCache = new HashMap<IndicatorParameter, BigDecimal>();
-        this.minCache = new HashMap<IndicatorParameter, BigDecimal>();
+        this.previousPriceCache = new HashMap<>();
+        this.smaCache = new HashMap<>();
+        this.rocCache = new HashMap<>();
+        this.maxCache = new HashMap<>();
+        this.minCache = new HashMap<>();
     }
 
     public BigDecimal openOnDay(DateTime date) {
@@ -61,9 +61,9 @@ public class TimeSeries {
 
     void removeDays(int i) {
         DateTime first = beginningOfSeries();
-        DateTime midnight = first.toDateMidnight().toDateTime();
+        DateTime midnight = first.withTimeAtStartOfDay();//.toDateMidnight().toDateTime();
         DateTime cutoff = midnight.plusDays(i);
 
-        prices = new TreeMap<DateTime, BigDecimal>(prices.tailMap(cutoff));
+        prices = new TreeMap<>(prices.tailMap(cutoff));
     }
 }
