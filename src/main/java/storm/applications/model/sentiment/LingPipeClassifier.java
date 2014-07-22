@@ -12,7 +12,7 @@ import storm.applications.util.Configuration;
 
 public class LingPipeClassifier implements SentimentClassifier {
     private static final Logger LOG = LoggerFactory.getLogger(LingPipeClassifier.class);
-    private static final String DEFAULT_PATH = "sentimentanalysis/classifier.txt";
+    private static final String DEFAULT_PATH = "sentimentanalysis/classifier.bin";
     private LMClassifier classifier;
     
     @Override
