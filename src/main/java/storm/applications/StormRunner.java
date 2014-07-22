@@ -16,8 +16,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.topology.AdsAnalyticsTopology;
@@ -31,11 +29,11 @@ import storm.applications.topology.ReinforcementLearnerTopology;
 import storm.applications.topology.SentimentAnalysisTopology;
 import storm.applications.topology.SpamFilterTopology;
 import storm.applications.topology.SpikeDetectionTopology;
+import storm.applications.topology.TrafficMonitoringTopology;
 import storm.applications.topology.TrendingTopicsTopology;
 import storm.applications.topology.VoIPSTREAMTopology;
 import storm.applications.topology.WordCountTopology;
 import storm.applications.util.Configuration;
-import storm.applications.util.DataTypeUtils;
 
 /**
  * Utility class to run a Storm topology
@@ -85,6 +83,7 @@ public class StormRunner {
         driver.addApp("trending-topics"      , TrendingTopicsTopology.class);
         driver.addApp("voipstream"           , VoIPSTREAMTopology.class);
         driver.addApp("word-count"           , WordCountTopology.class);
+        driver.addApp("traffic-monitoring"   , TrafficMonitoringTopology.class);
     }
     
     public void run() throws InterruptedException, AlreadyAliveException, InvalidTopologyException {
