@@ -52,8 +52,9 @@ public class AlertTriggerBolt extends AbstractBolt {
                         }
                     }
 
-                    //if 
-                    collector.emit(new Values(streamProfile.getString(0), streamScore, streamProfile.getLong(2), isAbnormal, streamProfile.getValue(3)));
+                    if (isAbnormal) { 
+                        collector.emit(new Values(streamProfile.getString(0), streamScore, streamProfile.getLong(2), isAbnormal, streamProfile.getValue(3)));
+                    }
                 }
                 
                 streamList.clear();
