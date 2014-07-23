@@ -18,7 +18,7 @@ count = 0
 print('Number of files:', total)
 
 for f in files:
-    if count % total is 0:
+    if count % 1000 == 0:
         print('Read', count, 'of', total)
         
     content = ' '.join([line.strip() for line in open(join(path,f), encoding="ISO-8859-1")])
