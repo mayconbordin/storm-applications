@@ -6,6 +6,7 @@ package storm.applications.constants;
  */
 public interface SpamFilterConstants extends BaseConstants {
     String PREFIX = "sf";
+    String DEFAULT_WORDMAP = "/spamfilter/wordmap.bin";
     
     interface Conf extends BaseConf {
         String PARSER_THREADS     = "sf.parser.threads";
@@ -14,6 +15,7 @@ public interface SpamFilterConstants extends BaseConstants {
         String BAYES_RULE_THREADS = "sf.bayesrule.threads";
         String BAYES_RULE_SPAM_PROB = "sf.bayesrule.spam_probability";
         String WORD_PROB_WORDMAP  = "sf.wordprob.wordmap";
+        String WORD_PROB_WORDMAP_USE_DEFAULT  = "sf.wordprob.wordmap.use_default";
     }
     
     interface Field {

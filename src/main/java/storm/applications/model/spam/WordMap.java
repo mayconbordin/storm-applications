@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,9 @@ import java.util.Map;
  *
  * @author mayconbordin
  */
-public class WordMap {
+public class WordMap implements Serializable {
+    private static final long serialVersionUID = -4598301402074863687L;
+    
     private Map<String, Word> words;
     private long spamTotal = 0;
     private long hamTotal  = 0;
@@ -72,4 +75,5 @@ public class WordMap {
             return new WordMap(kryo.readObject(input, HashMap.class), input.readLong(), input.readLong());
         }
     }
+    
 }

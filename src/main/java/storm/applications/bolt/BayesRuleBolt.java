@@ -1,16 +1,11 @@
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import storm.applications.constants.SpamFilterConstants;
 import storm.applications.constants.SpamFilterConstants.Conf;
 import storm.applications.constants.SpamFilterConstants.Field;
 import storm.applications.model.spam.Word;

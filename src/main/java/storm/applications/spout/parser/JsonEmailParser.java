@@ -16,6 +16,7 @@ public class JsonEmailParser extends Parser {
     
     private final Gson gson = new Gson();
 
+    @Override
     public List<StreamValues> parse(String str) {
         StreamValues values = null;
         

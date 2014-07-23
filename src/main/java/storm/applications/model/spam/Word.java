@@ -7,8 +7,8 @@ import com.esotericsoftware.kryo.io.Output;
 import java.io.Serializable;
 
 public class Word implements Serializable {
-    private static final long serialVersionUID = 1005352831987770023L;
-
+    private static final long serialVersionUID = 1667802979041340740L;
+    
     private String word;    // The String itself
     private int countBad;   // The total times it appears in "bad" messages 
     private int countGood;  // The total times it appears in "good" messages
@@ -113,6 +113,7 @@ public class Word implements Serializable {
     }
     
     public static class WordSerializer extends Serializer<Word> {
+        @Override
         public void write (Kryo kryo, Output output, Word object) {
             output.writeString(object.word);
             output.writeInt(object.countBad);
@@ -122,6 +123,7 @@ public class Word implements Serializable {
             output.writeFloat(object.pSpam);
         }
 
+        @Override
         public Word read (Kryo kryo, Input input, Class<Word> type) {
             return new Word(input.readString(), input.readInt(), input.readInt(),
                     input.readFloat(), input.readFloat(), input.readFloat());
@@ -132,4 +134,5 @@ public class Word implements Serializable {
     public String toString() {
         return "Word{" + "word=" + word + ", countBad=" + countBad + ", countGood=" + countGood + ", rBad=" + rBad + ", rGood=" + rGood + ", pSpam=" + pSpam + '}';
     }
+    
 }

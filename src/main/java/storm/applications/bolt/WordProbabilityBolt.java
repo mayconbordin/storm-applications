@@ -6,11 +6,15 @@ import backtype.storm.tuple.Values;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.SpamFilterConstants.Conf;
+import static storm.applications.constants.SpamFilterConstants.DEFAULT_WORDMAP;
 import storm.applications.constants.SpamFilterConstants.Field;
 import storm.applications.constants.SpamFilterConstants.Stream;
 import storm.applications.model.spam.Word;
@@ -34,23 +38,18 @@ public class WordProbabilityBolt extends AbstractBolt {
     @Override
     public void initialize() {
         String wordMapFile = config.getString(Conf.WORD_PROB_WORDMAP, null);
+        boolean useDefault = config.getBoolean(Conf.WORD_PROB_WORDMAP_USE_DEFAULT, true);
+        
         if (wordMapFile != null) {
-            try {
-                Input input = new Input(new FileInputStream(wordMapFile));
-                WordMap object = getKryoInstance().readObject(input, WordMap.class);
-                input.close();
-                words = object;
-            } catch(FileNotFoundException ex) {
-                LOG.error("The file path was not found", ex);
-            } catch(KryoException ex) {
-                LOG.error("Unable to deserialize the wordmap object", ex);
-            } finally {
-                if (words == null) {
-                    words = new WordMap();
-                }
+            words = loadWordMap(wordMapFile);
+        } 
+        
+        if (words == null) {
+            if (useDefault) {
+                words = loadDefaultWordMap();
+            } else {
+                words = new WordMap();
             }
-        } else {
-            words = new WordMap();
         }
     }
 
@@ -111,5 +110,33 @@ public class WordProbabilityBolt extends AbstractBolt {
         }
         
         return kryoInstance;
+    }
+    
+    private static WordMap loadDefaultWordMap() {
+        try {
+            Input input = new Input(WordProbabilityBolt.class.getResourceAsStream(DEFAULT_WORDMAP));
+            WordMap object = getKryoInstance().readObject(input, WordMap.class);
+            input.close();
+            return object;
+        } catch(KryoException ex) {
+            LOG.error("Unable to deserialize the wordmap object", ex);
+        }
+        
+        return null;
+    }
+    
+    private static WordMap loadWordMap(String path) {
+        try {
+            Input input = new Input(new FileInputStream(path));
+            WordMap object = getKryoInstance().readObject(input, WordMap.class);
+            input.close();
+            return object;
+        } catch(FileNotFoundException ex) {
+            LOG.error("The file path was not found", ex);
+        } catch(KryoException ex) {
+            LOG.error("Unable to deserialize the wordmap object", ex);
+        }
+        
+        return null;
     }
 }

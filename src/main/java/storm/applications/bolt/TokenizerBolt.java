@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.mutable.MutableInt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import storm.applications.constants.SpamFilterConstants.*;
 
 /**
@@ -19,30 +21,25 @@ import storm.applications.constants.SpamFilterConstants.*;
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public class TokenizerBolt extends AbstractBolt {
-    // How to split the String into  tokens
-    private static final String splitregex = "\\W";
+    private static final Logger LOG = LoggerFactory.getLogger(TokenizerBolt.class);
     
-    // Regex to eliminate junk (although we really should welcome the junk)
+    private static final String splitregex = "\\W";
     private static final Pattern wordregex = Pattern.compile("\\w+");
     
     @Override
     public Map<String, Fields> getDefaultStreamFields() {
         Map<String, Fields> streams = new HashMap<>();
         streams.put(Stream.TRAINING, new Fields(Field.WORD, Field.COUNT, Field.IS_SPAM));
-        streams.put(Stream.TRAINING_SUM, new Fields(Field.SPAM_TOTAL, Field.SPAM_TOTAL));
+        streams.put(Stream.TRAINING_SUM, new Fields(Field.SPAM_TOTAL, Field.HAM_TOTAL));
         streams.put(Stream.ANALYSIS, new Fields(Field.ID, Field.WORD, Field.NUM_WORDS));
         return streams;
-    }
-
-    @Override
-    public void initialize() {
     }
 
     @Override
     public void execute(Tuple input) {
         String content = input.getStringByField(Field.MESSAGE);
 
-        if (input.getSourceStreamId().equals(Stream.TRAINING)) {
+        if (input.getSourceComponent().equals(Component.TRAINING_SPOUT)) {
             boolean isSpam = input.getBooleanByField(Field.IS_SPAM);
             
             Map<String, MutableInt> words = tokenize(content);
@@ -64,7 +61,7 @@ public class TokenizerBolt extends AbstractBolt {
             collector.emit(Stream.TRAINING_SUM, new Values(spamTotal, hamTotal));
         }
         
-        else if (input.getSourceStreamId().equals(Stream.ANALYSIS)) {
+        else if (input.getSourceComponent().equals(Component.ANALYSIS_SPOUT)) {
             String id = input.getStringByField(Field.ID);
             
             Map<String, MutableInt> words = tokenize(content);
