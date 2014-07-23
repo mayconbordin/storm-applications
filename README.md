@@ -8,9 +8,9 @@ A collection of real-time applications built with Apache Storm.
 ### Build
 
 ```bash
-git clone git@github.com:mayconbordin/storm-applications.git
-cd storm-applications/
-mvn -P<profile> package
+$ git clone git@github.com:mayconbordin/storm-applications.git
+$ cd storm-applications/
+$ mvn -P<profile> package
 ```
 
 Use the `local` profile to run the applications in local mode or `cluster` to run in a remote cluster.
@@ -18,7 +18,7 @@ Use the `local` profile to run the applications in local mode or `cluster` to ru
 ### Run Locally
 
 ```bash
-java -jar target/storm-applications-*-with-dependencies.jar --app <application-name>
+$ java -jar target/storm-applications-*-with-dependencies.jar --app <application-name>
 ```
 
 ### Command Line Options
