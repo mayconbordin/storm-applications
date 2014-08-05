@@ -35,7 +35,7 @@ public class URLBolt extends AbstractScoreBolt {
                 double ratio = (e.get(Source.ENCR)/e.get(Source.ECR));
                 double score = score(thresholdMin, thresholdMax, ratio);
                 
-                LOG.info(String.format("T1=%f; T2=%f; ENCR=%f; ECR=%f; Ratio=%f; Score=%f", 
+                LOG.debug(String.format("T1=%f; T2=%f; ENCR=%f; ECR=%f; Ratio=%f; Score=%f", 
                         thresholdMin, thresholdMax, e.get(Source.ENCR), e.get(Source.ECR), ratio, score));
                 
                 collector.emit(new Values(number, timestamp, score, cdr));

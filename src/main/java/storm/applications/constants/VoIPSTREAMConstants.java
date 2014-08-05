@@ -28,16 +28,16 @@ public interface VoIPSTREAMConstants extends BaseConstants {
         String VAR_DETECT_APROX_SIZE = "vs.variation.aprox_size";
         String VAR_DETECT_ERROR_RATE = "vs.variation.error_rate";
         
-        String VAR_DETECT_THREADS = "voipstream.vardetect.threads";
-        String ECR_THREADS = "voipstream.ecr.threads";
-        String RCR_THREADS = "voipstream.rcr.threads";
-        String ENCR_THREADS = "voipstream.encr.threads";
-        String ECR24_THREADS = "voipstream.ecr24.threads";
-        String CT24_THREADS = "voipstream.ct24.threads";
-        String FOFIR_THREADS = "voipstream.fofir.threads";
-        String URL_THREADS = "voipstream.url.threads";
-        String ACD_THREADS = "voipstream.acd.threads";
-        String SCORER_THREADS = "voipstream.scorer.threads";
+        String VAR_DETECT_THREADS = "vs.vardetect.threads";
+        String ECR_THREADS = "vs.ecr.threads";
+        String RCR_THREADS = "vs.rcr.threads";
+        String ENCR_THREADS = "vs.encr.threads";
+        String ECR24_THREADS = "vs.ecr24.threads";
+        String CT24_THREADS = "vs.ct24.threads";
+        String FOFIR_THREADS = "vs.fofir.threads";
+        String URL_THREADS = "vs.url.threads";
+        String ACD_THREADS = "vs.acd.threads";
+        String SCORER_THREADS = "vs.scorer.threads";
     }
     
     interface Component extends BaseComponent {

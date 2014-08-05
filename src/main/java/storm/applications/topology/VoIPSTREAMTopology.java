@@ -41,6 +41,8 @@ public class VoIPSTREAMTopology extends BasicTopology {
 
     @Override
     public void initialize() {
+        super.initialize();
+        
         varDetectThreads = config.getInt(Conf.VAR_DETECT_THREADS, 1);
         ecrThreads       = config.getInt(Conf.ECR_THREADS, 1);
         rcrThreads       = config.getInt(Conf.RCR_THREADS, 1);

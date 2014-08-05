@@ -36,7 +36,7 @@ public class FoFiRBolt extends AbstractScoreBolt {
                 double ratio = (e.get(Source.ECR)/e.get(Source.RCR));
                 double score = score(thresholdMin, thresholdMax, ratio);
                 
-                LOG.info(String.format("T1=%f; T2=%f; ECR=%f; RCR=%f; Ratio=%f; Score=%f", 
+                LOG.debug(String.format("T1=%f; T2=%f; ECR=%f; RCR=%f; Ratio=%f; Score=%f", 
                         thresholdMin, thresholdMax, e.get(Source.ECR), e.get(Source.RCR), ratio, score));
                 
                 collector.emit(new Values(number, timestamp, score, cdr));

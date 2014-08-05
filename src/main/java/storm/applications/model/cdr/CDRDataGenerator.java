@@ -133,16 +133,16 @@ public class CDRDataGenerator {
             }
             
             countryArray = (JSONArray) new JSONParser().parse(strJson);
-            countryMap = new HashMap<String, String>(countryArray.size());
+            countryMap = new HashMap<>(countryArray.size());
             
             for (Object obj : countryArray) {
                 JSONObject json = (JSONObject) obj;
                 countryMap.put((String)json.get("code"), (String)json.get("dial_code"));
             }
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("Error reading country codes file", ex);
         } catch (ParseException ex) {
-            LOG.error(ex);
+            LOG.error("Error parsing country codes file", ex);
         }
     }
     
@@ -162,7 +162,9 @@ public class CDRDataGenerator {
         } else {
             dialCode = countryMap.get(countryName);
         }
-                
+        
+        
+        
         number += dialCode;
         numDigits -= dialCode.length();
         

@@ -51,7 +51,7 @@ public class ScoreBolt extends AbstractScoreBolt {
             if (e.isFull()) {
                 double mainScore = sum(e.getValues(), weights);
                 
-                LOG.info(String.format("Score=%f; Scores=%s", mainScore, Arrays.toString(e.getValues())));
+                LOG.debug(String.format("Score=%f; Scores=%s", mainScore, Arrays.toString(e.getValues())));
                 
                 collector.emit(new Values(caller, timestamp, mainScore, cdr));
             } else {
