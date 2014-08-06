@@ -21,6 +21,12 @@ Use the `local` profile to run the applications in local mode or `cluster` to ru
 $ java -jar target/storm-applications-*-with-dependencies.jar --app <application-name>
 ```
 
+### Run Remotely
+
+```bash
+$ storm jar target/storm-applications-*-with-dependencies.jar storm.applications.StormRunner --app <application-name>
+```
+
 ### Command Line Options
 
  - `-a, --app`: the application to be executed (required)
