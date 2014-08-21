@@ -58,7 +58,7 @@ public class StormRunner {
     public String topologyName;
     
     @Parameter(names = {"-c", "--config"}, required = false, description = "Path to the configuration file for the application")
-    public String configFile;
+    public String configStr;
     
     @Parameter(names = {"-r", "--runtime"}, description = "Runtime in seconds for the topology (local mode only)")
     public int runtimeInSeconds = 300;
@@ -89,12 +89,19 @@ public class StormRunner {
     public void run() throws InterruptedException, AlreadyAliveException, InvalidTopologyException {
         // Loads the configuration file set by the user or the default configuration
         try {
-            String cfg = (configFile == null) ? String.format(CFG_PATH, application) : configFile;
-            Properties p = loadProperties(cfg, (configFile == null));
+            // load default configuration
+            if (configStr == null) {
+                String cfg = String.format(CFG_PATH, application);
+                Properties p = loadProperties(cfg, (configStr == null));
             
-            config = Configuration.fromProperties(p);
-            LOG.info("Loaded configuration file {}", cfg);
+                config = Configuration.fromProperties(p);
+                LOG.info("Loaded default configuration file {}", cfg);
+            } else {
+                config = Configuration.fromStr(configStr);
+                LOG.info("Loaded configuration from command line argument");
+            }
         } catch (IOException ex) {
+            LOG.error("Unable to load configuration file", ex);
             throw new RuntimeException("Unable to load configuration file", ex);
         }
         
