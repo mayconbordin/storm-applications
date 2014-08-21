@@ -1,6 +1,7 @@
 package storm.applications.util;
 
 import backtype.storm.Config;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.lang.math.NumberUtils;
@@ -191,19 +192,44 @@ public class Configuration extends Config {
         Configuration config = new Configuration();
 
         for (String key : properties.stringPropertyNames()) {
-            String value = properties.getProperty(key);
-            
-            if (DataTypeUtils.isInteger(value)) {
-                config.put(key, Integer.parseInt(value));
-            } else if (NumberUtils.isNumber(value)) {
-                config.put(key, Double.parseDouble(value));
-            } else if (value.equals("true") || value.equals("false")) {
-                config.put(key, Boolean.parseBoolean(value));
-            } else {
-                config.put(key, value);
-            }
+            config.put(key, parseString(properties.getProperty(key)));
         }
         
         return config;
+    }
+    
+    public static Configuration fromStr(String str) {
+        Map<String, String> map = strToMap(str);
+        Configuration config = new Configuration();
+        
+        for (String key : map.keySet()) {
+            config.put(key, parseString(map.get(key)));
+        }
+        
+        return config;
+    }
+    
+    public static Map<String, String> strToMap(String str) {
+        Map<String, String> map = new HashMap<>();
+        String[] arguments = str.split(",");
+        
+        for (String arg : arguments) {
+            String[] kv = arg.split("=");
+            map.put(kv[0].trim(), kv[1].trim());
+        }
+        
+        return map;
+    }
+    
+    private static Object parseString(String value) {
+        if (DataTypeUtils.isInteger(value)) {
+            return Integer.parseInt(value);
+        } else if (NumberUtils.isNumber(value)) {
+            return Double.parseDouble(value);
+        } else if (value.equals("true") || value.equals("false")) {
+            return Boolean.parseBoolean(value);
+        }
+        
+        return value;
     }
 }
