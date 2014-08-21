@@ -1,0 +1,5 @@
+java.io.FileNotFoundException: test.prop (No such file or directory)
+	at java.io.FileInputStream.open(Native Method)
+	at java.io.FileInputStream.<init>(FileInputStream.java:146)
+	at java.io.FileInputStream.<init>(FileInputStream.java:101)
+	at properties.serializer.PropertiesSerializer.main(PropertiesSerializer.java:29)

@@ -1,0 +1,70 @@
+#!/bin/bash
+
+usage() {
+    echo "Usage: $(basename $0) <jar> <application-name> (local|remote) [OPTIONS...]"
+    echo ""
+    echo "Options:"
+    echo "  --config=<file>       The configuration file."
+    echo "  --runtime=<runtime>   Runtime in seconds (local mode only) [default: 300]."
+    echo "  --topology-name=<name> The name of the topology (remote mode only)."
+    exit 1
+}
+[ "$#" -ge 3 ] || usage
+
+BASE_DIR=$(dirname $0)
+STORM_BIN=storm
+JAR_FILE=$1
+APP_NAME=$2
+RUN_MODE=$3
+OPTIONS=""
+
+# Check if storm command exists
+if hash $STORM_BIN 2>/dev/null; then
+    version=$($STORM_BIN version)
+    echo "Running on Storm $version"
+else
+    if [ ! -z "$STORM_HOME" ]; then
+        STORM_BIN=$STORM_HOME/bin/storm
+    else
+        echo "Storm was not found."
+        exit 1
+    fi
+fi
+
+# Parse options
+for i in "$@"; do
+    case $i in
+        --config=*)
+        CONFIG_FILE="${i#*=}"
+        shift
+        ;;
+        
+        --runtime=*)
+        RUNTIME="${i#*=}"
+        OPTIONS="$OPTIONS --runtime ${i#*=}"
+        shift
+        ;;
+        
+        --topology-name=*)
+        TOPOLOGY_NAME="${i#*=}"
+        OPTIONS="$OPTIONS --topology-name ${i#*=}"
+        shift
+        ;;
+    esac
+done
+
+# Serialize config file, if provided
+if [ ! -z "$CONFIG_FILE" ]; then
+    echo "Serializing config file '$CONFIG_FILE'."
+    CONFIG_STR=$(java -jar $BASE_DIR/properties-serializer.jar $CONFIG_FILE 2> $BASE_DIR/error.log)
+    if [ $? -ne 0 ]; then
+        echo "Error serializing config file '$CONFIG_FILE'. Check $BASE_DIR/error.log for more info."
+        exit 1
+    fi
+    OPTIONS="$OPTIONS --config a=1,b=2"
+fi
+
+# Submit application to Storm
+CMD="$STORM_BIN jar $JAR_FILE storm.applications.StormRunner --app $APP_NAME --mode $RUN_MODE $OPTIONS"
+echo "Submit: $CMD"
+exec $CMD
