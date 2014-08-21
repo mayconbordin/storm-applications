@@ -15,25 +15,25 @@ $ mvn -P<profile> package
 
 Use the `local` profile to run the applications in local mode or `cluster` to run in a remote cluster.
 
-### Run Locally
+### Submit a Topology
+
+Syntax:
 
 ```bash
-$ java -jar target/storm-applications-*-with-dependencies.jar --app <application-name>
+$ bin/storm <jar> <application-name> (local|remote) [OPTIONS...]
 ```
 
-### Run Remotely
+Example:
 
 ```bash
-$ storm jar target/storm-applications-*-with-dependencies.jar storm.applications.StormRunner --app <application-name>
+$ bin/storm target/storm-applications-*-with-dependencies.jar word-count local
 ```
 
-### Command Line Options
+**Options:**
 
- - `-a, --app`: the application to be executed (required)
- - `-c, --config`: path to a *custom* configuration file
- - `-m, --mode`: `local` [default] to run locally or `remote` to run in a cluster
- - `-r, --runtime`: runtime in seconds for the application (local mode only) [default=300]
- - `-t, --topology-name`: the name of the topology (remote mode only)
+  --config=<file>       The configuration file.
+  --runtime=<runtime>   Runtime in seconds (local mode only) [default: 300].
+  --topology-name=<name> The name of the topology (remote mode only).
 
 ## Configuration
 
