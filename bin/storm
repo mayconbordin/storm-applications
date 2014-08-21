@@ -13,6 +13,7 @@ usage() {
 
 BASE_DIR=$(dirname $0)
 STORM_BIN=storm
+STORM_CMD=jar
 JAR_FILE=$1
 APP_NAME=$2
 RUN_MODE=$3
@@ -25,11 +26,17 @@ if hash $STORM_BIN 2>/dev/null; then
 else
     if [ ! -z "$STORM_HOME" ]; then
         STORM_BIN=$STORM_HOME/bin/storm
+    elif [ "$RUN_MODE" == "local" ]; then
+        STORM_BIN=java
+        STORM_CMD="-cp"
     else
         echo "Storm was not found."
         exit 1
     fi
 fi
+
+STORM_BIN=java
+STORM_CMD="-cp"
 
 # Parse options
 for i in "$@"; do
@@ -65,6 +72,6 @@ if [ ! -z "$CONFIG_FILE" ]; then
 fi
 
 # Submit application to Storm
-CMD="$STORM_BIN jar $JAR_FILE storm.applications.StormRunner --app $APP_NAME --mode $RUN_MODE $OPTIONS"
+CMD="$STORM_BIN $STORM_CMD $JAR_FILE storm.applications.StormRunner --app $APP_NAME --mode $RUN_MODE $OPTIONS"
 echo "Submit: $CMD"
 exec $CMD
