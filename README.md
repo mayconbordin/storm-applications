@@ -29,11 +29,13 @@ Example:
 $ bin/storm target/storm-applications-*-with-dependencies.jar word-count local
 ```
 
-**Options:**
+Options:
 
+```bash
   --config=<file>       The configuration file.
   --runtime=<runtime>   Runtime in seconds (local mode only) [default: 300].
   --topology-name=<name> The name of the topology (remote mode only).
+```
 
 ## Configuration
 
