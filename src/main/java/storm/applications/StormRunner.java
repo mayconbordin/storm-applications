@@ -57,7 +57,7 @@ public class StormRunner {
     @Parameter(names = {"-t", "--topology-name"}, required = false, description = "The name of the topology")
     public String topologyName;
     
-    @Parameter(names = {"-c", "--config"}, required = false, description = "Path to the configuration file for the application")
+    @Parameter(names = {"--config-str"}, required = false, description = "Path to the configuration file for the application")
     public String configStr;
     
     @Parameter(names = {"-r", "--runtime"}, description = "Runtime in seconds for the topology (local mode only)")

@@ -77,7 +77,7 @@ if [ ! -z "$CONFIG_FILE" ]; then
         echo "Error serializing config file '$CONFIG_FILE'. Check $BASE_DIR/error.log for more info."
         exit 1
     fi
-    OPTIONS="$OPTIONS --config a=1,b=2"
+    OPTIONS="$OPTIONS --config-str $CONFIG_STR"
 fi
 
 # Submit application to Storm
