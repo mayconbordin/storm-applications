@@ -24,19 +24,28 @@ if hash $STORM_BIN 2>/dev/null; then
     version=$($STORM_BIN version)
     echo "Running on Storm $version"
 else
+    # Check for storm home variable
     if [ ! -z "$STORM_HOME" ]; then
         STORM_BIN=$STORM_HOME/bin/storm
+    # In local mode can use java directly
     elif [ "$RUN_MODE" == "local" ]; then
-        STORM_BIN=java
+        if [ -z "$JAVA_HOME" ]; then
+            if hash java 2>/dev/null; then
+                STORM_BIN=java
+            else
+                echo "Java was not found."
+                exit 1
+            fi
+        else
+            STORM_BIN=$JAVA_HOME/bin/java
+        fi
+
         STORM_CMD="-cp"
     else
         echo "Storm was not found."
         exit 1
     fi
 fi
-
-STORM_BIN=java
-STORM_CMD="-cp"
 
 # Parse options
 for i in "$@"; do
