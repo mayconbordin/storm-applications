@@ -39,7 +39,9 @@ Options:
 
 ## Configuration
 
-Instead of each application having its own spouts and sinks (bolts that send data to other systems), we have defined a few basic spouts (`FileSpout`, `GeneratorSpout`, `KafkaSpout`, `RedisSpout`) and sinks (`FileSink`, `RedisSink`, `SocketSink`, `Cassandra...`, `NullSink`).
+Instead of each application having its own spouts and sinks (bolts that send data to other systems), we have defined a few basic spouts and sinks.
+
+### Spouts
 
 All but the `GeneratorSpout` need a `Parser`. The parser receives a string and returns a list of values, following the schema defined in the topology. To set a spout that reads from a file and parses the data as a Common Log Format, the configuration file would look like this:
 
@@ -50,9 +52,71 @@ All but the `GeneratorSpout` need a `Parser`. The parser receives a string and r
 <app-prefix>.spout.parser=storm.applications.spout.parser.CommonLogParser
 ```
 
+Defalult parsers:
+
+| Parse                    | Output Fields
+|--------------------------|--------------------
+| AdEventParser            | (quer_id, ad_id, event) 
+| BeijingTaxiTraceParser   | (car_id, date, occ, speed, bearing, lat, lon)
+| ClickStreamParser        | (ip, url, client_key)
+| CommonLogParser          | (ip, timestamp, minute, request, response, byte_size)
+| GoogleTracesParser       | (timestamp, id, cpu, memory)
+| JsonEmailParser          | (id, message[, is_spam])
+| JsonParser               | (json_object)
+| SensorParser             | (id, timestamp, value)
+| StringParser             | (string)
+| TransactionParser        | (event_id, actions)
+
+
+#### GeneratorSpout
+
 The `GeneratorSpout` doesn't need a parser, instead it uses an instance of a class that extends the `Generator` class. Each time the generator is called it returns a new tuple.
 
-Similarly, some sink classes (`FileSink`, `ConsoleSink`, `RedisSink`, `SocketSink`) need a `Formatter` which receives a tuple and returns a string. Writing the output of an application to a file could be achieved with the following configuration:
+```
+<app-prefix>.spout.threads=1
+<app-prefix>.spout.class=storm.applications.spout.GeneratorSpout
+<app-prefix>.spout.generator=storm.applications.spout.generator.SensorGenerator
+```
+
+Defalult generators:
+
+| Generator                | Configurations
+|--------------------------|------------------------------------------------------
+| CDRGenerator             | `vs.generator.population`<br />`vs.generator.error_prob`
+| MachineMetadataGenerator | `mo.generator.num_machines`
+| RandomSentenceGenerator  | 
+| SensorGenerator          | `sd.generator.count`
+
+#### KafkaSpout
+
+```
+<app-prefix>.kafka.zookeeper.host=
+<app-prefix>.kafka.spout.topic=
+<app-prefix>.kafka.zookeeper.path=
+<app-prefix>.kafka.consumer.id=
+```
+
+#### RedisSpout
+
+```
+<app-prefix>.redis.server.host=
+<app-prefix>.redis.server.port=
+<app-prefix>.redis.server.pattern=
+<app-prefix>.redis.server.queue_size=
+```
+
+#### TwitterStreamingSpout
+
+```
+<app-prefix>.twitter.consumer_key=
+<app-prefix>.twitter.consumer_secret=
+<app-prefix>.twitter.access_token=
+<app-prefix>.twitter.access_token_secret=
+```
+
+### Sinks
+
+Similarly, some sink classes need a `Formatter` which receives a tuple and returns a string. Writing the output of an application to a file could be achieved with the following configuration:
 
 ```
 <app-prefix>.sink.threads=1
@@ -62,6 +126,50 @@ Similarly, some sink classes (`FileSink`, `ConsoleSink`, `RedisSink`, `SocketSin
 ```
 
 The `<app-prefix>` is the prefix of the application being executed, and the placeholder `%(taskid)` is used in the file path so that each instance of the `FileSink` can write to its own file, avoiding problems in case of two instances residing in the same machine.
+
+Defalult formatters:
+
+| Formatter                | Format
+|--------------------------|------------------------------------------------------
+| ActionFormatter          | `<event_id>,<actions>`
+| BasicFormatter           | `<field>=<value>, ...`
+| FullInfoFormatter        | `source: <name>:<id>, stream: <name>, id: <id>, values: [<field>=<value>, ...]`
+| MachineMetadataFormatter | `<anomaly_stream>, <anomaly_score>, <timestamp>, <is_abnormal>, <cpu_idle>, <mem_free>`
+
+#### CassandraBatchSink
+
+```
+<app-prefix>.cassandra.host=
+<app-prefix>.cassandra.keyspace=
+<app-prefix>.cassandra.sink.column_family=
+<app-prefix>.cassandra.sink.field.row_key=
+<app-prefix>.cassandra.sink.ack_strategy=
+```
+
+#### CassandraCountBatchSink
+
+```
+<app-prefix>.cassandra.host=
+<app-prefix>.cassandra.keyspace=
+<app-prefix>.cassandra.sink.column_family=
+<app-prefix>.cassandra.sink.field.increment=
+<app-prefix>.cassandra.sink.ack_strategy=
+```
+
+#### RedisSink
+
+```
+<app-prefix>.redis.server.host=
+<app-prefix>.redis.server.port=
+<app-prefix>.redis.sink.queue=
+```
+
+#### SocketSink
+
+```
+<app-prefix>.sink.socket.port=
+<app-prefix>.sink.socket.charset=
+```
 
 ## Applications
 
