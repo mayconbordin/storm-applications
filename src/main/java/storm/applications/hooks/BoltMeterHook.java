@@ -21,7 +21,7 @@ public class BoltMeterHook extends BaseTaskHook {
     
     private Meter emittedTuples;
     private Meter receivedTuples;
-    private Timer processLatency;
+    private Timer executeLatency;
     
     @Override
     public void prepare(Map conf, TopologyContext context) {
@@ -34,15 +34,15 @@ public class BoltMeterHook extends BaseTaskHook {
 
         emittedTuples  = registry.meter(MetricRegistry.name("emitted", componentId, taskId));
         receivedTuples = registry.meter(MetricRegistry.name("received", componentId, taskId));
-        processLatency = registry.timer(MetricRegistry.name("process_latency", componentId, taskId));
+        executeLatency = registry.timer(MetricRegistry.name("execute-latency", componentId, taskId));
     }
 
     @Override
     public void boltExecute(BoltExecuteInfo info) {
         receivedTuples.mark();
-        
+
         if (info.executeLatencyMs != null) {
-            processLatency.update(info.executeLatencyMs, TimeUnit.MILLISECONDS);
+            executeLatency.update(info.executeLatencyMs, TimeUnit.MILLISECONDS);
         }
     }
 

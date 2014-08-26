@@ -1,11 +1,9 @@
 package storm.applications.sink;
 
-import backtype.storm.hooks.ITaskHook;
 import backtype.storm.tuple.Fields;
 import org.slf4j.Logger;
 import storm.applications.bolt.AbstractBolt;
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.hooks.SinkMeterHook;
 import storm.applications.sink.formatter.BasicFormatter;
 import storm.applications.sink.formatter.Formatter;
 import storm.applications.util.ClassLoaderUtils;
@@ -34,11 +32,6 @@ public abstract class BaseSink extends AbstractBolt {
     
     protected String getConfigKey(String template) {
         return String.format(template, configPrefix);
-    }
-    
-    @Override
-    protected ITaskHook getMeterHook() {
-        return new SinkMeterHook();
     }
     
     protected abstract Logger getLogger();
