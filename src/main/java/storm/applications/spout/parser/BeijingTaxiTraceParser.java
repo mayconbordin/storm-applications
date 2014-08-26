@@ -1,5 +1,6 @@
 package storm.applications.spout.parser;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -26,21 +27,26 @@ public class BeijingTaxiTraceParser extends Parser {
     
     @Override
     public List<StreamValues> parse(String input) {
-        String[] values = input.split(",");
+        String[] fields = input.split(",");
         
-        if (values.length != 7)
+        if (fields.length != 7)
             return null;
         
         try {
-            String carId  = values[ID_FIELD];
-            DateTime date = formatter.parseDateTime(values[DATE_FIELD]);
+            String carId  = fields[ID_FIELD];
+            DateTime date = formatter.parseDateTime(fields[DATE_FIELD]);
             boolean occ   = true;
-            double lat    = Double.parseDouble(values[LAT_FIELD]);
-            double lon    = Double.parseDouble(values[LON_FIELD]);
-            int speed     = ((Double)Double.parseDouble(values[SPEED_FIELD])).intValue();
-            int bearing   = Integer.parseInt(values[DIR_FIELD]);
+            double lat    = Double.parseDouble(fields[LAT_FIELD]);
+            double lon    = Double.parseDouble(fields[LON_FIELD]);
+            int speed     = ((Double)Double.parseDouble(fields[SPEED_FIELD])).intValue();
+            int bearing   = Integer.parseInt(fields[DIR_FIELD]);
             
-            return list(new StreamValues(carId, date, occ, speed, bearing, lat, lon));
+            int msgId = String.format("%s:%s", carId, date.toString()).hashCode();
+            
+            StreamValues values = new StreamValues(carId, date, occ, speed, bearing, lat, lon);
+            values.setMessageId(msgId);
+            
+            return ImmutableList.of(values);
         } catch (NumberFormatException ex) {
             LOG.warn("Error parsing numeric value", ex);
         } catch (IllegalArgumentException ex) {

@@ -1,5 +1,6 @@
 package storm.applications.spout.parser;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,11 +39,13 @@ public class CommonLogParser extends Parser {
         }
         
         long minute = DateUtils.getMinuteForTime((Date) entry.get(TIMESTAMP));
+        int msgId = String.format("%s:%s", entry.get(IP), entry.get(TIMESTAMP)).hashCode();
         
-        StreamValues values = new StreamValues(entry.get(IP), entry.get(TIMESTAMP), minute, entry.get(REQUEST),
-                entry.get(RESPONSE), entry.get(BYTE_SIZE));
+        StreamValues values = new StreamValues(entry.get(IP), entry.get(TIMESTAMP), 
+                minute, entry.get(REQUEST), entry.get(RESPONSE), entry.get(BYTE_SIZE));
+        values.setMessageId(msgId);
         
-        return list(values);
+        return ImmutableList.of(values);
     }
     
     public static Map<String, Object> parseLine(String logLine) {

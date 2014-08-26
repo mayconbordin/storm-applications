@@ -1,5 +1,6 @@
 package storm.applications.spout.parser;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.util.List;
@@ -26,6 +27,7 @@ public class JsonEmailParser extends Parser {
             values = new StreamValues();
             values.add(email.id);
             values.add(email.message);
+            values.setMessageId(email.id);
             
             if (email.isSpam != null) {
                 values.add(email.isSpam);
@@ -34,7 +36,7 @@ public class JsonEmailParser extends Parser {
             LOG.error("Error parsing JSON encoded email", ex);
         }
         
-        return list(values);
+        return ImmutableList.of(values);
     }
     
     private static class Email {

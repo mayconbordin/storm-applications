@@ -1,5 +1,6 @@
 package storm.applications.spout.parser;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import storm.applications.model.metadata.MachineMetadata;
 import storm.applications.util.StreamValues;
@@ -25,12 +26,14 @@ public class GoogleTracesParser extends Parser {
         long timestamp = Long.parseLong(items[TIMESTAMP]);
         double cpu     = Double.parseDouble(items[CPU]) * 10;
         double memory  = Double.parseDouble(items[MEMORY]) * 10;
+        int msgId = String.format("%s:%s", id, timestamp).hashCode();
         
         StreamValues values = new StreamValues();
         values.add(id);
         values.add(timestamp);
         values.add(new MachineMetadata(timestamp, id, cpu, memory));
+        values.setMessageId(msgId);
         
-        return list(values);
+        return ImmutableList.of(values);
     }
 }

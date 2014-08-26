@@ -1,5 +1,6 @@
 package storm.applications.spout.parser;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.util.List;
@@ -27,7 +28,7 @@ public class ClickStreamParser extends Parser {
             LOG.error("Error parsing JSON encoded clickstream: " + input, ex);
         }
         
-        return list(values);
+        return ImmutableList.of(values);
     }
     
     private static class ClickStream {

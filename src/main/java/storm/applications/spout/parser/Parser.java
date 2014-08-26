@@ -1,6 +1,5 @@
 package storm.applications.spout.parser;
 
-import java.util.Arrays;
 import java.util.List;
 import storm.applications.util.Configuration;
 import storm.applications.util.StreamValues;
@@ -17,8 +16,4 @@ public abstract class Parser {
     }
 
     public abstract List<StreamValues> parse(String input);
-    
-    protected List<StreamValues> list(StreamValues...values) {
-        return Arrays.asList(values);
-    }
 }

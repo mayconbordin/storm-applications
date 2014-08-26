@@ -1,5 +1,6 @@
 package storm.applications.spout.parser;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,6 +19,6 @@ public class StringParser extends Parser {
         if (StringUtils.isBlank(str))
             return null;
         
-        return list(new StreamValues(str));
+        return ImmutableList.of(new StreamValues(str));
     }
 }

@@ -1,5 +1,6 @@
 package storm.applications.spout.parser;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import org.joda.time.DateTime;
@@ -44,12 +45,14 @@ public class SensorParser extends Parser {
             .build();
     
     private String valueField;
+    private int valueFieldKey;
 
     @Override
     public void initialize(Configuration config) {
         super.initialize(config);
         
         valueField = config.getString(Conf.PARSER_VALUE_FIELD);
+        valueFieldKey = fieldList.get(valueField);
     }
 
     @Override
@@ -68,31 +71,23 @@ public class SensorParser extends Parser {
             try {
                 date = formatter.parseDateTime(dateStr);
             } catch (IllegalArgumentException ex2) {
-                LOG.warn("Record: " + input);
-                LOG.warn("Error parsing record date/time field", ex);
+                LOG.warn("Error parsing record date/time field, input record: " + input, ex2);
                 return null;
             }
         }
-        
         
         try {
             StreamValues values = new StreamValues();
             values.add(fields[MOTEID_FIELD]);
             values.add(date.toDate());
-
-            //values.add(Integer.parseInt(fields[EPOCH_FIELD]));
-            //values.add(Double.parseDouble(fields[TEMP_FIELD]));
-            //values.add(Double.parseDouble(fields[HUMID_FIELD]));
-            //values.add(Double.parseDouble(fields[LIGHT_FIELD]));
-            //values.add(Double.parseDouble(fields[VOLT_FIELD]));
-            
-            int valueFieldKey = fieldList.get(valueField);
             values.add(Double.parseDouble(fields[valueFieldKey]));
             
-            return list(values);
+            int msgId = String.format("%s:%s", fields[MOTEID_FIELD], date.toString()).hashCode();
+            values.setMessageId(msgId);
+            
+            return ImmutableList.of(values);
         } catch (NumberFormatException ex) {
-            LOG.warn("Record: " + input);
-            LOG.warn("Error parsing record numeric field", ex);
+            LOG.warn("Error parsing record numeric field, input record: " + input, ex);
         }
         
         return null;

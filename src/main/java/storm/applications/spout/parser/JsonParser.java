@@ -1,5 +1,6 @@
 package storm.applications.spout.parser;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -25,7 +26,7 @@ public class JsonParser extends Parser {
         
         try {
             JSONObject json = (JSONObject) jsonParser.parse(input);
-            return list(new StreamValues(json));
+            return ImmutableList.of(new StreamValues(json));
         } catch (ParseException e) {
             LOG.error(String.format("Error parsing JSON object: %s", input), e);
         }
