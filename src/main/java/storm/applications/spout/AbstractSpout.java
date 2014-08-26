@@ -25,8 +25,6 @@ public abstract class AbstractSpout extends BaseRichSpout {
     protected TopologyContext context;
     protected Map<String, Fields> fields;
     
-    protected boolean timestampEnabled = false;
-
     public AbstractSpout() {
         fields = new HashMap<>();
     }
@@ -65,10 +63,6 @@ public abstract class AbstractSpout extends BaseRichSpout {
 
     public void setConfigPrefix(String configPrefix) {
         this.configPrefix = configPrefix;
-    }
-    
-    public void enableTimestamp() {
-        this.timestampEnabled = true;
     }
 
     protected abstract void initialize();

@@ -13,13 +13,12 @@ public class WordCountBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.WORD, Field.COUNT, Field.CREATED_AT);
+        return new Fields(Field.WORD, Field.COUNT);
     }
 
     @Override
     public void execute(Tuple input) {
         String word = input.getStringByField(Field.WORD);
-        long createdAt = input.getLongByField(Field.CREATED_AT);
         MutableLong count = counts.get(word);
         
         if (count == null) {
@@ -28,7 +27,7 @@ public class WordCountBolt extends AbstractBolt {
         }
         count.increment();
         
-        collector.emit(input, new Values(word, count.get(), createdAt));
+        collector.emit(input, new Values(word, count.get()));
         collector.ack(input);
     }
     

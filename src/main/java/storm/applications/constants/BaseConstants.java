@@ -77,8 +77,4 @@ public interface BaseConstants {
     interface BaseStream {
         String DEFAULT = Utils.DEFAULT_STREAM_ID;
     }
-    
-    interface BaseField {
-        String CREATED_AT = "created_at";
-    }
 }

@@ -11,17 +11,16 @@ public class SplitSentenceBolt extends AbstractBolt {
     
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.WORD, Field.CREATED_AT);
+        return new Fields(Field.WORD);
     }
 
     @Override
     public void execute(Tuple input) {
-        long createdAt = input.getLongByField(Field.CREATED_AT);
         String[] words = input.getString(0).split(splitregex);
         
         for (String word : words) {
             if (!StringUtils.isBlank(word))
-                collector.emit(input, new Values(word, createdAt));
+                collector.emit(input, new Values(word));
         }
         
         collector.ack(input);

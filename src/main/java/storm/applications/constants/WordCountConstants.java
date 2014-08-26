@@ -3,7 +3,7 @@ package storm.applications.constants;
 public interface WordCountConstants extends BaseConstants {
     String PREFIX = "wc";
     
-    interface Field extends BaseField {
+    interface Field {
         String TEXT  = "text";
         String WORD  = "word";
         String COUNT = "count";

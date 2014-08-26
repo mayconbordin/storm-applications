@@ -89,10 +89,8 @@ public class FileSpout extends AbstractSpout {
         
         if (tuples != null) {
             for (StreamValues values : tuples) {
-                if (timestampEnabled)
-                    values.add(System.currentTimeMillis());
-                
-                collector.emit(values.getStreamId(), values);
+                String msgId = String.format("%d%d", curFileIndex, curLineIndex);
+                collector.emit(values.getStreamId(), values, msgId);
             }
         }
     }
