@@ -21,8 +21,8 @@ public class GeographyBolt extends AbstractBolt {
     }
 
     @Override
-    public void execute(Tuple tuple) {
-        String ip = tuple.getStringByField(Field.IP);
+    public void execute(Tuple input) {
+        String ip = input.getStringByField(Field.IP);
         
         Location location = resolver.resolve(ip);
         
@@ -30,8 +30,10 @@ public class GeographyBolt extends AbstractBolt {
             String city = location.getCity();
             String country = location.getCountryName();
 
-            collector.emit(new Values(country, city));
+            collector.emit(input, new Values(country, city));
         }
+        
+        collector.ack(input);
     }
 
     @Override

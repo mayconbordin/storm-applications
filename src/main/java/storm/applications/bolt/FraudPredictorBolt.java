@@ -28,15 +28,14 @@ public class FraudPredictorBolt extends AbstractBolt {
     @Override
     public void execute(Tuple input) {
         String entityID = input.getString(0);
-        String record  = input.getString(1);
-        Prediction p = predictor.execute(entityID, record);
+        String record   = input.getString(1);
+        Prediction p    = predictor.execute(entityID, record);
 
         // send outliers
         if (p.isOutlier()) {
-            collector.emit(new Values(entityID, p.getScore(), StringUtils.join(p.getStates(), ",")));
+            collector.emit(input, new Values(entityID, p.getScore(), StringUtils.join(p.getStates(), ",")));
         }
         
-        //ack
         collector.ack(input);
     }
 

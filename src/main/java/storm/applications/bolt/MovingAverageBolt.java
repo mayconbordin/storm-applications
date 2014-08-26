@@ -32,12 +32,13 @@ public class MovingAverageBolt extends AbstractBolt {
     }
 
     @Override
-    public void execute(Tuple tuple) {
-        String deviceID = tuple.getStringByField(Field.DEVICE_ID);
-        double nextDouble = tuple.getDoubleByField(Field.VALUE);
+    public void execute(Tuple input) {
+        String deviceID = input.getStringByField(Field.DEVICE_ID);
+        double nextDouble = input.getDoubleByField(Field.VALUE);
         double movingAvergeInstant = movingAverage(deviceID, nextDouble);
         
-        collector.emit(new Values(deviceID, movingAvergeInstant, nextDouble));
+        collector.emit(input, new Values(deviceID, movingAvergeInstant, nextDouble));
+        collector.ack(input);
     }
 
     public double movingAverage(String deviceID, double nextDouble) {

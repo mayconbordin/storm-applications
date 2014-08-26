@@ -57,7 +57,7 @@ public class TopKAlertTriggerBolt extends AbstractBolt {
                 if (i >= streamList.size() - 3) {
                     isAbnormal = true;
                 }
-                collector.emit(new Values(streamProfile.getString(0), streamProfile.getDouble(1), streamProfile.getLong(2), isAbnormal, streamProfile.getValue(3)));
+                collector.emit(streamList, new Values(streamProfile.getString(0), streamProfile.getDouble(1), streamProfile.getLong(2), isAbnormal, streamProfile.getValue(3)));
             }
 
             previousTimestamp = timestamp;

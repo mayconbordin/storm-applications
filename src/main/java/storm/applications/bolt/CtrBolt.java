@@ -41,14 +41,17 @@ public class CtrBolt extends AbstractBolt {
         }
         
         // update summary
-        if (input.getSourceStreamId().equals(Stream.CLICKS))
+        if (input.getSourceStreamId().equals(Stream.CLICKS)) {
             summary.clicks++;
-        else
+        } else {
             summary.impressions++;
+        }
         
         // calculate ctr
         double ctr = (double)summary.clicks / (double)summary.impressions;
-        collector.emit(new Values(event.getQueryId(), event.getAdID(), ctr));
+        
+        collector.emit(input, new Values(event.getQueryId(), event.getAdID(), ctr));
+        collector.ack(input);
     }
     
     private static class Summary {

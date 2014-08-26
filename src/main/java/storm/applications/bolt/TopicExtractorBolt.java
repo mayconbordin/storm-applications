@@ -13,12 +13,6 @@ import storm.applications.constants.TrendingTopicsConstants.Field;
  * @author mayconbordin
  */
 public class TopicExtractorBolt extends AbstractBolt {
-
-    @Override
-    public void initialize() {
-        
-    }
-
     @Override
     public void execute(Tuple input) {
         Map tweet = (Map) input.getValueByField(Field.TWEET);
@@ -30,10 +24,12 @@ public class TopicExtractorBolt extends AbstractBolt {
             while (st.hasMoreElements()) {
                 String term = (String) st.nextElement();
                 if (StringUtils.startsWith(term, "#")) {
-                    collector.emit(new Values(term));
+                    collector.emit(input, new Values(term));
                 }
             }
         }
+        
+        collector.ack(input);
     }
 
     @Override

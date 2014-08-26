@@ -42,7 +42,7 @@ public class CalculateSentimentBolt extends AbstractBolt {
     }
 
     @Override
-    public final void execute(final Tuple input) {
+    public void execute(Tuple input) {
         Map tweet = (Map) input.getValueByField(Field.TWEET);
         
         if (!tweet.containsKey("id_str") || !tweet.containsKey("text") || !tweet.containsKey("created_at"))
@@ -54,6 +54,7 @@ public class CalculateSentimentBolt extends AbstractBolt {
         
         SentimentResult result = classifier.classify(text);
         
-        collector.emit(new Values(tweetId, text, timestamp, result.getSentiment().toString(), result.getScore()));
+        collector.emit(input, new Values(tweetId, text, timestamp, result.getSentiment().toString(), result.getScore()));
+        collector.ack(input);
     }
 }

@@ -57,11 +57,11 @@ public class MapMatchingBolt extends AbstractBolt {
             
             int roadID = sectors.fetchRoadID(record);
             
-            if(roadID != -1) {
+            if (roadID != -1) {
                 List<Object> values = input.getValues();
                 values.add(roadID);
                 
-                collector.emit(values);
+                collector.emit(input, values);
             }
             
             collector.ack(input);

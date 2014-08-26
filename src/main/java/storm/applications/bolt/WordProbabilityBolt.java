@@ -6,11 +6,8 @@ import backtype.storm.tuple.Values;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.SpamFilterConstants.Conf;
@@ -98,8 +95,10 @@ public class WordProbabilityBolt extends AbstractBolt {
                 w.setPSpam(0.4f);
             }
             
-            collector.emit(new Values(id, w, numWords));
+            collector.emit(input, new Values(id, w, numWords));
         }
+        
+        collector.ack(input);
     }
     
     private static Kryo getKryoInstance() {

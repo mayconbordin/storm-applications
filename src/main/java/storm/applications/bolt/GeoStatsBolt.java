@@ -22,16 +22,18 @@ public class GeoStatsBolt extends AbstractBolt {
     }
 
     @Override
-    public void execute(Tuple tuple) {
-        String country = tuple.getStringByField(Field.COUNTRY);
-        String city = tuple.getStringByField(Field.CITY);
+    public void execute(Tuple input) {
+        String country = input.getStringByField(Field.COUNTRY);
+        String city    = input.getStringByField(Field.CITY);
         
         if (!stats.containsKey(country)) {
             stats.put(country, new CountryStats(country));
         }
         
         stats.get(country).cityFound(city);
-        collector.emit(new Values(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city)));
+        
+        collector.emit(input, new Values(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city)));
+        collector.ack(input);
     }
 
     @Override

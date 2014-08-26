@@ -54,6 +54,8 @@ public class BayesRuleBolt extends AbstractBolt {
             collector.emit(new Values(id, pspam, (pspam > spamProbability)));
             analysisSummary.remove(id);
         }
+        
+        collector.ack(input);
     }
     
     private float bayes(AnalysisSummary summary) {

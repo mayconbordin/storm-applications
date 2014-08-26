@@ -23,8 +23,8 @@ public class StatusCountBolt  extends AbstractBolt {
     }
 
     @Override
-    public void execute(Tuple tuple) {
-        int statusCode = tuple.getIntegerByField(Field.RESPONSE);
+    public void execute(Tuple input) {
+        int statusCode = input.getIntegerByField(Field.RESPONSE);
         int count = 0;
         
         if (counts.containsKey(statusCode)) {
@@ -33,7 +33,9 @@ public class StatusCountBolt  extends AbstractBolt {
         
         count++;
         counts.put(statusCode, count);
-        collector.emit(new Values(statusCode, count));
+        
+        collector.emit(input, new Values(statusCode, count));
+        collector.ack(input);
     }
 
     @Override

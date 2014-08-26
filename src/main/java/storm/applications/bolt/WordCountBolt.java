@@ -27,7 +27,8 @@ public class WordCountBolt extends AbstractBolt {
         }
         count.increment();
         
-        collector.emit(new Values(word, count.get()));
+        collector.emit(input, new Values(word, count.get()));
+        collector.ack(input);
     }
     
 }

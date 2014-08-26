@@ -20,8 +20,10 @@ public class SplitSentenceBolt extends AbstractBolt {
         
         for (String word : words) {
             if (!StringUtils.isBlank(word))
-                collector.emit(new Values(word));
+                collector.emit(input, new Values(word));
         }
+        
+        collector.ack(input);
     }
     
 }

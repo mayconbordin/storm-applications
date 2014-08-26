@@ -1,10 +1,6 @@
 package storm.applications.bolt;
 
 import backtype.storm.Config;
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -14,8 +10,6 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.constants.TrendingTopicsConstants;
-import storm.applications.constants.TrendingTopicsConstants.Conf;
 import storm.applications.constants.TrendingTopicsConstants.Field;
 import storm.applications.tools.NthLastModifiedTimeTracker;
 import storm.applications.tools.SlidingWindowCounter;

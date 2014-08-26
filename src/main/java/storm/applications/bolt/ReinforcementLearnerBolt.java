@@ -17,11 +17,6 @@
 
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import java.util.Map;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -37,8 +32,6 @@ import storm.applications.model.learner.ReinforcementLearnerFactory;
  *
  */
 public class ReinforcementLearnerBolt extends AbstractBolt {
-    private static final Logger LOG = LoggerFactory.getLogger(ReinforcementLearnerBolt.class);
-
     private ReinforcementLearner learner;
 
     @Override
@@ -57,7 +50,7 @@ public class ReinforcementLearnerBolt extends AbstractBolt {
             int roundNum   = input.getIntegerByField(Field.ROUND_NUM);
             
             String[] actions = learner.nextActions(roundNum);
-            collector.emit(new Values(eventID, actions));
+            collector.emit(input, new Values(eventID, actions));
         }
         
         else if (input.getSourceComponent().equals(Component.REWARD_SPOUT)) {
@@ -67,6 +60,8 @@ public class ReinforcementLearnerBolt extends AbstractBolt {
             
             learner.setReward(action, reward);
         }
+        
+        collector.ack(input);
     }
 
     @Override

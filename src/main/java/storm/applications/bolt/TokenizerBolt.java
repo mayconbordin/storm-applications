@@ -1,9 +1,5 @@
 package storm.applications.bolt;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -12,8 +8,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.mutable.MutableInt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import storm.applications.constants.SpamFilterConstants.*;
 
 /**
@@ -21,8 +15,6 @@ import storm.applications.constants.SpamFilterConstants.*;
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public class TokenizerBolt extends AbstractBolt {
-    private static final Logger LOG = LoggerFactory.getLogger(TokenizerBolt.class);
-    
     private static final String splitregex = "\\W";
     private static final Pattern wordregex = Pattern.compile("\\w+");
     
@@ -55,10 +47,10 @@ public class TokenizerBolt extends AbstractBolt {
                     hamTotal += count;
                 }
                 
-                collector.emit(Stream.TRAINING, new Values(word, count, isSpam));
+                collector.emit(Stream.TRAINING, input, new Values(word, count, isSpam));
             }
             
-            collector.emit(Stream.TRAINING_SUM, new Values(spamTotal, hamTotal));
+            collector.emit(Stream.TRAINING_SUM, input, new Values(spamTotal, hamTotal));
         }
         
         else if (input.getSourceComponent().equals(Component.ANALYSIS_SPOUT)) {
@@ -67,9 +59,11 @@ public class TokenizerBolt extends AbstractBolt {
             Map<String, MutableInt> words = tokenize(content);
             
             for (Map.Entry<String, MutableInt> entry : words.entrySet()) {
-                collector.emit(Stream.ANALYSIS, new Values(id, entry.getKey(), words.size()));
+                collector.emit(Stream.ANALYSIS, input, new Values(id, entry.getKey(), words.size()));
             }
         }
+        
+        collector.ack(input);
     }
     
     private Map<String, MutableInt> tokenize(String content) {

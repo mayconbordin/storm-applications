@@ -18,13 +18,13 @@ public class VisitStatsBolt extends AbstractBolt {
     }
 
     @Override
-    public void execute(Tuple tuple) {
-        boolean unique = Boolean.parseBoolean(tuple.getStringByField(Field.UNIQUE));
+    public void execute(Tuple input) {
+        boolean unique = Boolean.parseBoolean(input.getStringByField(Field.UNIQUE));
         total++;
         if(unique) uniqueCount++;
         
-        collector.emit(new Values(total, uniqueCount));
-
+        collector.emit(input, new Values(total, uniqueCount));
+        collector.ack(input);
     }
 
     @Override

@@ -82,6 +82,7 @@ public abstract class AbstractRankerBolt extends AbstractBolt {
         }
         else {
             updateRankingsWithTuple(tuple);
+            collector.ack(tuple);
         }
     }
 

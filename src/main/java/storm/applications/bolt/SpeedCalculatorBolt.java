@@ -6,8 +6,6 @@ import backtype.storm.tuple.Values;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import storm.applications.constants.TrafficMonitoringConstants.Field;
 import storm.applications.model.gis.Road;
 
@@ -16,8 +14,6 @@ import storm.applications.model.gis.Road;
  * email: gh.chen@siat.ac.cn 
  */
 public class SpeedCalculatorBolt extends AbstractBolt {
-    private static final Logger LOG = LoggerFactory.getLogger(SpeedCalculatorBolt.class);
-    
     private Map<Integer, Road> roads;
 
     @Override
@@ -82,8 +78,7 @@ public class SpeedCalculatorBolt extends AbstractBolt {
             }
         }
         
-        collector.emit(new Values(new Date(), roadID, averageSpeed, count));
-        
+        collector.emit(input, new Values(new Date(), roadID, averageSpeed, count));
         collector.ack(input);
     }
 
