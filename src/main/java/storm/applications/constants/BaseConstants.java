@@ -19,6 +19,8 @@ public interface BaseConstants {
         String SPOUT_PATH        = "%s.spout.path";
         String SPOUT_PARSER      = "%s.spout.parser";
         String SPOUT_GENERATOR   = "%s.spout.generator";
+        String SPOUT_SOCKET_PORT = "%s.spout.socket.port";
+        String SPOUT_SOCKET_HOST = "%s.spout.socket.host";
         
         String REDIS_HOST       = "%s.redis.server.host";
         String REDIS_PORT       = "%s.redis.server.port";
