@@ -14,6 +14,7 @@ public class NullSink extends BaseSink {
     @Override
     public void execute(Tuple input) {
         // do nothing
+        collector.ack(input);
     }
 
     @Override
