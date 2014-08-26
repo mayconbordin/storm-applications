@@ -1,5 +1,6 @@
 package storm.applications.bolt;
 
+import backtype.storm.hooks.ITaskHook;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -67,7 +68,7 @@ public abstract class AbstractBolt extends BaseRichBolt {
         this.collector = collector;
         
         if (config.getBoolean(METRICS_ENABLED, false)) {
-            context.addTaskHook(new BoltMeterHook());
+            context.addTaskHook(getMeterHook());
         }
         
         initialize();
@@ -79,5 +80,9 @@ public abstract class AbstractBolt extends BaseRichBolt {
 
     public void setConfigPrefix(String configPrefix) {
         this.configPrefix = configPrefix;
+    }
+    
+    protected ITaskHook getMeterHook() {
+        return new BoltMeterHook();
     }
 }
