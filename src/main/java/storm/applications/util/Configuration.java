@@ -7,6 +7,11 @@ import java.util.Properties;
 import org.apache.commons.lang.math.NumberUtils;
 
 public class Configuration extends Config {
+    public static final String METRICS_ENABLED        = "metrics.enabled";
+    public static final String METRICS_REPORTER       = "metrics.reporter";
+    public static final String METRICS_INTERVAL_VALUE = "metrics.interval.value";
+    public static final String METRICS_INTERVAL_UNIT  = "metrics.interval.unit";
+    public static final String METRICS_OUTPUT         = "metrics.output";
     
     public String getString(String key) {
         String val = null;
