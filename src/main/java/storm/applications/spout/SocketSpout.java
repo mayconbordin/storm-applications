@@ -1,6 +1,5 @@
 package storm.applications.spout;
 
-import backtype.storm.tuple.Values;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,10 +7,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import storm.applications.constants.BaseConstants;
 import static storm.applications.constants.BaseConstants.BaseConf.*;
 import storm.applications.spout.parser.Parser;
 import storm.applications.util.ClassLoaderUtils;

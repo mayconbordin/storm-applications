@@ -53,7 +53,7 @@ public class RedisSpout extends AbstractSpout {
         
             if (tuples != null) {
                 for (StreamValues values : tuples)
-                    collector.emit(values.getStreamId(), values);
+                    collector.emit(values.getStreamId(), values, values.getMessageId());
             }
         }
     }

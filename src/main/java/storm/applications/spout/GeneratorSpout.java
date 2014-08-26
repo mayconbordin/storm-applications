@@ -25,6 +25,6 @@ public class GeneratorSpout extends AbstractSpout {
     @Override
     public void nextTuple() {
         StreamValues values = generator.generate();
-        collector.emit(values.getStreamId(), values);
+        collector.emit(values.getStreamId(), values, values.getMessageId());
     }
 }
