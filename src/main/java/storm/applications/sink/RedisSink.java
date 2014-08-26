@@ -28,6 +28,7 @@ public class RedisSink extends BaseSink {
     public void execute(Tuple input) {
         String content = formatter.format(input);
         jedis.lpush(queue, content);
+        collector.ack(input);
     }
 
     @Override

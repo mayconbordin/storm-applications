@@ -65,6 +65,8 @@ public class SocketSink extends BaseSink {
                 osw.write(message);
                 osw.flush();
             }
+            
+            collector.ack(tuple);
         } catch (IOException ex) {
             LOG.error("Unable to send message", ex);
         }

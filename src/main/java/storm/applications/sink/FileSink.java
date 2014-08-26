@@ -44,6 +44,7 @@ public class FileSink extends BaseSink {
     public void execute(Tuple tuple) {
         try {
             writer.write(formatter.format(tuple));
+            collector.ack(tuple);
         } catch (IOException ex) {
             LOG.error("Error while writing to file " + file, ex);
         }
