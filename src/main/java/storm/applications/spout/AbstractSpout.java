@@ -9,7 +9,9 @@ import backtype.storm.utils.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import storm.applications.constants.BaseConstants;
+import storm.applications.hooks.SpoutMeterHook;
 import storm.applications.util.Configuration;
+import static storm.applications.util.Configuration.METRICS_ENABLED;
 
 /**
  *
@@ -17,6 +19,7 @@ import storm.applications.util.Configuration;
  */
 public abstract class AbstractSpout extends BaseRichSpout {
     protected String configPrefix = BaseConstants.BASE_PREFIX;
+    
     protected Configuration config;
     protected SpoutOutputCollector collector;
     protected TopologyContext context;
@@ -46,6 +49,10 @@ public abstract class AbstractSpout extends BaseRichSpout {
         this.config    = Configuration.fromMap(conf);
         this.collector = collector;
         this.context   = context;
+        
+        if (config.getBoolean(METRICS_ENABLED, false)) {
+            context.addTaskHook(new SpoutMeterHook());
+        }
         
         initialize();
     }

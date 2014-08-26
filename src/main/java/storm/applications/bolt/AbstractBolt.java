@@ -9,19 +9,22 @@ import backtype.storm.utils.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import storm.applications.constants.BaseConstants;
+import storm.applications.hooks.BoltMeterHook;
 import storm.applications.util.Configuration;
+import static storm.applications.util.Configuration.METRICS_ENABLED;
 
 /**
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public abstract class AbstractBolt extends BaseRichBolt {
+    protected String configPrefix = BaseConstants.BASE_PREFIX;
+    
     protected OutputCollector collector;
     protected Configuration config;
     protected TopologyContext context;
-    protected String configPrefix = BaseConstants.BASE_PREFIX;
-    private Map<String, Fields> fields;
-
+    protected Map<String, Fields> fields;
+    
     public AbstractBolt() {
         fields = new HashMap<>();
     }
@@ -62,6 +65,10 @@ public abstract class AbstractBolt extends BaseRichBolt {
         this.config    = Configuration.fromMap(stormConf);
         this.context   = context;
         this.collector = collector;
+        
+        if (config.getBoolean(METRICS_ENABLED, false)) {
+            context.addTaskHook(new BoltMeterHook());
+        }
         
         initialize();
     }
