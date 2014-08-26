@@ -88,8 +88,12 @@ public class FileSpout extends AbstractSpout {
         List<StreamValues> tuples = parser.parse(value);
         
         if (tuples != null) {
-            for (StreamValues values : tuples)
+            for (StreamValues values : tuples) {
+                if (timestampEnabled)
+                    values.add(System.currentTimeMillis());
+                
                 collector.emit(values.getStreamId(), values);
+            }
         }
     }
 
