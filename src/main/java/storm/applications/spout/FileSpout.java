@@ -89,7 +89,7 @@ public class FileSpout extends AbstractSpout {
         
         if (tuples != null) {
             for (StreamValues values : tuples)
-                collector.emit(values.getStreamId(), values, values.getMessageId());
+                collector.emit(values.getStreamId(), values);
         }
     }
 

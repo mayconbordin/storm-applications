@@ -63,7 +63,7 @@ public class SocketSpout extends AbstractSpout {
         
                     if (tuples != null) {
                         for (StreamValues values : tuples)
-                            collector.emit(values.getStreamId(), values, values.getMessageId());
+                            collector.emit(values.getStreamId(), values);
                     }
                 }
             } catch (IOException ex) {
