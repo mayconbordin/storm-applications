@@ -4,9 +4,10 @@ usage() {
     echo "Usage: $(basename $0) <jar> <application-name> (local|remote) [OPTIONS...]"
     echo ""
     echo "Options:"
-    echo "  --config=<file>       The configuration file."
-    echo "  --runtime=<runtime>   Runtime in seconds (local mode only) [default: 300]."
+    echo "  --config=<file>        The configuration file."
+    echo "  --runtime=<runtime>    Runtime in seconds (local mode only) [default: 300]."
     echo "  --topology-name=<name> The name of the topology (remote mode only)."
+    echo "  --finite-runtime       Kills topology if no activity is detected after a certain amount of time."
     exit 1
 }
 [ "$#" -ge 3 ] || usage
@@ -18,6 +19,7 @@ JAR_FILE=$1
 APP_NAME=$2
 RUN_MODE=$3
 OPTIONS=""
+FINITE_RUNTIME=false
 
 # Check if storm command exists
 if hash $STORM_BIN 2>/dev/null; then
@@ -66,6 +68,11 @@ for i in "$@"; do
         OPTIONS="$OPTIONS --topology-name ${i#*=}"
         shift
         ;;
+
+        --finite-runtime)
+        FINITE_RUNTIME=true
+        shift
+        ;;
     esac
 done
 
@@ -85,7 +92,7 @@ CMD="$STORM_BIN $STORM_CMD $JAR_FILE storm.applications.StormRunner --app $APP_N
 echo "$CMD"
 $CMD
 
-if [ "$RUN_MODE" == "remote" ]; then
+if [ "$RUN_MODE" == "remote" ] && [ "$FINITE_RUNTIME" = true ]; then
     sleep 5s
 
     python $BASE_DIR/topology.py progress --name "$TOPOLOGY_NAME"
