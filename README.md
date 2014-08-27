@@ -36,6 +36,12 @@ $ mvn -P<profile> package
 
 Use the `local` profile to run the applications in local mode or `cluster` to run in a remote cluster.
 
+If you are going to use the [storm](bin/storm) script to submit topologies to a cluster, you must also install the python requirements:
+
+```bash
+$ pip install -r bin/requirements.txt
+```
+
 ### Submit a Topology
 
 Syntax:
