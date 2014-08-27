@@ -82,5 +82,16 @@ fi
 
 # Submit application to Storm
 CMD="$STORM_BIN $STORM_CMD $JAR_FILE storm.applications.StormRunner --app $APP_NAME --mode $RUN_MODE $OPTIONS"
-echo "Submit: $CMD"
-exec $CMD
+echo "$CMD"
+$CMD
+
+if [ "$RUN_MODE" == "remote" ]; then
+    sleep 5s
+
+    python $BASE_DIR/topology.py progress --name "$TOPOLOGY_NAME"
+
+    echo "Killing topology $TOPOLOGY_NAME"
+    $STORM_BIN kill $TOPOLOGY_NAME
+
+    echo "Done"
+fi
