@@ -47,7 +47,7 @@ All but the `GeneratorSpout` need a `Parser`. The parser receives a string and r
 
 ```
 <app-prefix>.spout.threads=1
-<app-prefix>.spout.class=storm.applications.spout.FileSpout
+<app-prefix>.spout.class=storm.applications.spout.BufferedReaderSpout
 <app-prefix>.spout.path=./data/http-server.log
 <app-prefix>.spout.parser=storm.applications.spout.parser.CommonLogParser
 ```
@@ -170,6 +170,21 @@ Defalult formatters:
 <app-prefix>.sink.socket.port=
 <app-prefix>.sink.socket.charset=
 ```
+
+## Metrics
+
+By using hooks (`ITaskHook`) and the [metrics](http://metrics.codahale.com/) library it is possible to collect performance metrics of bolts and spouts. In bolts information is collected about the number of received and emitted tuples and the execution time, while for spouts information about the complete latency and emitted tuples is recorded.
+To enable metric collection, use the following configuration:
+
+```
+metrics.enabled=true
+metrics.reporter=csv
+metrics.interval.value=2
+metrics.interval.unit=seconds
+metrics.output=/tmp
+```
+
+The available reporters are `csv`, `console` and `slf4j`, but only the `csv` needs the `metrics.output` configuration, which defaults to `/tmp`.
 
 ## Applications
 
