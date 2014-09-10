@@ -16,8 +16,8 @@ import storm.applications.util.StringUtil;
 public class FileSink extends BaseSink {
     private static final Logger LOG = LoggerFactory.getLogger(FileSink.class);
             
-    private Writer writer = null;
-    private String file;
+    protected BufferedWriter writer = null;
+    protected String file;
 
     @Override
     public void initialize() {
@@ -55,6 +55,7 @@ public class FileSink extends BaseSink {
         super.cleanup();
         
         try {
+            writer.flush();
             writer.close();
         } catch (IOException ex) {
             LOG.error("Error while closing the file " + file, ex);
