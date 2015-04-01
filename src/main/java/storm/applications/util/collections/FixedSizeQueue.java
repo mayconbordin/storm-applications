@@ -1,4 +1,4 @@
-package storm.applications.util.queue;
+package storm.applications.util.collections;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

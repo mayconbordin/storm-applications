@@ -1,4 +1,4 @@
-package storm.applications.util.queue;
+package storm.applications.util.collections;
 
 import java.util.Collection;  
 import java.util.Iterator;  
