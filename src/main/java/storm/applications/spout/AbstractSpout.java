@@ -9,6 +9,7 @@ import backtype.storm.utils.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import storm.applications.constants.BaseConstants;
+import storm.applications.constants.BaseConstants.BaseStream;
 import storm.applications.hooks.SpoutMeterHook;
 import storm.applications.util.Configuration;
 import static storm.applications.util.Configuration.METRICS_ENABLED;
@@ -30,7 +31,7 @@ public abstract class AbstractSpout extends BaseRichSpout {
     }
     
     public void setFields(Fields fields) {
-        this.fields.put(Utils.DEFAULT_STREAM_ID, fields);
+        this.fields.put(BaseStream.DEFAULT, fields);
     }
 
     public void setFields(String streamId, Fields fields) {
