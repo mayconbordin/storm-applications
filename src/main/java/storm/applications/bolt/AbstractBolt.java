@@ -10,6 +10,7 @@ import backtype.storm.utils.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import storm.applications.constants.BaseConstants;
+import storm.applications.constants.BaseConstants.BaseStream;
 import storm.applications.hooks.BoltMeterHook;
 import storm.applications.util.Configuration;
 import static storm.applications.util.Configuration.METRICS_ENABLED;
@@ -31,7 +32,7 @@ public abstract class AbstractBolt extends BaseRichBolt {
     }
     
     public void setFields(Fields fields) {
-        this.fields.put(Utils.DEFAULT_STREAM_ID, fields);
+        this.fields.put(BaseStream.DEFAULT, fields);
     }
 
     public void setFields(String streamId, Fields fields) {
@@ -42,7 +43,7 @@ public abstract class AbstractBolt extends BaseRichBolt {
     public final void declareOutputFields(OutputFieldsDeclarer declarer) {
         if (fields.isEmpty()) {
             if (getDefaultFields() != null)
-                fields.put(Utils.DEFAULT_STREAM_ID, getDefaultFields());
+                fields.put(BaseStream.DEFAULT, getDefaultFields());
             
             if (getDefaultStreamFields() != null)
                 fields.putAll(getDefaultStreamFields());
