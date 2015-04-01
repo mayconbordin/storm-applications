@@ -1,14 +1,15 @@
 package storm.applications.model.finance;
 
-import java.util.List;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
-import org.apache.http.ParseException;
+import java.util.List;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 public abstract class QuoteFetcher implements Serializable {
@@ -27,7 +28,7 @@ public abstract class QuoteFetcher implements Serializable {
     }
 
     protected String fetchURLasString(String url) throws IOException, ParseException {
-        DefaultHttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = HttpClientBuilder.create().build();
         HttpGet httpGet = new HttpGet(url);
         HttpResponse response = httpclient.execute(httpGet);
         HttpEntity entity = response.getEntity();
