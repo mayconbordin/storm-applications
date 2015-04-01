@@ -1,7 +1,7 @@
 package storm.applications.util.geoip;
 
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.util.Configuration;
+import storm.applications.util.config.Configuration;
 
 
 
