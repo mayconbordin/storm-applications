@@ -22,6 +22,7 @@ A collection of real-time applications built with Apache Storm.
 | trending-topics       | tt     |                          | [Twitter Streaming][5]
 | voipstream            | vs     |                          |
 | word-count            | wc     | [books.dat][20]          | [Project Gutenberg][1] (~8GB)
+| smart-grid            | sg     | [smart-grid.csv][23]     | [DEBS 2014 Grand Challenge][24] (3.2GB)
 
 
 ## Usage
@@ -374,3 +375,5 @@ The available reporters are `csv`, `console` and `slf4j`, but only the `csv` nee
 
 [21]: http://anrg.usc.edu/www/downloads/
 [22]: data/taxi-traces.csv
+[23]: data/smart-grid.csv
+[24]: https://drive.google.com/file/d/0B0TBL8JNn3JgV29HZWhSSVREQ0E/edit?usp=sharing
