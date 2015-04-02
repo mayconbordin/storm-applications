@@ -229,6 +229,7 @@ Defalult parsers:
 | JsonEmailParser          | (id, message[, is_spam])
 | JsonParser               | (json_object)
 | SensorParser             | (id, timestamp, value)
+| SmartPlugParser          | (id, timestamp, value, property, plugId, householdId, houseId)
 | StringParser             | (string)
 | TransactionParser        | (event_id, actions)
 
