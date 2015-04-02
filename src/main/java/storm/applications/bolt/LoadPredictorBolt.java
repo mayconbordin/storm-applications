@@ -45,7 +45,7 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
     public void initialize() {
         trackers = new HashMap<>();
         archiveMap = new HashMap<>();
-        sliceLength = config.getLong(Conf.SLICE_LENGTH);
+        sliceLength = config.getLong(Conf.SLICE_LENGTH, 60l);
     }
 
     @Override
