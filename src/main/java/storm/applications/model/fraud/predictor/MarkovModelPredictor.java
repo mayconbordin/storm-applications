@@ -25,8 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static storm.applications.constants.FraudDetectionConstants.*;
-import storm.applications.util.Configuration;
-import storm.applications.util.Pair;
+import storm.applications.util.config.Configuration;
+import storm.applications.util.data.Pair;
 
 /**
  * Predictor based on markov model

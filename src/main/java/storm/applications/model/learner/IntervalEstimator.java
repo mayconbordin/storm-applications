@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.ReinforcementLearnerConstants.Conf;
 
-import storm.applications.util.Configuration;
-import storm.applications.util.HistogramStat;
+import storm.applications.util.config.Configuration;
+import storm.applications.util.math.HistogramStat;
 
 
 /**

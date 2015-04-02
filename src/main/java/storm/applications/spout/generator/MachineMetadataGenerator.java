@@ -3,8 +3,8 @@ package storm.applications.spout.generator;
 import java.util.Random;
 import storm.applications.constants.MachineOutlierConstants.Conf;
 import storm.applications.model.metadata.MachineMetadata;
-import storm.applications.util.Configuration;
-import storm.applications.util.StreamValues;
+import storm.applications.util.config.Configuration;
+import storm.applications.util.stream.StreamValues;
 
 /**
  *

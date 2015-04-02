@@ -1,6 +1,6 @@
 package storm.applications.model.sentiment;
 
-import storm.applications.util.Configuration;
+import storm.applications.util.config.Configuration;
 
 /**
  *

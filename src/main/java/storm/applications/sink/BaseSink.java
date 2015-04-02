@@ -6,7 +6,7 @@ import storm.applications.bolt.AbstractBolt;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.sink.formatter.BasicFormatter;
 import storm.applications.sink.formatter.Formatter;
-import storm.applications.util.ClassLoaderUtils;
+import storm.applications.util.config.ClassLoaderUtils;
 
 
 public abstract class BaseSink extends AbstractBolt {

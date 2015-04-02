@@ -17,7 +17,7 @@
 package storm.applications.model.learner;
 
 import storm.applications.constants.ReinforcementLearnerConstants.Learner;
-import storm.applications.util.Configuration;
+import storm.applications.util.config.Configuration;
 
 /**
  * Factory to create reinforcement learner

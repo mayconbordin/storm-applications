@@ -3,7 +3,7 @@ package storm.applications.model.fraud.prepare;
 import java.io.IOException;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Reducer;
-import storm.applications.util.Tuple;
+import storm.applications.util.data.Tuple;
 
 public class StateTransitionCombiner extends Reducer<Tuple, IntWritable, Tuple, IntWritable> {
     private int count;

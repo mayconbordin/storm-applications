@@ -10,8 +10,8 @@ import java.io.File;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.LoggerFactory;
-import storm.applications.util.Configuration;
-import static storm.applications.util.Configuration.*;
+import storm.applications.util.config.Configuration;
+import static storm.applications.util.config.Configuration.*;
 
 /**
  *

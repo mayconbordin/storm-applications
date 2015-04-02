@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static storm.applications.constants.VoIPSTREAMConstants.*;
 import storm.applications.model.cdr.CallDetailRecord;
-import storm.applications.util.VariableEWMA;
+import storm.applications.util.math.VariableEWMA;
 
 /**
  *

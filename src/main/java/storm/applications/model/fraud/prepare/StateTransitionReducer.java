@@ -6,8 +6,8 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-import storm.applications.util.StateTransitionProbability;
-import storm.applications.util.Tuple;
+import storm.applications.util.math.StateTransitionProbability;
+import storm.applications.util.data.Tuple;
 
 public class StateTransitionReducer extends Reducer<Tuple, IntWritable, NullWritable, Text> {
     private String fieldDelim;

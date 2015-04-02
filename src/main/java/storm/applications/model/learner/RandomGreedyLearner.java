@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import storm.applications.constants.ReinforcementLearnerConstants;
 import storm.applications.constants.ReinforcementLearnerConstants.Conf;
-import storm.applications.util.Configuration;
-import storm.applications.util.SimpleStat;
+import storm.applications.util.config.Configuration;
+import storm.applications.util.math.SimpleStat;
 
 /**
  * Random greedy reinforcement learner

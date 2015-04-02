@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import storm.applications.constants.AdsAnalyticsConstants.Stream;
 import storm.applications.model.ads.AdEvent;
-import storm.applications.util.StreamValues;
+import storm.applications.util.stream.StreamValues;
 
 /**
  *

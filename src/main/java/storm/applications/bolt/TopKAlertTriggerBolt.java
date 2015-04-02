@@ -7,7 +7,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import static storm.applications.constants.MachineOutlierConstants.*;
-import storm.applications.util.Sorter;
+import storm.applications.util.sort.Sorter;
 
 /**
  * Always trigger the top-K objects as abnormal.

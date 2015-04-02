@@ -11,8 +11,8 @@ import java.util.Map;
 import storm.applications.constants.BaseConstants;
 import storm.applications.constants.BaseConstants.BaseStream;
 import storm.applications.hooks.SpoutMeterHook;
-import storm.applications.util.Configuration;
-import static storm.applications.util.Configuration.METRICS_ENABLED;
+import storm.applications.util.config.Configuration;
+import static storm.applications.util.config.Configuration.METRICS_ENABLED;
 
 /**
  *

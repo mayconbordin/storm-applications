@@ -1,8 +1,8 @@
 package storm.applications.spout.parser;
 
 import java.util.List;
-import storm.applications.util.Configuration;
-import storm.applications.util.StreamValues;
+import storm.applications.util.config.Configuration;
+import storm.applications.util.stream.StreamValues;
 
 /**
  *

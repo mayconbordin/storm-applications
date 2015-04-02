@@ -5,9 +5,9 @@ import org.joda.time.DateTime;
 import storm.applications.constants.VoIPSTREAMConstants.Conf;
 import storm.applications.model.cdr.CDRDataGenerator;
 import storm.applications.model.cdr.CallDetailRecord;
-import storm.applications.util.Configuration;
-import storm.applications.util.RandomUtil;
-import storm.applications.util.StreamValues;
+import storm.applications.util.config.Configuration;
+import storm.applications.util.math.RandomUtil;
+import storm.applications.util.stream.StreamValues;
 
 /**
  *

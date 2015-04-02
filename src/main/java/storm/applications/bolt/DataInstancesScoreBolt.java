@@ -15,8 +15,8 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import static storm.applications.constants.MachineOutlierConstants.*;
 import storm.applications.model.metadata.MachineMetadata;
-import storm.applications.util.Entropy;
-import storm.applications.util.MaximumLikelihoodNormalDistribution;
+import storm.applications.util.math.Entropy;
+import storm.applications.util.math.MaximumLikelihoodNormalDistribution;
 
 public class DataInstancesScoreBolt extends AbstractBolt {
     private long previousTimestamp;

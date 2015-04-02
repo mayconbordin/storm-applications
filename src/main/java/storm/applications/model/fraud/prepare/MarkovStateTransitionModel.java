@@ -27,8 +27,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import storm.applications.util.Tuple;
-import storm.applications.util.Utility;
+import storm.applications.util.data.Tuple;
+import storm.applications.util.hadoop.Utility;
 
 /**
  * Markov state transition probability matrix

@@ -16,7 +16,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.postgis.MultiLineString;
 import storm.applications.constants.TrafficMonitoringConstants.Conf;
-import storm.applications.util.Configuration;
+import storm.applications.util.config.Configuration;
 
 public class RoadGridList {
     private HashMap<String, RoadList> gridList = new HashMap<>();

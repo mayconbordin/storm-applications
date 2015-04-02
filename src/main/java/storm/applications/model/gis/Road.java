@@ -1,6 +1,6 @@
 package storm.applications.model.gis;
 
-import storm.applications.util.queue.FixedSizeQueue;
+import storm.applications.util.collections.FixedSizeQueue;
 
 public class Road {
     private final int roadID;

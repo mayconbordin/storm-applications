@@ -2,7 +2,7 @@ package storm.applications.spout.parser;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import storm.applications.util.StreamValues;
+import storm.applications.util.stream.StreamValues;
 
 /**
  *

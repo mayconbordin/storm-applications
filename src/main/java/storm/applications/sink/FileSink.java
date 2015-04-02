@@ -11,7 +11,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
-import storm.applications.util.StringUtil;
+import storm.applications.util.data.StringUtil;
 
 public class FileSink extends BaseSink {
     private static final Logger LOG = LoggerFactory.getLogger(FileSink.class);

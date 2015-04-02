@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.SentimentAnalysisConstants.Conf;
-import storm.applications.util.Configuration;
+import storm.applications.util.config.Configuration;
 
 public class LingPipeClassifier implements SentimentClassifier {
     private static final Logger LOG = LoggerFactory.getLogger(LingPipeClassifier.class);

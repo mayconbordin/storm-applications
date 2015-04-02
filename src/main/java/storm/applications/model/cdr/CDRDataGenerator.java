@@ -17,9 +17,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import storm.applications.util.IOUtils;
+import storm.applications.util.io.IOUtils;
 import storm.applications.util.JavaUtils;
-import storm.applications.util.RandomUtil;
+import storm.applications.util.math.RandomUtil;
 
 /**
  *

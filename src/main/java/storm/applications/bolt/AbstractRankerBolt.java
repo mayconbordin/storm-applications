@@ -27,7 +27,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import storm.applications.constants.TrendingTopicsConstants.Field;
 import storm.applications.tools.Rankings;
-import storm.applications.util.TupleUtils;
+import storm.applications.util.stream.TupleUtils;
 
 /**
  * This abstract bolt provides the basic behavior of bolts that rank objects according to their count.

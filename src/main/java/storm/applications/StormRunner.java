@@ -33,7 +33,7 @@ import storm.applications.topology.TrafficMonitoringTopology;
 import storm.applications.topology.TrendingTopicsTopology;
 import storm.applications.topology.VoIPSTREAMTopology;
 import storm.applications.topology.WordCountTopology;
-import storm.applications.util.Configuration;
+import storm.applications.util.config.Configuration;
 
 /**
  * Utility class to run a Storm topology

@@ -14,7 +14,7 @@ import storm.applications.constants.AdsAnalyticsConstants.Field;
 import storm.applications.model.ads.AdEvent;
 import storm.applications.tools.NthLastModifiedTimeTracker;
 import storm.applications.tools.SlidingWindowCounter;
-import storm.applications.util.TupleUtils;
+import storm.applications.util.stream.TupleUtils;
 
 public class RollingCtrBolt extends AbstractBolt {
     private static final Logger LOG = LoggerFactory.getLogger(RollingCtrBolt.class);

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static storm.applications.constants.VoIPSTREAMConstants.*;
 import storm.applications.model.cdr.CallDetailRecord;
-import storm.applications.util.BloomFilter;
+import storm.applications.util.bloom.BloomFilter;
 
 public class VariationDetectorBolt extends AbstractBolt {
     private static final Logger LOG = LoggerFactory.getLogger(VariationDetectorBolt.class);

@@ -4,7 +4,7 @@ import backtype.storm.tuple.Fields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static storm.applications.constants.VoIPSTREAMConstants.*;
-import storm.applications.util.ODTDBloomFilter;
+import storm.applications.util.bloom.ODTDBloomFilter;
 
 /**
  *

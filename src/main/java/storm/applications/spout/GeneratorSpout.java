@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.spout.generator.Generator;
-import storm.applications.util.ClassLoaderUtils;
-import storm.applications.util.StreamValues;
+import storm.applications.util.config.ClassLoaderUtils;
+import storm.applications.util.stream.StreamValues;
 
 /**
  *

@@ -6,7 +6,7 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-import storm.applications.util.Tuple;
+import storm.applications.util.data.Tuple;
 
 public class StateTransitionMapper extends Mapper<LongWritable, Text, Tuple, IntWritable> {
     private String fieldDelimRegex;

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import storm.applications.constants.ReinforcementLearnerConstants;
 import storm.applications.constants.ReinforcementLearnerConstants.Conf;
-import storm.applications.util.Configuration;
+import storm.applications.util.config.Configuration;
 
 /**
  * Sampson sampler probabilistic matching reinforcement learning

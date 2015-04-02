@@ -10,7 +10,7 @@ import com.codahale.metrics.Timer;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import storm.applications.metrics.MetricsFactory;
-import storm.applications.util.Configuration;
+import storm.applications.util.config.Configuration;
 
 /**
  *

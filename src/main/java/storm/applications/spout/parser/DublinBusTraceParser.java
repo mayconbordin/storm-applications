@@ -1,7 +1,7 @@
 package storm.applications.spout.parser;
 
 import com.google.common.collect.ImmutableList;
-import storm.applications.util.StreamValues;
+import storm.applications.util.stream.StreamValues;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;

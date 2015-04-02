@@ -13,7 +13,7 @@ import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.constants.TrendingTopicsConstants.Field;
 import storm.applications.tools.NthLastModifiedTimeTracker;
 import storm.applications.tools.SlidingWindowCounter;
-import storm.applications.util.TupleUtils;
+import storm.applications.util.stream.TupleUtils;
 
 /**
  * This bolt performs rolling counts of incoming objects, i.e. sliding window based counting.

@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
 import storm.applications.constants.SpikeDetectionConstants.Conf;
-import storm.applications.util.Configuration;
-import storm.applications.util.StreamValues;
+import storm.applications.util.config.Configuration;
+import storm.applications.util.stream.StreamValues;
 
 /**
  *

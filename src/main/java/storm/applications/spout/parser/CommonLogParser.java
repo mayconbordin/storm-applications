@@ -11,8 +11,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import storm.applications.util.DateUtils;
-import storm.applications.util.StreamValues;
+import storm.applications.util.data.DateUtils;
+import storm.applications.util.stream.StreamValues;
 
 /**
  *

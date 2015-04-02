@@ -2,7 +2,7 @@ package storm.applications.sink.formatter;
 
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
-import storm.applications.util.Configuration;
+import storm.applications.util.config.Configuration;
 
 /**
  *

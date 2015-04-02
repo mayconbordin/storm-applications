@@ -6,7 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import storm.applications.util.StreamValues;
+import storm.applications.util.stream.StreamValues;
 
 /**
  *

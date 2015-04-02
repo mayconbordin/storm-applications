@@ -17,7 +17,7 @@
 package storm.applications.model.learner;
 
 import java.util.Map;
-import storm.applications.util.Configuration;
+import storm.applications.util.config.Configuration;
 
 /**
  * This interface for all reinforcement learners

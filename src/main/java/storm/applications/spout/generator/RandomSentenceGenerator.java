@@ -1,8 +1,8 @@
 package storm.applications.spout.generator;
 
 import java.util.Random;
-import storm.applications.util.Configuration;
-import storm.applications.util.StreamValues;
+import storm.applications.util.config.Configuration;
+import storm.applications.util.stream.StreamValues;
 
 public class RandomSentenceGenerator extends Generator {
     private static final String[] sentences = new String[]{

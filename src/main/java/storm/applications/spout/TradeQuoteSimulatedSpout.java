@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static storm.applications.constants.BargainIndexConstants.*;
 import storm.applications.model.finance.Quote;
-import storm.applications.util.RandomUtil;
+import storm.applications.util.math.RandomUtil;
 
 /**
  * Fetches 

@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import storm.applications.constants.BaseConstants.BaseConf;
 import storm.applications.sink.BaseSink;
 import storm.applications.spout.AbstractSpout;
-import storm.applications.util.ClassLoaderUtils;
-import storm.applications.util.Configuration;
+import storm.applications.util.config.ClassLoaderUtils;
+import storm.applications.util.config.Configuration;
 
 public abstract class AbstractTopology {
     protected TopologyBuilder builder;
