@@ -162,6 +162,39 @@ public class Configuration extends Config {
         }
         return val;
     }
+    
+    public int[] getIntArray(String key, int[] def) {
+        return getIntArray(key, ",", def);
+    }
+    
+    public int[] getIntArray(String key, String separator, int[] def) {
+        int[] values = null;
+        
+        try {
+            values = getIntArray(key, separator);
+        } catch (IllegalArgumentException ex) {
+            values = def;
+        }
+
+        return values;
+    }
+    
+    public int[] getIntArray(String key, String separator) {
+        String value   = getString(key);
+        String[] items = value.split(separator);
+        int[] values   = new int[items.length];
+
+        for (int i=0; i<items.length; i++) {
+            try {
+                values[i] = Integer.parseInt(items[i]);
+            } catch (NumberFormatException ex) {
+                throw new IllegalArgumentException("Value for configuration key "
+                        + key + " cannot be parsed to an Integer array", ex);
+            }
+        }
+            
+        return values;
+    }
 
     public boolean exists(String key) {
         return containsKey(key);
