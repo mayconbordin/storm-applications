@@ -36,7 +36,7 @@ $ mvn -P<profile> package
 
 Use the `local` profile to run the applications in local mode or `cluster` to run in a remote cluster.
 
-If you are going to use the [storm](bin/storm) script to submit topologies to a cluster, you must also install the python requirements:
+If you are going to use the [storm](bin/storm) (do not confuse with the [`storm`](http://storm.apache.org/documentation/Command-line-client.html) command line client) script to submit topologies to a cluster, you must also install the python requirements:
 
 ```bash
 $ pip install -r bin/requirements.txt
@@ -64,6 +64,142 @@ Options:
   --topology-name=<name> The name of the topology (remote mode only).
 ```
 
+## Conventions for Building Applications
+
+Topologies are placed in the `storm.applications.topology` package and they must 
+extend either the `AbstractTopology` or `BasicTopology` class. The `BasicTopology` 
+class extends the `AbstractTopology` and assumes that the topology has only a single 
+spout and sink components. In case your topology has multiple spouts and/or sinks 
+you will have to extend the `AbstractTopology` class.
+
+The `AbstractTopology` class defines four methods that must be implemented:
+
+```java
+public void initialize();
+public StormTopology buildTopology();
+public Logger getLogger();
+public String getConfigPrefix();
+```
+
+In the `initialize` method you will load all the configuration variables, such as 
+the parallelization hint for the bolts. As a convention, all the configuration that 
+is going to be used within a bolt will be loaded in the initialization of the bolt,
+instead of the topology.
+
+The `buildTopology` method, as the name suggests, will use the `TopologyBuilder` 
+class in order to wire the spouts and bolts together, returning an instance of 
+`StormTopology`. The `getLogger` method is used in case the `AbstractTopology` 
+has to report an error or warning.
+
+
+### Application Prefix
+
+Each topology must also have an prefix which will identify the topology. The prefix 
+is defined by returning it in the `getConfigPrefix` method and it will be used in 
+the default configuration options defined at `BaseConstants.BaseConf`.
+
+For example the `BaseConf.SPOUT_THREADS` variable has the value `%s.spout.threads`, 
+which will be translated to `<app-prefix>.spout.threads` for a topology with the 
+`<app-prefix>` prefix.
+
+With these conventions defined, you can use the `loadSpout` and `loadSink` methods
+from the `AbstractTopology` class. These methods will create an instance of a spout
+or sink based on the class defined at `<app-prefix>.spout.class` and `<app-prefix>.sink.class`,
+respectively.
+
+If you have more than one spout (or sink), you can use the `loadSpout(String name)`
+(or `loadSink(String name)`) method, which will create an instance of a spout class 
+defined at `<app-prefix>.<name>.spout.class`.
+
+
+### Constants
+
+The basic constants used by all topologies are defined in the interface `BaseConstants`,
+with one sub-interface for each type of constants, namely:
+
+  - `BaseConf`: for configuration keys.
+  - `BaseComponent`: for the name of components (spouts, bolts, sinks).
+  - `BaseStream`: for the name of streams.
+
+Each application will have its own constants interface at the `storm.applications.interfaces`
+package, which will extend the `BaseConstants` interface. Each sub-interface will
+also extend the sub-interfaces listed above.
+
+Although the sub-interfaces may have any name, we recommend using: `Conf`, `Component` 
+and `Stream`. Any other constant values that will be used topology-wide should be 
+placed in the constants interface.
+
+One kind of constant that must be placed in the interface is the name of the fields 
+used by the components of a topology. Example for the word count topology:
+
+```java
+interface Field {
+    String TEXT  = "text";
+    String WORD  = "word";
+    String COUNT = "count";
+}
+```
+
+### Spouts
+
+Spouts are placed in the `storm.applications.spout` package and they must extend
+the `AbstractSpout` class, which in turn extends the `BaseRichSpout` class.
+
+The output fields of a bolt can be declared, instead of using the `declareOutputFields` 
+method, by using the `setFields(Fields fields)` and `setFields(String streamId, Fields fields)` 
+methods.
+
+In order to enable an topology to retrieve data from different sources without the 
+need to rewrite the whole spout, we have defined a few basic spouts that fetch the 
+raw data from the source and hand it over to an implementation of the `Parser` interface.
+
+In this way you can switch the source of data of a topology by simply changing the 
+spout class in configuration file.
+
+### Bolts
+
+Bolts are placed in the `storm.applications.bolt` package and they must extend
+the `AbstractBolt` class, which in turn extends the `BaseRichBolt` class.
+
+The output fields of a bolt can be declared, instead of using the `declareOutputFields` 
+method, by using the `setFields(Fields fields)` and `setFields(String streamId, Fields fields)` 
+methods.
+
+You can also define the output fields inside the bolt class, by implementing one of 
+these two methods:
+
+```java
+public Fields getDefaultFields();
+public Map<String, Fields> getDefaultStreamFields();
+```
+
+The first method defines the fields for the default stream, while the second one 
+defines the fields for multiple streams, whose names are defined as keys for the `Map`.
+
+Instead of using the `prepare` method, you can override the `initialize` method, 
+and the configuration, context and output collector objects can be accessed by the 
+protected attributes `config`, `context` and `collector`, respectively.
+
+### Sinks
+
+Sinks are placed in the `storm.applications.sink` package and they must extend
+the `BaseSink` class, which in turn extends the `AbstractBolt` class.
+
+A sink is nothing more than a bolt without output streams, i.e. they only consume 
+data from streams.
+
+In the same way as the spouts, we have implemented a few basic sinks that receive 
+tuples from upstream bolts, hand it over to an implementation of the `Formatter` 
+interface, and write the formatted tuple in the target sink (e.g. database, message system, queue).
+
+### Topology-specific Code
+
+Any source-code regarding the logic of the application should be placed in an 
+specific package inside the `storm.applications.model` package.
+
+And if the source-code is just an utility, place it in the `storm.applications.util` 
+package.
+
 ## Configuration
 
 Instead of each application having its own spouts and sinks (bolts that send data to other systems), we have defined a few basic spouts and sinks.
@@ -87,6 +223,7 @@ Defalult parsers:
 | BeijingTaxiTraceParser   | (car_id, date, occ, speed, bearing, lat, lon)
 | ClickStreamParser        | (ip, url, client_key)
 | CommonLogParser          | (ip, timestamp, minute, request, response, byte_size)
+| DublinBusTraceParser     | (car_id, date, occ, speed, bearing, lat, lon)
 | GoogleTracesParser       | (timestamp, id, cpu, memory)
 | JsonEmailParser          | (id, message[, is_spam])
 | JsonParser               | (json_object)
