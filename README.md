@@ -3,7 +3,34 @@ storm-applications
 
 A collection of real-time applications built with Apache Storm.
 
-## Applications
+## Table of Contents
+
+* [Applications](#applications)
+* [Usage](#usage)
+    * [Build](#build)
+    * [Submit a Topology](#submit-a-topology)
+* [Conventions for Building Applications](#conventions-for-building-applications)
+    * [Application Prefix](#application-prefix)
+    * [Constants](#constants)
+    * [Spouts](#spouts)
+    * [Bolts](#bolts)
+    * [Sinks](#sinks)
+    * [Topology-specific Code](#topology-specific-code)
+* [Configuration](#configuration)
+    * [Spouts](#configuration-spouts)
+        * [GeneratorSpout](#configuration-generator-spout)
+            * [SmartPlugGenerator](#configuration-smart-plug-generator)
+        * [KafkaSpout](#configuration-kafka-spout)
+        * [RedisSpout](#configuration-redis-spout)
+        * [TwitterStreamingSpout](#configuration-twitter-streaming-spout)
+    * [Sinks](#configuration-sinks)
+        * [CassandraBatchSink](#configuration-cassandra-batch-sink)
+        * [CassandraCountBatchSink](#configuration-count-batch-sink)
+        * [RedisSink](#configuration-redis-sink)
+        * [SocketSink](#configuration-socket-sink)
+* [Metrics](#metrics)
+
+## <a id="applications"></a>Applications
 
 | Application Name      | Prefix | Sample Data              | Dataset
 |-----------------------|--------|--------------------------|--------
@@ -25,9 +52,9 @@ A collection of real-time applications built with Apache Storm.
 | smart-grid            | sg     | [smart-grid.csv][23]     | [DEBS 2014 Grand Challenge][24] (3.2GB)
 
 
-## Usage
+## <a id="usage"></a>Usage
 
-### Build
+### <a id="build"></a>Build
 
 ```bash
 $ git clone git@github.com:mayconbordin/storm-applications.git
@@ -43,7 +70,7 @@ If you are going to use the [storm](bin/storm) (do not confuse with the [`storm`
 $ pip install -r bin/requirements.txt
 ```
 
-### Submit a Topology
+### <a id="submit-a-topology"></a>Submit a Topology
 
 Syntax:
 
@@ -65,7 +92,7 @@ Options:
   --topology-name=<name> The name of the topology (remote mode only).
 ```
 
-## Conventions for Building Applications
+## <a id="conventions-for-building-applications"></a>Conventions for Building Applications
 
 Topologies are placed in the `storm.applications.topology` package and they must 
 extend either the `AbstractTopology` or `BasicTopology` class. The `BasicTopology` 
@@ -93,7 +120,7 @@ class in order to wire the spouts and bolts together, returning an instance of
 has to report an error or warning.
 
 
-### Application Prefix
+### <a id="application-prefix"></a>Application Prefix
 
 Each topology must also have an prefix which will identify the topology. The prefix 
 is defined by returning it in the `getConfigPrefix` method and it will be used in 
@@ -113,7 +140,7 @@ If you have more than one spout (or sink), you can use the `loadSpout(String nam
 defined at `<app-prefix>.<name>.spout.class`.
 
 
-### Constants
+### <a id="constants"></a>Constants
 
 The basic constants used by all topologies are defined in the interface `BaseConstants`,
 with one sub-interface for each type of constants, namely:
@@ -141,7 +168,7 @@ interface Field {
 }
 ```
 
-### Spouts
+### <a id="spouts"></a>Spouts
 
 Spouts are placed in the `storm.applications.spout` package and they must extend
 the `AbstractSpout` class, which in turn extends the `BaseRichSpout` class.
@@ -157,7 +184,7 @@ raw data from the source and hand it over to an implementation of the `Parser` i
 In this way you can switch the source of data of a topology by simply changing the 
 spout class in configuration file.
 
-### Bolts
+### <a id="bolts"></a>Bolts
 
 Bolts are placed in the `storm.applications.bolt` package and they must extend
 the `AbstractBolt` class, which in turn extends the `BaseRichBolt` class.
@@ -181,7 +208,7 @@ Instead of using the `prepare` method, you can override the `initialize` method,
 and the configuration, context and output collector objects can be accessed by the 
 protected attributes `config`, `context` and `collector`, respectively.
 
-### Sinks
+### <a id="sinks"></a>Sinks
 
 Sinks are placed in the `storm.applications.sink` package and they must extend
 the `BaseSink` class, which in turn extends the `AbstractBolt` class.
@@ -193,7 +220,7 @@ In the same way as the spouts, we have implemented a few basic sinks that receiv
 tuples from upstream bolts, hand it over to an implementation of the `Formatter` 
 interface, and write the formatted tuple in the target sink (e.g. database, message system, queue).
 
-### Topology-specific Code
+### <a id="topology-specific-code"></a>Topology-specific Code
 
 Any source-code regarding the logic of the application should be placed in an 
 specific package inside the `storm.applications.model` package.
@@ -201,11 +228,11 @@ specific package inside the `storm.applications.model` package.
 And if the source-code is just an utility, place it in the `storm.applications.util` 
 package.
 
-## Configuration
+## <a id="configuration"></a>Configuration
 
 Instead of each application having its own spouts and sinks (bolts that send data to other systems), we have defined a few basic spouts and sinks.
 
-### Spouts
+### <a id="configuration-spouts"></a>Spouts
 
 All but the `GeneratorSpout` need a `Parser`. The parser receives a string and returns a list of values, following the schema defined in the topology. To set a spout that reads from a file and parses the data as a Common Log Format, the configuration file would look like this:
 
@@ -234,7 +261,7 @@ Defalult parsers:
 | TransactionParser        | (event_id, actions)
 
 
-#### GeneratorSpout
+#### <a id="configuration-generator-spout"></a>GeneratorSpout
 
 The `GeneratorSpout` doesn't need a parser, instead it uses an instance of a class that extends the `Generator` class. Each time the generator is called it returns a new tuple.
 
@@ -255,7 +282,7 @@ Defalult generators:
 | SmartPlugGenerator       | --
 
 
-##### SmartPlugGenerator
+##### <a id="configuration-smart-plug-generator"></a>SmartPlugGenerator
 
 The SmartPlugGenerator is an adaptation of a generator built by [Alessandro Sivieri][25]:
 
@@ -291,7 +318,7 @@ Configurations parameters:
   - `sg.generator.on.probability`: the probability of the smart plug being on.
   - `sg.generator.on.lengths`: a comma-separated list of lengths of time to be selected from to set the amount of time that the smart plug will be on.
 
-#### KafkaSpout
+#### <a id="configuration-kafka-spout"></a>KafkaSpout
 
 ```
 <app-prefix>.kafka.zookeeper.host=
@@ -300,7 +327,7 @@ Configurations parameters:
 <app-prefix>.kafka.consumer.id=
 ```
 
-#### RedisSpout
+#### <a id="configuration-redis-spout"></a>RedisSpout
 
 ```
 <app-prefix>.redis.server.host=
@@ -309,7 +336,7 @@ Configurations parameters:
 <app-prefix>.redis.server.queue_size=
 ```
 
-#### TwitterStreamingSpout
+#### <a id="configuration-twitter-streaming-spout"></a>TwitterStreamingSpout
 
 ```
 <app-prefix>.twitter.consumer_key=
@@ -318,7 +345,7 @@ Configurations parameters:
 <app-prefix>.twitter.access_token_secret=
 ```
 
-### Sinks
+### <a id="configuration-sinks"></a>Sinks
 
 Similarly, some sink classes need a `Formatter` which receives a tuple and returns a string. Writing the output of an application to a file could be achieved with the following configuration:
 
@@ -340,7 +367,7 @@ Defalult formatters:
 | FullInfoFormatter        | `source: <name>:<id>, stream: <name>, id: <id>, values: [<field>=<value>, ...]`
 | MachineMetadataFormatter | `<anomaly_stream>, <anomaly_score>, <timestamp>, <is_abnormal>, <cpu_idle>, <mem_free>`
 
-#### CassandraBatchSink
+#### <a id="configuration-cassandra-batch-sink"></a>CassandraBatchSink
 
 ```
 <app-prefix>.cassandra.host=
@@ -350,7 +377,7 @@ Defalult formatters:
 <app-prefix>.cassandra.sink.ack_strategy=
 ```
 
-#### CassandraCountBatchSink
+#### <a id="configuration-count-batch-sink"></a>CassandraCountBatchSink
 
 ```
 <app-prefix>.cassandra.host=
@@ -360,7 +387,7 @@ Defalult formatters:
 <app-prefix>.cassandra.sink.ack_strategy=
 ```
 
-#### RedisSink
+#### <a id="configuration-redis-sink"></a>RedisSink
 
 ```
 <app-prefix>.redis.server.host=
@@ -368,14 +395,14 @@ Defalult formatters:
 <app-prefix>.redis.sink.queue=
 ```
 
-#### SocketSink
+#### <a id="configuration-socket-sink"></a>SocketSink
 
 ```
 <app-prefix>.sink.socket.port=
 <app-prefix>.sink.socket.charset=
 ```
 
-## Metrics
+## <a id="metrics"></a>Metrics
 
 By using hooks (`ITaskHook`) and the [metrics](http://metrics.codahale.com/) library it is possible to collect performance metrics of bolts and spouts. In bolts information is collected about the number of received and emitted tuples and the execution time, while for spouts information about the complete latency and emitted tuples is recorded.
 To enable metric collection, use the following configuration:
