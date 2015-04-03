@@ -37,4 +37,8 @@ public class RandomUtil {
 
         return randomNum;
     }
+    
+    public static int randomMinMax(int min, int max) {
+        return min + (int)(rand.nextDouble() * (double)(max - min + 1));
+    }
 }

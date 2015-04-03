@@ -1,6 +1,5 @@
 package storm.applications.spout.generator;
 
-import java.util.Map;
 import storm.applications.util.config.Configuration;
 import storm.applications.util.stream.StreamValues;
 

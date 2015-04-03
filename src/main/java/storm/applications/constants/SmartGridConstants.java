@@ -19,6 +19,19 @@ public interface SmartGridConstants extends BaseConstants {
         
         String HOUSE_LOAD_FREQUENCY     = "sg.house_load.frequency";
         String PLUG_LOAD_FREQUENCY      = "sg.plug_load.frequency";
+        
+        
+        // generator configs
+        String GENERATOR_INTERVAL_SECONDS = "sg.generator.interval_seconds";
+        String GENERATOR_NUM_HOUSES       = "sg.generator.num_houses";
+        String GENERATOR_HOUSEHOLDS_MIN   = "sg.generator.households.min";
+        String GENERATOR_HOUSEHOLDS_MAX   = "sg.generator.households.max";
+        String GENERATOR_PLUGS_MIN        = "sg.generator.plugs.min";
+        String GENERATOR_PLUGS_MAX        = "sg.generator.plugs.max";
+        String GENERATOR_LOADS            = "sg.generator.loads";
+        String GENERATOR_LOAD_OSCILLATION = "sg.generator.load_oscillation";
+        String GENERATOR_PROBABILITY_ON   = "sg.generator.probability_on";
+        String GENERATOR_ON_LENGTHS       = "sg.generator.on_lengths";
     }
     
     interface Component extends BaseComponent {

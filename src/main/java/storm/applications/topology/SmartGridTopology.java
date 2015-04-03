@@ -49,9 +49,9 @@ public class SmartGridTopology extends AbstractTopology {
         outlierSink    = loadSink("outlier");
         predictionSink = loadSink("prediction");
         
-        spoutThreads          = config.getInt(getConfigKey(Conf.SPOUT_THREADS), 1);
-        outlierSinkThreads    = config.getInt(getConfigKey(Conf.SINK_THREADS, "outlier"), 1);
-        predictionSinkThreads = config.getInt(getConfigKey(Conf.SINK_THREADS, "prediction"), 1);
+        spoutThreads           = config.getInt(getConfigKey(Conf.SPOUT_THREADS), 1);
+        outlierSinkThreads     = config.getInt(getConfigKey(Conf.SINK_THREADS, "outlier"), 1);
+        predictionSinkThreads  = config.getInt(getConfigKey(Conf.SINK_THREADS, "prediction"), 1);
         
         slidingWindowThreads   = config.getInt(Conf.SLIDING_WINDOW_THREADS, 1);
         globalMedianThreads    = config.getInt(Conf.SLIDING_WINDOW_THREADS, 1);
@@ -60,8 +60,8 @@ public class SmartGridTopology extends AbstractTopology {
         houseLoadThreads       = config.getInt(Conf.SLIDING_WINDOW_THREADS, 1);
         plugLoadThreads        = config.getInt(Conf.SLIDING_WINDOW_THREADS, 1);
         
-        houseLoadFrequency = config.getInt(Conf.HOUSE_LOAD_FREQUENCY, 15);
-        plugLoadFrequency  = config.getInt(Conf.PLUG_LOAD_FREQUENCY, 15);
+        houseLoadFrequency     = config.getInt(Conf.HOUSE_LOAD_FREQUENCY, 15);
+        plugLoadFrequency      = config.getInt(Conf.PLUG_LOAD_FREQUENCY, 15);
     }
 
     @Override
