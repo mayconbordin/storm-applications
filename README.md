@@ -48,13 +48,13 @@ $ pip install -r bin/requirements.txt
 Syntax:
 
 ```bash
-$ bin/storm <jar> <application-name> (local|remote) [OPTIONS...]
+$ bin/storm-submit <jar> <application-name> (local|remote) [OPTIONS...]
 ```
 
 Example:
 
 ```bash
-$ bin/storm target/storm-applications-*-with-dependencies.jar word-count local
+$ bin/storm-submit target/storm-applications-*-with-dependencies.jar word-count local
 ```
 
 Options:
