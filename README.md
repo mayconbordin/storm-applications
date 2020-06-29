@@ -45,7 +45,7 @@ A collection of real-time applications built with Apache Storm.
 | sentiment-analysis    | sa     |                          | [Twitter Streaming][5]
 | spam-filter           | sf     | [enron.json][18]         | [TREC 2007][9] (547MB, labeled)<br />[SPAM Archive][10] (~1.2GB, spam)<br />[Enron Email Dataset][11] (2.6GB, raw)<br />[Enron Spam Dataset][12] (50MB, labeled)
 | spike-detection       | sd     | [sensors.dat][19]        | [Intel Berkeley Research Lab][4] (150MB)
-| traffic-monitoring    | tm     | [taxi-traces.csv][22]    | [Beijing Taxi Traces][21]
+| traffic-monitoring    | tm     | [taxi-traces.csv][22]    | [Beijing Taxi Traces][21]<br />Shapefile from: https://download.bbbike.org/osm/bbbike/
 | trending-topics       | tt     |                          | [Twitter Streaming][5]
 | voipstream            | vs     |                          |
 | word-count            | wc     | [books.dat][20]          | [Project Gutenberg][1] (~8GB)
