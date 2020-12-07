@@ -5,6 +5,8 @@ A collection of real-time applications built with Apache Storm.
 
 ## Reference this Work
 
+AN UP TO DATE VERSION OF THIS FRAMEWORK/BENCHMARK: https://github.com/GMAP/DSPBench
+
 > BORDIN, Maycon Viana. A benchmark suite for distributed stream processing systems. 2017.
 
 [Full dissertation](https://www.lume.ufrgs.br/handle/10183/163441?show=full)
